@@ -111,6 +111,10 @@ jQuery(document).ready(function($) {
             
             if (!gender) return;
             
+            // Reset the size selector when gender changes
+            const $sizeSelect = $('#size-' + itemId);
+            resetSizeSelector($sizeSelect, gender);
+            
             // Get the category container
             const $categoryContainer = $('#category-select-container-' + itemId);
             $categoryContainer.empty();
@@ -141,6 +145,7 @@ jQuery(document).ready(function($) {
                     if (!categoryKey) return;
                     
                     handleCategorySelection(gender, categoryKey, itemId);
+                    updateSizeOptions(gender, categoryKey, null, itemId);
                 });
             } else {
                 $categoryContainer.html('<p class="error">No categories found for ' + gender + '</p>');
@@ -176,6 +181,14 @@ jQuery(document).ready(function($) {
         
         // Add to container
         $categoryContainer.append($('<div class="form-group subcategory-select"></div>').append($subcategorySelect));
+        
+        // Set up event handler for subcategory changes
+        $subcategorySelect.on('change', function() {
+            const subcategoryKey = $(this).val();
+            if (!subcategoryKey) return;
+            
+            updateSizeOptions(gender, categoryKey, subcategoryKey, itemId);
+        });
     }
     
     // Handle category selection - Original approach
@@ -228,7 +241,15 @@ jQuery(document).ready(function($) {
         // Set up event handler for subcategory changes
         $subcategorySelect.on('change', function() {
             handleSubcategorySelection($(this), itemIndex);
+            
+            // Update size options when subcategory changes
+            const gender = categoryKey; // In this approach, categoryKey is the gender
+            const category = $subcategorySelect.val(); // Subcategory is actually the category
+            updateSizeOptions(gender, category, null, itemIndex);
         });
+        
+        // Update size options when main category changes (gender level)
+        updateSizeOptions(categoryKey, null, null, itemIndex);
     });
     
     // Handle subcategory selection
@@ -270,6 +291,83 @@ jQuery(document).ready(function($) {
         }
     }
     
+    // Size selector functions
+    
+    // Reset the size selector to defaults
+    function resetSizeSelector($sizeSelect, gender) {
+        if (!$sizeSelect.length) return;
+        
+        $sizeSelect.empty();
+        $sizeSelect.append('<option value="">Select Size</option>');
+        
+        // Add default sizes for the gender
+        if (gender && pcfFormOptions.sizes && pcfFormOptions.sizes[gender] && pcfFormOptions.sizes[gender].default) {
+            const sizes = pcfFormOptions.sizes[gender].default;
+            $.each(sizes, function(i, size) {
+                $sizeSelect.append('<option value="' + size + '">' + size + '</option>');
+            });
+        } else if (pcfFormOptions.sizes && pcfFormOptions.sizes.default) {
+            // Use general defaults if no gender-specific defaults
+            const sizes = pcfFormOptions.sizes.default;
+            $.each(sizes, function(i, size) {
+                $sizeSelect.append('<option value="' + size + '">' + size + '</option>');
+            });
+        }
+    }
+    
+    // Update size options based on selected gender/category/subcategory
+    function updateSizeOptions(gender, category, subcategory, itemId) {
+        console.log('Updating sizes for:', gender, category, subcategory);
+        
+        // Get the size select element
+        const $sizeSelect = $('#size-' + itemId);
+        if (!$sizeSelect.length) {
+            console.log('Size select not found for item', itemId);
+            return;
+        }
+        
+        // Reset the size selector
+        $sizeSelect.empty();
+        $sizeSelect.append('<option value="">Select Size</option>');
+        
+        // Determine which size array to use based on selections
+        let sizes = [];
+        
+        if (pcfFormOptions.sizes) {
+            // Try to find the most specific size array
+            if (gender && category && subcategory && 
+                pcfFormOptions.sizes[gender] && 
+                pcfFormOptions.sizes[gender][category] && 
+                pcfFormOptions.sizes[gender][category][subcategory]) {
+                sizes = pcfFormOptions.sizes[gender][category][subcategory];
+            }
+            // Try category level
+            else if (gender && category && 
+                    pcfFormOptions.sizes[gender] && 
+                    pcfFormOptions.sizes[gender][category]) {
+                sizes = pcfFormOptions.sizes[gender][category];
+            }
+            // Try gender level defaults
+            else if (gender && pcfFormOptions.sizes[gender] && pcfFormOptions.sizes[gender].default) {
+                sizes = pcfFormOptions.sizes[gender].default;
+            }
+            // Use general defaults
+            else {
+                sizes = pcfFormOptions.sizes.default;
+            }
+        } else {
+            // If no size data in pcfFormOptions, use hardcoded defaults
+            sizes = ['One Size', 'XS', 'S', 'M', 'L', 'XL', 'XXL'];
+        }
+        
+        // Add size options
+        $.each(sizes, function(i, size) {
+            $sizeSelect.append('<option value="' + size + '">' + size + '</option>');
+        });
+        
+        console.log('Size options updated with', sizes.length, 'options');
+    }
+    
     // Restore previous selections if form has saved data
     function restoreCategorySelections() {
         if (typeof(Storage) !== "undefined" && localStorage.getItem("clothingFormData")) {
@@ -300,6 +398,15 @@ jQuery(document).ready(function($) {
     
     // Initialize categories once the DOM is ready
     initializeCategories();
+    
+    // Initialize all size selectors with default sizes
+    $('.gender-select').each(function() {
+        const $select = $(this);
+        const itemId = $select.attr('id').replace('gender-', '');
+        const $sizeSelect = $('#size-' + itemId);
+        
+        resetSizeSelector($sizeSelect, null);
+    });
     
     // Add a global test function for admin debugging
     window.testCategoriesData = function() {
@@ -332,7 +439,34 @@ jQuery(document).ready(function($) {
             $('.debug-info').append(output);
         }
         
-        return typeof pcfFormOptions !== 'undefined' && typeof pcfFormOptions.categories !== 'undefined';
+        // Also test sizes data
+        console.log('Sizes data available:', typeof pcfFormOptions !== 'undefined' && typeof pcfFormOptions.sizes !== 'undefined');
+        if (typeof pcfFormOptions !== 'undefined' && typeof pcfFormOptions.sizes !== 'undefined') {
+            console.log('Sizes data:', pcfFormOptions.sizes);
+        }
+        
+        // Also output to page for admin users
+        if ($('.debug-info').length) {
+            let output = '<div style="background:#f0f0f0;padding:10px;margin:10px 0;font-family:monospace;">';
+            // ...existing code...
+            
+            if (typeof pcfFormOptions !== 'undefined' && typeof pcfFormOptions.sizes !== 'undefined') {
+                output += '<p>Sizes data available: Yes</p>';
+                
+                // Check size selectors
+                output += '<p>Size selects found: ' + $('select[id^="size-"]').length + '</p>';
+                output += '<p>Size selects with options: ' + $('select[id^="size-"] option').length + '</p>';
+            } else {
+                output += '<p style="color:red">Sizes data missing!</p>';
+            }
+            
+            output += '</div>';
+            $('.debug-info').append(output);
+        }
+        
+        return typeof pcfFormOptions !== 'undefined' && 
+               typeof pcfFormOptions.categories !== 'undefined' &&
+               typeof pcfFormOptions.sizes !== 'undefined';
     };
     
     // Run the test automatically

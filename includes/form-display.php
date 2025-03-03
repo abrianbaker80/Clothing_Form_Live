@@ -4,8 +4,9 @@ if (!defined('ABSPATH')) {
 }
 
 // Load the clothing categories data
-global $clothing_categories_hierarchical;
+global $clothing_categories_hierarchical, $clothing_sizes;
 $clothing_categories_file = dirname(__FILE__) . '/clothing-categories.php';
+$clothing_sizes_file = dirname(__FILE__) . '/clothing-sizes.php';
 
 // More detailed error checking and debugging for categories file
 if (file_exists($clothing_categories_file)) {
@@ -48,6 +49,22 @@ if (file_exists($clothing_categories_file)) {
                 'bottoms' => ['name' => 'Bottoms']
             ]
         ]
+    ];
+}
+
+// Load sizes data
+if (file_exists($clothing_sizes_file)) {
+    $clothing_sizes = include($clothing_sizes_file);
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('Clothing sizes file loaded successfully');
+    }
+} else {
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('Clothing sizes file not found at: ' . $clothing_sizes_file);
+    }
+    // Create a basic fallback sizes array
+    $clothing_sizes = [
+        'default' => ['One Size', 'XS', 'S', 'M', 'L', 'XL', 'XXL']
     ];
 }
 
@@ -163,12 +180,14 @@ function preowned_clothing_display_form($atts = []) {
     }
     
     // Create and render the form
-    global $clothing_categories_hierarchical;
+    global $clothing_categories_hierarchical, $clothing_sizes;
     $options['categories'] = $clothing_categories_hierarchical; // Add categories to options
+    $options['sizes'] = $clothing_sizes;
     
     // Debug - print categories data if admin
     if (current_user_can('manage_options') && defined('WP_DEBUG') && WP_DEBUG) {
         echo '<script>console.log("Categories data being passed to renderer:", ' . json_encode($clothing_categories_hierarchical) . ');</script>';
+        echo '<script>console.log("Sizes data being passed to renderer:", ' . json_encode($clothing_sizes) . ');</script>';
     }
     
     $renderer = new PCF_Form_Renderer($options);
@@ -222,8 +241,8 @@ function preowned_clothing_enqueue_form_assets() {
         plugin_dir_url(dirname(__FILE__)) . 'assets/js/category-handler.js',
         ['jquery'], time(), true);
     
-    // Get the clothing categories for JavaScript
-    global $clothing_categories_hierarchical;
+    // Get the clothing categories and sizes for JavaScript
+    global $clothing_categories_hierarchical, $clothing_sizes;
     
     // Localize script with form options and ajax URL
     wp_localize_script('preowned-clothing-category-handler', 'pcfFormOptions', [
@@ -231,7 +250,8 @@ function preowned_clothing_enqueue_form_assets() {
         'nonce' => wp_create_nonce('preowned_clothing_ajax_nonce'),
         'plugin_url' => plugin_dir_url(dirname(__FILE__)),
         'debug' => true,
-        'categories' => $clothing_categories_hierarchical // Add categories data for JS
+        'categories' => $clothing_categories_hierarchical,
+        'sizes' => $clothing_sizes
     ]);
 }
 add_action('wp_enqueue_scripts', 'preowned_clothing_enqueue_form_assets');

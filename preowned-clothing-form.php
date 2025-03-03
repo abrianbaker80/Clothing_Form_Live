@@ -3,7 +3,7 @@
  * Plugin Name: Preowned Clothing Form
  * Plugin URI:  https://github.com/abrianbaker80/Clothing_Form
  * Description: A plugin to create a form for submitting pre-owned clothing items.
- * Version:     2.5.6 Live
+ * Version:     2.5.7 Live
  * Author:      Allen Baker
  * Author URI:  Your Website/Author URL
  * License:     GPL2
@@ -22,7 +22,7 @@ if (!function_exists('plugin_dir_url')) {
     require_once(ABSPATH . 'wp-includes/plugin.php');
 }
 // Define plugin constants
-define('PCF_VERSION', '2.5.3'); // Updated to match plugin header version
+define('PCF_VERSION', '2.5.7'); // Updated version
 define('PCF_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PCF_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -221,7 +221,7 @@ require_once plugin_dir_path(__FILE__) . 'includes/database-setup.php';
 
 // Include other plugin files
 require_once plugin_dir_path(__FILE__) . 'includes/clothing-categories.php';
-// Fix path to form-display.php - it's not in the form/ subfolder
+require_once plugin_dir_path(__FILE__) . 'includes/clothing-sizes.php'; // Add clothing sizes
 require_once plugin_dir_path(__FILE__) . 'includes/form-display.php';
 require_once plugin_dir_path(__FILE__) . 'includes/form-submission-handler.php';
 require_once plugin_dir_path(__FILE__) . 'includes/email-notifications.php';
