@@ -1,212 +1,173 @@
 <?php
 /**
- * Clothing categories structured hierarchically
+ * Clothing categories data structure
  */
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly.
+}
+
 return [
-    'gender' => [
-        'male' => [
-            'label' => 'Men',
-            'categories' => [
-                'tops' => [
-                    'label' => 'Tops',
-                    'subcategories' => [
-                        'tshirts' => [
-                            'label' => 'T-Shirts',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ],
-                        'shirts' => [
-                            'label' => 'Shirts',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ],
-                        'sweaters' => [
-                            'label' => 'Sweaters',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ],
-                        'hoodies' => [
-                            'label' => 'Hoodies',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ]
-                    ]
-                ],
-                'bottoms' => [
-                    'label' => 'Bottoms',
-                    'subcategories' => [
-                        'jeans' => [
-                            'label' => 'Jeans',
-                            'sizes' => ['28', '30', '32', '34', '36', '38', '40', '42', '44']
-                        ],
-                        'dress_pants' => [
-                            'label' => 'Dress Pants',
-                            'sizes' => ['28', '30', '32', '34', '36', '38', '40', '42', '44']
-                        ],
-                        'shorts' => [
-                            'label' => 'Shorts',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ],
-                        'sweatpants' => [
-                            'label' => 'Sweatpants',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ]
-                    ]
-                ],
-                'outerwear' => [
-                    'label' => 'Outerwear',
-                    'subcategories' => [
-                        'jackets' => [
-                            'label' => 'Jackets',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ],
-                        'coats' => [
-                            'label' => 'Coats',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ]
-                    ]
-                ],
-                'footwear' => [
-                    'label' => 'Footwear',
-                    'subcategories' => [
-                        'sneakers' => [
-                            'label' => 'Sneakers',
-                            'sizes' => ['7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12', '13']
-                        ],
-                        'formal' => [
-                            'label' => 'Formal Shoes',
-                            'sizes' => ['7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12', '13']
-                        ],
-                        'boots' => [
-                            'label' => 'Boots',
-                            'sizes' => ['7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12', '13']
-                        ]
-                    ]
+    'womens' => [
+        'name' => 'Women\'s',
+        'subcategories' => [
+            'tops' => [
+                'name' => 'Tops',
+                'subcategories' => [
+                    'blouses' => ['name' => 'Blouses'],
+                    't_shirts' => ['name' => 'T-Shirts'],
+                    'sweaters' => ['name' => 'Sweaters'],
+                    'tanks' => ['name' => 'Tank Tops'],
+                    'button_up' => ['name' => 'Button-Up Shirts']
+                ]
+            ],
+            'bottoms' => [
+                'name' => 'Bottoms',
+                'subcategories' => [
+                    'pants' => ['name' => 'Pants'],
+                    'jeans' => ['name' => 'Jeans'],
+                    'skirts' => ['name' => 'Skirts'],
+                    'shorts' => ['name' => 'Shorts']
+                ]
+            ],
+            'dresses' => [
+                'name' => 'Dresses',
+                'subcategories' => [
+                    'casual' => ['name' => 'Casual'],
+                    'formal' => ['name' => 'Formal'],
+                    'maxi' => ['name' => 'Maxi'],
+                    'mini' => ['name' => 'Mini']
+                ]
+            ],
+            'outerwear' => [
+                'name' => 'Outerwear',
+                'subcategories' => [
+                    'jackets' => ['name' => 'Jackets'],
+                    'coats' => ['name' => 'Coats'],
+                    'blazers' => ['name' => 'Blazers']
+                ]
+            ],
+            'activewear' => [
+                'name' => 'Activewear',
+                'subcategories' => [
+                    'leggings' => ['name' => 'Leggings'],
+                    'sports_bras' => ['name' => 'Sports Bras'],
+                    'athletic_tops' => ['name' => 'Athletic Tops'],
+                    'athletic_shorts' => ['name' => 'Athletic Shorts']
+                ]
+            ],
+            'swimwear' => [
+                'name' => 'Swimwear',
+                'subcategories' => [
+                    'one_piece' => ['name' => 'One Piece'],
+                    'bikini' => ['name' => 'Bikini'],
+                    'coverups' => ['name' => 'Cover-Ups']
+                ]
+            ],
+            'shoes' => [
+                'name' => 'Shoes',
+                'subcategories' => [
+                    'sneakers' => ['name' => 'Sneakers'],
+                    'heels' => ['name' => 'Heels'],
+                    'sandals' => ['name' => 'Sandals'],
+                    'boots' => ['name' => 'Boots'],
+                    'flats' => ['name' => 'Flats']
+                ]
+            ],
+            'accessories' => [
+                'name' => 'Accessories',
+                'subcategories' => [
+                    'jewelry' => ['name' => 'Jewelry'],
+                    'bags' => ['name' => 'Bags'],
+                    'scarves' => ['name' => 'Scarves'],
+                    'hats' => ['name' => 'Hats']
                 ]
             ]
-        ],
-        'female' => [
-            'label' => 'Women',
-            'categories' => [
-                'tops' => [
-                    'label' => 'Tops',
-                    'subcategories' => [
-                        'blouses' => [
-                            'label' => 'Blouses',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ],
-                        'tshirts' => [
-                            'label' => 'T-Shirts',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ],
-                        'sweaters' => [
-                            'label' => 'Sweaters',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ]
-                    ]
-                ],
-                'bottoms' => [
-                    'label' => 'Bottoms',
-                    'subcategories' => [
-                        'jeans' => [
-                            'label' => 'Jeans',
-                            'sizes' => ['00', '0', '2', '4', '6', '8', '10', '12', '14', '16', '18', '20']
-                        ],
-                        'dress_pants' => [
-                            'label' => 'Dress Pants',
-                            'sizes' => ['00', '0', '2', '4', '6', '8', '10', '12', '14', '16', '18', '20']
-                        ],
-                        'shorts' => [
-                            'label' => 'Shorts',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ],
-                        'skirts' => [
-                            'label' => 'Skirts',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ],
-                        'leggings' => [
-                            'label' => 'Leggings',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ]
-                    ]
-                ],
-                'dresses' => [
-                    'label' => 'Dresses',
-                    'subcategories' => [
-                        'casual' => [
-                            'label' => 'Casual',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ],
-                        'formal' => [
-                            'label' => 'Formal',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ],
-                        'maxi' => [
-                            'label' => 'Maxi Dresses',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ]
-                    ]
-                ],
-                'outerwear' => [
-                    'label' => 'Outerwear',
-                    'subcategories' => [
-                        'jackets' => [
-                            'label' => 'Jackets',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ],
-                        'coats' => [
-                            'label' => 'Coats',
-                            'sizes' => ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-                        ]
-                    ]
-                ],
-                'footwear' => [
-                    'label' => 'Footwear',
-                    'subcategories' => [
-                        'heels' => [
-                            'label' => 'Heels',
-                            'sizes' => ['5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10']
-                        ],
-                        'flats' => [
-                            'label' => 'Flats',
-                            'sizes' => ['5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10']
-                        ],
-                        'sneakers' => [
-                            'label' => 'Sneakers',
-                            'sizes' => ['5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10']
-                        ],
-                        'boots' => [
-                            'label' => 'Boots',
-                            'sizes' => ['5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10']
-                        ]
-                    ]
+        ]
+    ],
+    'mens' => [
+        'name' => 'Men\'s',
+        'subcategories' => [
+            'tops' => [
+                'name' => 'Tops',
+                'subcategories' => [
+                    't_shirts' => ['name' => 'T-Shirts'],
+                    'polos' => ['name' => 'Polos'],
+                    'button_up' => ['name' => 'Button-Up Shirts'],
+                    'sweaters' => ['name' => 'Sweaters']
+                ]
+            ],
+            'bottoms' => [
+                'name' => 'Bottoms',
+                'subcategories' => [
+                    'pants' => ['name' => 'Pants'],
+                    'jeans' => ['name' => 'Jeans'],
+                    'shorts' => ['name' => 'Shorts']
+                ]
+            ],
+            'outerwear' => [
+                'name' => 'Outerwear',
+                'subcategories' => [
+                    'jackets' => ['name' => 'Jackets'],
+                    'coats' => ['name' => 'Coats'],
+                    'blazers' => ['name' => 'Blazers']
+                ]
+            ],
+            'activewear' => [
+                'name' => 'Activewear',
+                'subcategories' => [
+                    'athletic_tops' => ['name' => 'Athletic Tops'],
+                    'athletic_shorts' => ['name' => 'Athletic Shorts'],
+                    'sweatpants' => ['name' => 'Sweatpants']
+                ]
+            ],
+            'shoes' => [
+                'name' => 'Shoes',
+                'subcategories' => [
+                    'sneakers' => ['name' => 'Sneakers'],
+                    'dress_shoes' => ['name' => 'Dress Shoes'],
+                    'boots' => ['name' => 'Boots'],
+                    'sandals' => ['name' => 'Sandals']
+                ]
+            ],
+            'accessories' => [
+                'name' => 'Accessories',
+                'subcategories' => [
+                    'ties' => ['name' => 'Ties'],
+                    'watches' => ['name' => 'Watches'],
+                    'belts' => ['name' => 'Belts'],
+                    'hats' => ['name' => 'Hats']
                 ]
             ]
-        ],
-        'kids' => [
-            'label' => 'Kids',
-            'categories' => [
-                'tops' => [
-                    'label' => 'Tops',
-                    'subcategories' => [
-                        'tshirts' => [
-                            'label' => 'T-Shirts',
-                            'sizes' => ['2T', '3T', '4T', '5', '6', '7', '8', '10', '12', '14', '16']
-                        ],
-                        'sweaters' => [
-                            'label' => 'Sweaters',
-                            'sizes' => ['2T', '3T', '4T', '5', '6', '7', '8', '10', '12', '14', '16']
-                        ]
-                    ]
-                ],
-                'bottoms' => [
-                    'label' => 'Bottoms',
-                    'subcategories' => [
-                        'jeans' => [
-                            'label' => 'Jeans',
-                            'sizes' => ['2T', '3T', '4T', '5', '6', '7', '8', '10', '12', '14', '16']
-                        ],
-                        'shorts' => [
-                            'label' => 'Shorts',
-                            'sizes' => ['2T', '3T', '4T', '5', '6', '7', '8', '10', '12', '14', '16']
-                        ]
-                    ]
+        ]
+    ],
+    'kids' => [
+        'name' => 'Kids',
+        'subcategories' => [
+            'girls' => [
+                'name' => 'Girls',
+                'subcategories' => [
+                    'tops' => ['name' => 'Tops'],
+                    'bottoms' => ['name' => 'Bottoms'],
+                    'dresses' => ['name' => 'Dresses'],
+                    'outerwear' => ['name' => 'Outerwear'],
+                    'shoes' => ['name' => 'Shoes']
+                ]
+            ],
+            'boys' => [
+                'name' => 'Boys',
+                'subcategories' => [
+                    'tops' => ['name' => 'Tops'],
+                    'bottoms' => ['name' => 'Bottoms'],
+                    'outerwear' => ['name' => 'Outerwear'],
+                    'shoes' => ['name' => 'Shoes']
+                ]
+            ],
+            'baby' => [
+                'name' => 'Baby',
+                'subcategories' => [
+                    'onesies' => ['name' => 'Onesies'],
+                    'outfits' => ['name' => 'Outfits'],
+                    'sleepwear' => ['name' => 'Sleepwear']
                 ]
             ]
         ]

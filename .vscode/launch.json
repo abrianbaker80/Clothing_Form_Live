@@ -7,7 +7,7 @@
             "request": "launch",
             "port": 9003, // Ensure this matches your Laragon Xdebug port
             "pathMappings": {
-                "/Clothing_Form-2.5.0": "${workspaceFolder}"
+                "/Clothing_Form_Live-2.5.5": "${workspaceFolder}"
             }
         },
         {

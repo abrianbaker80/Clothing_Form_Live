@@ -1,80 +1,111 @@
 /**
- * Form Diagnostic Script
- * Helps identify issues with the clothing form
+ * Diagnostic script to help troubleshoot categories and form issues
  */
-(function() {
-    'use strict';
+jQuery(document).ready(function($) {
+    console.log('PCF Diagnostic script loaded');
     
-    // Wait for DOM to be ready
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('PCF Diagnostic: DOM ready, checking form elements...');
+    // Function to add a debug panel for admins
+    function addDebugPanel() {
+        // Only add for admin users
+        if (!$('.debug-info').length) return;
         
-        // Check if form exists
-        const form = document.getElementById('clothing-form');
-        if (form) {
-            console.log('PCF Diagnostic: Found clothing form', form);
+        const $debugPanel = $('<div id="pcf-debug-panel" style="position:fixed;bottom:0;right:0;background:#fff;border:1px solid #ccc;padding:10px;z-index:9999;max-width:400px;max-height:50vh;overflow:auto;box-shadow:0 0 10px rgba(0,0,0,0.2);"></div>');
+        
+        $debugPanel.html(`
+            <h4>PCF Debug Panel</h4>
+            <button id="pcf-test-categories" class="button">Test Categories</button>
+            <button id="pcf-check-form-renderer" class="button">Check Form Renderer</button>
+            <button id="pcf-force-refresh" class="button">Force Refresh</button>
+            <div id="pcf-debug-output" style="margin-top:10px;padding:10px;background:#f5f5f5;font-family:monospace;font-size:12px;"></div>
+        `);
+        
+        $('body').append($debugPanel);
+        
+        // Test categories button
+        $('#pcf-test-categories').on('click', function() {
+            $('#pcf-debug-output').html('Testing categories...');
             
-            // Check wizard steps
-            const wizardSteps = document.querySelectorAll('.wizard-step');
-            console.log(`PCF Diagnostic: Found ${wizardSteps.length} wizard steps`);
-            
-            // Check if the first step has the required fields
-            const nameField = document.getElementById('name');
-            const emailField = document.getElementById('email');
-            const phoneField = document.getElementById('phone');
-            const addressField = document.getElementById('address');
-            
-            if (nameField && emailField && phoneField && addressField) {
-                console.log('PCF Diagnostic: Contact info fields found');
-            } else {
-                console.error('PCF Diagnostic: Missing contact info fields', {
-                    name: !!nameField,
-                    email: !!emailField,
-                    phone: !!phoneField,
-                    address: !!addressField
-                });
-            }
-            
-            // Check if gender select exists
-            const genderSelect = document.getElementById('gender-1');
-            if (genderSelect) {
-                console.log('PCF Diagnostic: Gender select found');
-            } else {
-                console.error('PCF Diagnostic: Gender select not found');
-            }
-            
-            // Check category container
-            const categoryContainer = document.getElementById('category-select-container-1');
-            if (categoryContainer) {
-                console.log('PCF Diagnostic: Category container found');
-            } else {
-                console.error('PCF Diagnostic: Category container not found');
-            }
-            
-            // Check for image upload boxes
-            const imageBoxes = document.querySelectorAll('.image-upload-box');
-            console.log(`PCF Diagnostic: Found ${imageBoxes.length} image upload boxes`);
-            
-            // See if the form scripts are loaded
-            if (typeof jQuery !== 'undefined') {
-                console.log('PCF Diagnostic: jQuery is loaded');
-                
-                // Check if our scripts are loaded
-                if (window.pcfImageUpload) {
-                    console.log('PCF Diagnostic: Image upload script is loaded');
-                } else {
-                    console.error('PCF Diagnostic: Image upload script is NOT loaded');
+            // Make AJAX request to debug categories
+            $.ajax({
+                url: pcfFormOptions.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'pcf_debug_categories',
+                    nonce: pcfFormOptions.nonce
+                },
+                success: function(response) {
+                    let output = '<h5>Categories Debug Result:</h5>';
+                    output += '<p>Categories loaded: ' + (response.categories_loaded ? 'Yes' : 'No') + '</p>';
+                    output += '<p>Categories count: ' + response.categories_count + '</p>';
+                    output += '<p>Categories file: ' + response.categories_file_path + '</p>';
+                    output += '<p>File exists: ' + (response.file_exists ? 'Yes' : 'No') + '</p>';
+                    
+                    if (response.categories_count > 0) {
+                        output += '<p>Available categories:</p><ul>';
+                        for (let key in response.categories) {
+                            output += '<li>' + key + ': ' + response.categories[key].name + '</li>';
+                        }
+                        output += '</ul>';
+                    }
+                    
+                    $('#pcf-debug-output').html(output);
+                },
+                error: function(xhr, status, error) {
+                    $('#pcf-debug-output').html('<p style="color:red">Error: ' + error + '</p>');
                 }
+            });
+        });
+        
+        // Check form renderer
+        $('#pcf-check-form-renderer').on('click', function() {
+            $('#pcf-debug-output').html('Checking form renderer...');
+            
+            let output = '<h5>Form Renderer Check:</h5>';
+            // Check if categories exist in JavaScript
+            output += '<p>pcfFormOptions exists: ' + (typeof pcfFormOptions !== 'undefined' ? 'Yes' : 'No') + '</p>';
+            
+            if (typeof pcfFormOptions !== 'undefined') {
+                output += '<p>Categories in pcfFormOptions: ' + (typeof pcfFormOptions.categories !== 'undefined' ? 'Yes' : 'No') + '</p>';
                 
-                if (window.pcfFormOptions) {
-                    console.log('PCF Diagnostic: Form options are loaded', window.pcfFormOptions);
-                } else {
-                    console.error('PCF Diagnostic: Form options are NOT loaded');
+                if (typeof pcfFormOptions.categories !== 'undefined') {
+                    const categoryCount = Object.keys(pcfFormOptions.categories || {}).length;
+                    output += '<p>Category count: ' + categoryCount + '</p>';
+                    
+                    if (categoryCount > 0) {
+                        output += '<p>First category: ' + Object.keys(pcfFormOptions.categories)[0] + '</p>';
+                    }
                 }
             }
             
-        } else {
-            console.error('PCF Diagnostic: Clothing form NOT found');
+            // Check if form renderer elements exist in the DOM
+            output += '<p>Category form elements found: ' + ($('.category-selection-container').length > 0 ? 'Yes' : 'No') + '</p>';
+            output += '<p>Main category selects found: ' + ($('.main-category').length > 0 ? 'Yes' : 'No') + '</p>';
+            output += '<p>Subcategory containers found: ' + ($('.subcategory-container').length > 0 ? 'Yes' : 'No') + '</p>';
+            
+            $('#pcf-debug-output').html(output);
+        });
+        
+        // Force refresh button
+        $('#pcf-force-refresh').on('click', function() {
+            $('#pcf-debug-output').html('Forcing refresh...');
+            
+            // This will reload the page while bypassing the cache
+            window.location.href = window.location.href + (window.location.href.indexOf('?') > -1 ? '&' : '?') + 'nocache=' + new Date().getTime();
+        });
+    }
+    
+    // Only run for admin users who can see the debug info
+    if ($('.debug-info').length) {
+        addDebugPanel();
+    }
+    
+    // Check for any DOM changes that might add debug-info later
+    const observer = new MutationObserver(function(mutations) {
+        if ($('.debug-info').length && !$('#pcf-debug-panel').length) {
+            addDebugPanel();
         }
     });
-})();
+    
+    // Start observing the document body for changes
+    observer.observe(document.body, { childList: true, subtree: true });
+});

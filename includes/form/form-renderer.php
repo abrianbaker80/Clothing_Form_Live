@@ -27,6 +27,11 @@ class PCF_Form_Renderer {
             'max_image_size' => 2,
             'required_images' => ['front', 'back', 'brand_tag'],
         ]);
+        
+        // Debug - log the options to verify categories are passed
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('Form Renderer Options: ' . print_r($this->options, true));
+        }
     }
     
     /**

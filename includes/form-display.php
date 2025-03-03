@@ -5,7 +5,51 @@ if (!defined('ABSPATH')) {
 
 // Load the clothing categories data
 global $clothing_categories_hierarchical;
-$clothing_categories_hierarchical = include(dirname(__FILE__) . '/clothing-categories.php');
+$clothing_categories_file = dirname(__FILE__) . '/clothing-categories.php';
+
+// More detailed error checking and debugging for categories file
+if (file_exists($clothing_categories_file)) {
+    $clothing_categories_hierarchical = include($clothing_categories_file);
+    // Debug log if categories file loaded
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('Clothing categories file found at: ' . $clothing_categories_file);
+        if (empty($clothing_categories_hierarchical)) {
+            error_log('WARNING: Clothing categories file loaded but returned empty array');
+        } else {
+            error_log('Categories loaded successfully with ' . count($clothing_categories_hierarchical) . ' main categories');
+        }
+    }
+} else {
+    // Debug log if categories file not found
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('ERROR: Clothing categories file not found at: ' . $clothing_categories_file);
+        // Try to help diagnose the issue by checking directory permissions
+        if (is_dir(dirname(__FILE__))) {
+            error_log('Parent directory exists. Checking contents:');
+            $files = scandir(dirname(__FILE__));
+            error_log('Directory contents: ' . implode(', ', $files));
+        }
+    }
+    
+    // Create a fallback categories array to prevent errors
+    $clothing_categories_hierarchical = [
+        'womens' => [
+            'name' => 'Women\'s',
+            'subcategories' => [
+                'tops' => ['name' => 'Tops'],
+                'bottoms' => ['name' => 'Bottoms'],
+                'dresses' => ['name' => 'Dresses']
+            ]
+        ],
+        'mens' => [
+            'name' => 'Men\'s',
+            'subcategories' => [
+                'tops' => ['name' => 'Tops'],
+                'bottoms' => ['name' => 'Bottoms']
+            ]
+        ]
+    ];
+}
 
 // Check for form submission status with enhanced debug info
 if (isset($_SESSION['submission_status'])) {
@@ -52,6 +96,27 @@ if (isset($_SESSION['submission_status'])) {
 function preowned_clothing_display_form($atts = []) {
     // Initialize the HTML output buffer
     ob_start();
+    
+    // Debug information for admins
+    if (current_user_can('manage_options') && defined('WP_DEBUG') && WP_DEBUG) {
+        echo '<div class="debug-info" style="background: #f8f8f8; padding: 10px; border: 1px solid #ddd; margin-bottom: 20px;">';
+        echo '<h4>Debug Information (Only visible to admins)</h4>';
+        
+        global $clothing_categories_hierarchical;
+        echo '<p>Categories loaded: ' . (is_array($clothing_categories_hierarchical) ? count($clothing_categories_hierarchical) : 'No') . '</p>';
+        
+        if (!is_array($clothing_categories_hierarchical) || empty($clothing_categories_hierarchical)) {
+            echo '<p style="color: red;">Warning: No categories found!</p>';
+            
+            // Check if the file exists
+            $categories_file = plugin_dir_path(__FILE__) . 'clothing-categories.php';
+            echo '<p>Looking for categories file at: ' . esc_html($categories_file) . '</p>';
+            echo '<p>File exists: ' . (file_exists($categories_file) ? 'Yes' : 'No') . '</p>';
+        }
+        
+        echo '<button type="button" onclick="window.testCategoriesData()">Test Categories Data</button>';
+        echo '</div>';
+    }
     
     // Include the form-renderer class
     require_once plugin_dir_path(__FILE__) . 'form/form-renderer.php';
@@ -100,6 +165,12 @@ function preowned_clothing_display_form($atts = []) {
     // Create and render the form
     global $clothing_categories_hierarchical;
     $options['categories'] = $clothing_categories_hierarchical; // Add categories to options
+    
+    // Debug - print categories data if admin
+    if (current_user_can('manage_options') && defined('WP_DEBUG') && WP_DEBUG) {
+        echo '<script>console.log("Categories data being passed to renderer:", ' . json_encode($clothing_categories_hierarchical) . ');</script>';
+    }
+    
     $renderer = new PCF_Form_Renderer($options);
     echo $renderer->render();
     
@@ -164,3 +235,23 @@ function preowned_clothing_enqueue_form_assets() {
     ]);
 }
 add_action('wp_enqueue_scripts', 'preowned_clothing_enqueue_form_assets');
+
+// Add a diagnostic AJAX action to help debug category issues
+function pcf_debug_categories_ajax() {
+    check_ajax_referer('preowned_clothing_ajax_nonce', 'nonce');
+    
+    global $clothing_categories_hierarchical;
+    
+    $response = array(
+        'success' => true,
+        'categories_loaded' => !empty($clothing_categories_hierarchical),
+        'categories_count' => is_array($clothing_categories_hierarchical) ? count($clothing_categories_hierarchical) : 0,
+        'categories' => $clothing_categories_hierarchical,
+        'categories_file_path' => plugin_dir_path(__FILE__) . 'clothing-categories.php',
+        'file_exists' => file_exists(plugin_dir_path(__FILE__) . 'clothing-categories.php'),
+    );
+    
+    wp_send_json($response);
+}
+add_action('wp_ajax_pcf_debug_categories', 'pcf_debug_categories_ajax');
+add_action('wp_ajax_nopriv_pcf_debug_categories', 'pcf_debug_categories_ajax');
