@@ -324,4 +324,50 @@ class PCF_Form_Renderer {
         
         echo '</div>'; // End step
     }
+
+    /**
+     * Renders the category selection fields
+     */
+    private function render_category_fields() {
+        ob_start();
+        ?>
+        <div class="category-selection-container">
+            <h3>Item Details</h3>
+            
+            <div class="form-group">
+                <label for="clothing_gender">Gender</label>
+                <select name="clothing_gender" id="clothing_gender" class="form-control" required>
+                    <option value="" disabled selected>Select Gender</option>
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+            
+            <div class="form-group" id="category_container" style="display:none;">
+                <label for="clothing_category">Category</label>
+                <select name="clothing_category" id="clothing_category" class="form-control" required>
+                    <option value="" disabled selected>Select Category</option>
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+            
+            <div class="form-group" id="subcategory_container" style="display:none;">
+                <label for="clothing_subcategory">Type</label>
+                <select name="clothing_subcategory" id="clothing_subcategory" class="form-control" required>
+                    <option value="" disabled selected>Select Type</option>
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+            
+            <div class="form-group" id="size_container" style="display:none;">
+                <label for="clothing_size">Size</label>
+                <select name="clothing_size" id="clothing_size" class="form-control" required>
+                    <option value="" disabled selected>Select Size</option>
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
 }
+?>
