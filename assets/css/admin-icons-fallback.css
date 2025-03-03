@@ -1,0 +1,113 @@
+/**
+ * Fallback icons for when Font Awesome is unavailable
+ */
+
+/* Basic icon placeholders */
+.icon-fallback {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-right: 0.2em;
+    background: currentColor;
+    -webkit-mask-size: cover;
+    mask-size: cover;
+    vertical-align: -0.125em;
+}
+
+/* Replace with Unicode fallbacks when Font Awesome fails */
+.fa-tshirt:before {
+    content: "👕";
+}
+
+.fa-user-circle:before {
+    content: "👤";
+}
+
+.fa-info-circle:before {
+    content: "ℹ️";
+}
+
+.fa-plus-circle:before {
+    content: "➕";
+}
+
+.fa-paper-plane:before {
+    content: "📨";
+}
+
+.fa-eye:before {
+    content: "👁️";
+}
+
+.fa-trash-alt:before {
+    content: "🗑️";
+}
+
+.fa-file-export:before {
+    content: "📤";
+}
+
+.fa-file-code:before {
+    content: "📝";
+}
+
+.fa-filter:before {
+    content: "🔍";
+}
+
+.fa-search:before {
+    content: "🔎";
+}
+
+.fa-times:before {
+    content: "✖️";
+}
+
+.fa-clock:before {
+    content: "🕒";
+}
+
+.fa-phone-alt:before {
+    content: "📞";
+}
+
+.fa-check-circle:before {
+    content: "✓";
+}
+
+.fa-images:before {
+    content: "🖼️";
+}
+
+.fa-align-left:before {
+    content: "📄";
+}
+
+.fa-tag:before {
+    content: "🏷️";
+}
+
+.fa-cog:before {
+    content: "⚙️";
+}
+
+.fa-envelope:before {
+    content: "✉️";
+}
+
+.fa-check-double:before {
+    content: "✓✓";
+}
+
+.fa-trash:before {
+    content: "🗑️";
+}
+
+.fa-exclamation-triangle:before,
+.fa-exclamation-circle:before {
+    content: "⚠️";
+}
+
+.fa-arrow-left:before {
+    content: "←";
+}

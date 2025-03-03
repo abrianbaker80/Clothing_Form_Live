@@ -1,0 +1,332 @@
+/**
+ * Enhanced Image Upload Interface
+ * - Drag and drop styling
+ * - Preview galleries with thumbnails
+ * - Mobile camera integration
+ */
+
+/* Base upload container - makes the grid layout */
+.image-upload-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-gap: 15px;
+    margin: 15px 0;
+    position: relative;
+}
+
+/* Upload box with enhanced drag-and-drop support */
+.image-upload-box {
+    position: relative;
+    height: 200px;
+    border: 2px dashed var(--pcf-gray-300, #d1d5db);
+    border-radius: 8px;
+    background-color: var(--pcf-gray-50, #f9fafb);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+/* Required upload box styling */
+.image-upload-box.required {
+    border-color: var(--pcf-primary-500, #0073aa);
+}
+
+/* Hover state */
+.image-upload-box:hover {
+    border-color: var(--pcf-primary-500, #0073aa);
+    background: linear-gradient(to bottom, white, var(--pcf-primary-100, #e6f3f8));
+    transform: translateY(-3px);
+    box-shadow: var(--pcf-shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+/* Drag over state */
+.image-upload-box.drag-over {
+    background-color: var(--pcf-primary-100, #e6f3f8);
+    border-color: var(--pcf-primary-500, #0073aa);
+    border-style: solid;
+    transform: scale(1.02);
+    box-shadow: 0 0 0 4px rgba(0, 115, 170, 0.2);
+}
+
+/* File input styling (hidden but accessible) */
+.image-upload-box input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+}
+
+/* Upload placeholder content */
+.image-upload-box .upload-placeholder {
+    padding: 15px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none; /* Allow clicking through to the input */
+}
+
+/* Icon styling */
+.image-upload-box .upload-icon {
+    font-size: 24px;
+    color: var(--pcf-primary-500, #0073aa);
+    margin-bottom: 10px;
+    transition: transform 0.3s ease;
+}
+
+.image-upload-box:hover .upload-icon {
+    transform: scale(1.1);
+}
+
+/* Placeholder icon image */
+.image-upload-box .placeholder-icon {
+    width: 60px;
+    height: 60px;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.image-upload-box:hover .placeholder-icon {
+    opacity: 1;
+}
+
+/* Label styling */
+.image-upload-box .upload-label {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--pcf-gray-700, #4b5563);
+    margin: 5px 0;
+    transition: color 0.3s ease;
+}
+
+.image-upload-box:hover .upload-label {
+    color: var(--pcf-primary-600, #005c88);
+}
+
+/* Hint text */
+.image-upload-box .upload-hint {
+    font-size: 12px;
+    color: var(--pcf-gray-500, #6b7280);
+    line-height: 1.4;
+    max-width: 90%;
+    margin: 0 auto;
+}
+
+/* Drag & drop instruction text */
+.image-upload-box .drop-instructions {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--pcf-primary-500, #0073aa);
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(5px);
+    transition: all 0.3s ease;
+}
+
+.image-upload-box:hover .drop-instructions {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Preview container */
+.image-upload-box .preview-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Preview progress bar */
+.image-upload-box .preview-progress {
+    width: 80%;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 6px;
+    box-shadow: var(--pcf-shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.preview-progress-bar {
+    height: 6px;
+    background: linear-gradient(to right, var(--pcf-primary-400, #4dabd7), var(--pcf-primary-600, #005c88));
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.preview-progress-text {
+    font-size: 12px;
+    text-align: center;
+    margin-top: 8px;
+    color: var(--pcf-gray-700, #374151);
+}
+
+/* Preview image */
+.image-upload-box .preview-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 6px;
+}
+
+/* Preview remove button */
+.image-upload-box .preview-remove {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--pcf-error, #ef4444);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--pcf-shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
+    transition: all 0.2s ease;
+    z-index: 15;
+}
+
+.image-upload-box .preview-remove:hover {
+    background-color: var(--pcf-error, #ef4444);
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Error message styling */
+.image-upload-box .upload-error {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    background-color: rgba(239, 68, 68, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    text-align: center;
+    z-index: 20;
+    animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Camera capture button for mobile */
+.image-upload-box .camera-capture-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(to right bottom, var(--pcf-primary-500, #0073aa), var(--pcf-primary-600, #005c88));
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--pcf-shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+    transition: all 0.2s ease;
+    z-index: 12;
+    opacity: 0;
+    transform: scale(0.8);
+}
+
+.image-upload-box:hover .camera-capture-btn {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.image-upload-box .camera-capture-btn:hover {
+    transform: scale(1.1);
+    box-shadow: var(--pcf-shadow-lg, 0 10px 15px rgba(0, 0, 0, 0.1));
+}
+
+/* Thumbnail gallery for multiple images (for future implementation) */
+.image-thumbnail-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.image-thumbnail {
+    width: 60px;
+    height: 60px;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.image-thumbnail.active {
+    border-color: var(--pcf-primary-500, #0073aa);
+    transform: scale(1.05);
+}
+
+.image-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+    .image-upload-container {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+    
+    .image-upload-box {
+        height: 180px;
+    }
+    
+    .image-upload-box .camera-capture-btn {
+        opacity: 1;
+        transform: scale(1);
+    }
+    
+    .image-upload-box .drop-instructions {
+        display: none; /* Hide on mobile as drag & drop is less relevant */
+    }
+    
+    .image-upload-box .upload-hint {
+        font-size: 11px;
+    }
+    
+    .image-upload-box .placeholder-icon {
+        width: 50px;
+        height: 50px;
+    }
+}

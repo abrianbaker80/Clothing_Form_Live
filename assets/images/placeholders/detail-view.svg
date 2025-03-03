@@ -1,0 +1,15 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <title>Detail View</title>
+  <g>
+    <!-- Magnifying glass -->
+    <circle cx="40" cy="40" r="20" fill="none" stroke="#0073aa" stroke-width="2" />
+    <line x1="55" y1="55" x2="70" y2="70" stroke="#0073aa" stroke-width="4" stroke-linecap="round" />
+    <!-- Detail pattern inside glass -->
+    <path d="M30,35 L35,40 L30,45 L25,40 Z" fill="none" stroke="#0073aa" stroke-width="1" />
+    <path d="M40,35 L45,40 L40,45 L35,40 Z" fill="none" stroke="#0073aa" stroke-width="1" />
+    <path d="M50,35 L55,40 L50,45 L45,40 Z" fill="none" stroke="#0073aa" stroke-width="1" />
+    <path d="M30,45 L35,50 L30,55 L25,50 Z" fill="none" stroke="#0073aa" stroke-width="1" />
+    <path d="M40,45 L45,50 L40,55 L35,50 Z" fill="none" stroke="#0073aa" stroke-width="1" />
+  </g>
+  <text x="50" y="85" font-family="Arial" font-size="10" fill="#0073aa" text-anchor="middle">DETAIL VIEW</text>
+</svg>

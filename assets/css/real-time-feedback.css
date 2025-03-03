@@ -1,0 +1,388 @@
+/**
+ * Real-Time Feedback Styles
+ * 
+ * Styles for:
+ * - Inline validation messages
+ * - Character counters
+ * - Smart autocomplete
+ * - Success/Error visual indicators
+ */
+
+/* Validation message styling */
+.validation-message {
+    font-size: 0.85rem;
+    padding: 0.4rem 0;
+    margin-top: 0.25rem;
+    display: none;
+    animation: validationFadeIn 0.2s ease;
+    line-height: 1.4;
+}
+
+.validation-error {
+    color: var(--pcf-error, #ef4444);
+}
+
+.validation-warning {
+    color: var(--pcf-warning, #f59e0b);
+}
+
+/* Field validation states */
+.error-field {
+    border-color: var(--pcf-error, #ef4444) !important;
+    box-shadow: 0 0 0 1px var(--pcf-error, #ef4444) !important;
+    background-color: rgba(239, 68, 68, 0.02) !important;
+}
+
+.success-field {
+    border-color: var(--pcf-success, #10b981) !important;
+    box-shadow: 0 0 0 1px var(--pcf-success, #10b981) !important;
+    background-color: rgba(16, 185, 129, 0.02) !important;
+}
+
+/* Character counter */
+.character-counter {
+    font-size: 0.85rem;
+    color: var(--pcf-gray-500, #6b7280);
+    text-align: right;
+    margin-top: 0.25rem;
+    transition: color 0.2s ease;
+}
+
+.character-counter .current-count {
+    font-weight: 600;
+}
+
+.character-counter .min-count {
+    font-weight: 600;
+}
+
+/* Character counter states */
+.character-counter.count-error .current-count {
+    color: var(--pcf-error, #ef4444);
+}
+
+.character-counter.count-warning .current-count {
+    color: var(--pcf-warning, #f59e0b);
+}
+
+.character-counter.count-success .current-count {
+    color: var(--pcf-success, #10b981);
+}
+
+.character-counter.count-approaching-max {
+    animation: pulse 2s infinite;
+}
+
+/* Animations */
+@keyframes validationFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes validationShake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    20%, 60% {
+        transform: translateX(-5px);
+    }
+    40%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Icon indicators for validation */
+.validation-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.form-group {
+    position: relative;
+}
+
+.validation-icon.error {
+    color: var(--pcf-error, #ef4444);
+}
+
+.validation-icon.success {
+    color: var(--pcf-success, #10b981);
+}
+
+.validation-icon.warning {
+    color: var(--pcf-warning, #f59e0b);
+}
+
+/* Style for fields with restricted padding due to the icon */
+.has-validation-icon {
+    padding-right: 35px !important;
+}
+
+/* Real-time feedback highlight transitions */
+input, 
+select, 
+textarea {
+    transition: border-color 0.15s ease-in-out,
+                box-shadow 0.15s ease-in-out,
+                background-color 0.15s ease-in-out;
+}
+
+/* Enhanced focus styles */
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none !important;
+}
+
+/* Smart autocomplete styling */
+.autocomplete-suggestions {
+    border: 1px solid var(--pcf-gray-200, #e5e7eb);
+    background: #fff;
+    overflow: auto;
+    box-shadow: var(--pcf-shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+    border-radius: 4px;
+    margin-top: 2px;
+    z-index: 100;
+}
+
+.autocomplete-suggestion {
+    padding: 8px 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.autocomplete-suggestion strong {
+    color: var(--pcf-primary-600, #005c88);
+    font-weight: 600;
+}
+
+.autocomplete-selected {
+    background-color: var(--pcf-primary-100, #e6f3f8);
+}
+
+.autocomplete-suggestion:hover {
+    background-color: var(--pcf-gray-100, #f3f4f6);
+}
+
+.autocomplete-group {
+    padding: 6px 12px;
+    font-weight: bold;
+    font-size: 0.85rem;
+    color: var(--pcf-gray-600, #4b5563);
+    background-color: var(--pcf-gray-100, #f3f4f6);
+    border-bottom: 1px solid var(--pcf-gray-200, #e5e7eb);
+}
+
+/* Field enhancement when being edited */
+.field-active {
+    border-color: var(--pcf-primary-300, #80c3e2) !important;
+    box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.15) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .validation-message {
+        font-size: 0.8rem;
+    }
+    
+    .character-counter {
+        font-size: 0.8rem;
+    }
+}
+
+/* Animated transitions for validation state changes */
+.validation-transition {
+    transition: all 0.3s ease;
+}
+
+.error-shake {
+    animation: validationShake 0.5s ease-in-out;
+}
+
+/* Progress or confidence indicator for description quality */
+.quality-meter {
+    height: 3px;
+    background-color: var(--pcf-gray-200, #e5e7eb);
+    border-radius: 1.5px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+.quality-fill {
+    height: 100%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.quality-low {
+    width: 30%;
+    background-color: var(--pcf-error, #ef4444);
+}
+
+.quality-medium {
+    width: 60%;
+    background-color: var(--pcf-warning, #f59e0b);
+}
+
+.quality-high {
+    width: 100%;
+    background-color: var(--pcf-success, #10b981);
+}
+
+/* Tooltip styles for validation messages */
+.validation-tooltip {
+    position: absolute;
+    bottom: calc(100% + 5px);
+    left: 10px;
+    background-color: var(--pcf-gray-800, #1f2937);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transform: translateY(5px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.validation-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 15px;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--pcf-gray-800, #1f2937) transparent transparent transparent;
+}
+
+.form-group:hover .validation-tooltip.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Support for browsers without CSS variables */
+@supports not (--css-variables: 0) {
+    /* Provide fallbacks for all CSS variable uses */
+    .validation-error {
+        color: #ef4444;
+    }
+    
+    .validation-warning {
+        color: #f59e0b;
+    }
+    
+    .error-field {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 1px #ef4444 !important;
+    }
+    
+    .success-field {
+        border-color: #10b981 !important;
+        box-shadow: 0 0 0 1px #10b981 !important;
+    }
+    
+    .character-counter {
+        color: #6b7280;
+    }
+    
+    .character-counter.count-error .current-count {
+        color: #ef4444;
+    }
+    
+    .character-counter.count-warning .current-count {
+        color: #f59e0b;
+    }
+    
+    .character-counter.count-success .current-count {
+        color: #10b981;
+    }
+    
+    .validation-icon.error {
+        color: #ef4444;
+    }
+    
+    .validation-icon.success {
+        color: #10b981;
+    }
+    
+    .validation-icon.warning {
+        color: #f59e0b;
+    }
+    
+    .autocomplete-suggestions {
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .autocomplete-suggestion strong {
+        color: #005c88;
+    }
+    
+    .autocomplete-selected {
+        background-color: #e6f3f8;
+    }
+    
+    .autocomplete-suggestion:hover {
+        background-color: #f3f4f6;
+    }
+    
+    .autocomplete-group {
+        color: #4b5563;
+        background-color: #f3f4f6;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .field-active {
+        border-color: #80c3e2 !important;
+    }
+    
+    .quality-meter {
+        background-color: #e5e7eb;
+    }
+    
+    .quality-low {
+        background-color: #ef4444;
+    }
+    
+    .quality-medium {
+        background-color: #f59e0b;
+    }
+    
+    .quality-high {
+        background-color: #10b981;
+    }
+    
+    .validation-tooltip {
+        background-color: #1f2937;
+    }
+    
+    .validation-tooltip::after {
+        border-color: #1f2937 transparent transparent transparent;
+    }
+}

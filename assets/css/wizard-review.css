@@ -1,0 +1,180 @@
+/**
+ * Enhanced styling for the review step in the wizard
+ */
+
+/* Review section styling */
+.review-section {
+    background-color: var(--pcf-gray-50, #f9fafb);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--pcf-shadow-sm, 0 1px 2px rgba(0,0,0,0.05));
+    border: 1px solid var(--pcf-gray-200, #e5e7eb);
+}
+
+.review-section h4 {
+    color: var(--pcf-primary-500, #0073aa);
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--pcf-gray-200, #e5e7eb);
+    font-size: 1.1rem;
+}
+
+.review-item {
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+.review-item strong {
+    display: inline-block;
+    min-width: 100px;
+    color: var(--pcf-gray-700, #374151);
+}
+
+.review-item-block {
+    background-color: white;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: var(--pcf-shadow-sm, 0 1px 2px rgba(0,0,0,0.05));
+    border-left: 3px solid var(--pcf-primary-400, #4dabd7);
+    transition: transform 0.2s ease;
+}
+
+.review-item-block:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--pcf-shadow-md, 0 4px 6px rgba(0,0,0,0.1));
+}
+
+.review-item-block h5 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: var(--pcf-primary-600, #005c88);
+    font-size: 1rem;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed var(--pcf-gray-200, #e5e7eb);
+}
+
+.review-item-category {
+    font-weight: normal;
+    color: var(--pcf-primary-500, #0073aa);
+}
+
+.review-item-photos {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    background-color: var(--pcf-primary-100, #e6f3f8);
+    color: var(--pcf-primary-700, #004566);
+    border-radius: 12px;
+    font-size: 0.85rem;
+    margin-left: 5px;
+}
+
+/* Step instruction styling */
+.step-instruction {
+    background: linear-gradient(to right, var(--pcf-primary-100, #e6f3f8), var(--pcf-primary-50, #f0f9ff));
+    border-radius: 6px;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    color: var(--pcf-primary-700, #004566);
+    border-left: 3px solid var(--pcf-primary-500, #0073aa);
+}
+
+/* Error field highlighting */
+.error-field {
+    border: 1px solid #dc3545 !important;
+    box-shadow: 0 0 0 1px #dc3545 !important;
+}
+
+/* Validation message */
+.validation-message {
+    color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.1);
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 15px;
+    border-left: 3px solid #dc3545;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+/* Shake animation for validation errors */
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Upload progress bar styling */
+.upload-progress {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 8px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-track {
+    height: 6px;
+    background-color: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, #0073aa, #4dabd7);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 11px;
+    text-align: center;
+    color: #495057;
+}
+
+/* Image preview styling */
+.image-preview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: cover;
+    background-position: center;
+    border-radius: 6px;
+}
+
+.remove-preview-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    z-index: 5;
+}
+
+.remove-preview-btn:hover {
+    background-color: white;
+    transform: scale(1.1);
+}

@@ -1,0 +1,197 @@
+/**
+ * Category Selection Styles for Clothing Form
+ * Handles the styling for category selection UI
+ */
+
+/* Gender selection container */
+.gender-select {
+    margin-bottom: 15px;
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background: #fcfcfc;
+}
+
+/* Category Container */
+.category-select-container {
+    position: relative;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Smart Search Input */
+.category-smart-search {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.category-smart-search:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+    outline: none;
+}
+
+/* Search Results Dropdown */
+.search-results-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.search-result-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+}
+
+.search-result-item:hover {
+    background-color: #f0f7fa;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+/* Category Select Dropdowns */
+.category-level {
+    margin-bottom: 10px;
+}
+
+.category-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+    appearance: menulist;
+    height: auto;
+}
+
+/* Subcategory selects - visual indication of hierarchy */
+.category-select[data-level="1"] {
+    margin-left: 10px;
+    border-left: 3px solid #ddd;
+}
+
+.category-select[data-level="2"] {
+    margin-left: 20px;
+    border-left: 3px solid #ccc;
+}
+
+.category-level + .category-level {
+    margin-top: 10px;
+    position: relative;
+}
+
+.category-level + .category-level::before {
+    content: '↓';
+    position: absolute;
+    left: 50%;
+    top: -15px;
+    transform: translateX(-50%);
+    font-size: 14px;
+    color: #666;
+}
+
+/* Smart search hint */
+.smart-search-hint {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+/* Size select */
+#size-1, [id^="size-"] {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+/* Validation styling */
+.category-select.error-field,
+.gender-select.error-field {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Optgroup styling for size types */
+optgroup {
+    font-weight: bold;
+    font-style: normal;
+}
+
+/* Loading State */
+.category-loading {
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+    color: #666;
+}
+
+.category-loading::after {
+    content: "";
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #ddd;
+    border-radius: 50%;
+    border-top-color: #0073aa;
+    animation: spin 1s linear infinite;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Debug panel styling */
+.debug-panel {
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.debug-panel h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.debug-panel button {
+    margin-right: 8px;
+}
+
+#debug-output {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #eee;
+    max-height: 150px;
+    overflow: auto;
+    font-family: monospace;
+    font-size: 12px;
+    border-radius: 4px;
+}

@@ -1,0 +1,364 @@
+/**
+ * Modern Theme Enhancements
+ * Improved color scheme, typography and visual hierarchy
+ */
+
+/* Import Inter variable font - a modern, highly readable font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/**
+ * CSS Variables for Modern Color Scheme
+ */
+:root {
+  /* Primary colors */
+  --pcf-primary-100: #e6f3f8;
+  --pcf-primary-200: #b3dbed;
+  --pcf-primary-300: #80c3e2;
+  --pcf-primary-400: #4dabd7;
+  --pcf-primary-500: #0073aa; /* Primary brand color */
+  --pcf-primary-600: #005c88;
+  --pcf-primary-700: #004566;
+  --pcf-primary-800: #002e44;
+  --pcf-primary-900: #001722;
+  
+  /* Secondary colors - warmer tones for accents */
+  --pcf-secondary-100: #fff4e6;
+  --pcf-secondary-200: #ffd9b3;
+  --pcf-secondary-300: #ffbf80;
+  --pcf-secondary-400: #ffa54d;
+  --pcf-secondary-500: #ff8c1a;
+  --pcf-secondary-600: #e67300;
+  --pcf-secondary-700: #cc6600;
+  --pcf-secondary-800: #994d00;
+  --pcf-secondary-900: #663300;
+  
+  /* Neutral grays */
+  --pcf-gray-50: #f9fafb;
+  --pcf-gray-100: #f3f4f6;
+  --pcf-gray-200: #e5e7eb;
+  --pcf-gray-300: #d1d5db;
+  --pcf-gray-400: #9ca3af;
+  --pcf-gray-500: #6b7280;
+  --pcf-gray-600: #4b5563;
+  --pcf-gray-700: #374151;
+  --pcf-gray-800: #1f2937;
+  --pcf-gray-900: #111827;
+  
+  /* Status colors */
+  --pcf-success: #10b981;
+  --pcf-warning: #f59e0b;
+  --pcf-error: #ef4444;
+  --pcf-info: #3b82f6;
+  
+  /* Gradients */
+  --pcf-gradient-primary: linear-gradient(135deg, var(--pcf-primary-500), var(--pcf-primary-600));
+  --pcf-gradient-secondary: linear-gradient(135deg, var(--pcf-secondary-400), var(--pcf-secondary-500));
+  --pcf-gradient-light: linear-gradient(135deg, var(--pcf-gray-50), var(--pcf-gray-100));
+  --pcf-gradient-dark: linear-gradient(135deg, var(--pcf-gray-800), var(--pcf-gray-900));
+  
+  /* Shadows */
+  --pcf-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --pcf-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --pcf-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --pcf-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --pcf-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Typography */
+  --pcf-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  --pcf-line-height-tight: 1.2;
+  --pcf-line-height-normal: 1.5;
+  --pcf-line-height-relaxed: 1.8;
+  
+  /* Border Radius */
+  --pcf-radius-sm: 0.125rem;
+  --pcf-radius: 0.25rem;
+  --pcf-radius-md: 0.375rem;
+  --pcf-radius-lg: 0.5rem;
+  --pcf-radius-xl: 1rem;
+  --pcf-radius-full: 9999px;
+}
+
+/**
+ * Base Typography
+ */
+.clothing-submission-form {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  line-height: 1.5;
+  color: #333;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/**
+ * Headings with enhanced visual hierarchy
+ */
+.clothing-submission-form h2 {
+  font-weight: 700;
+  font-size: clamp(1.75rem, 5vw, 2.5rem); /* Responsive sizing */
+  line-height: var(--pcf-line-height-tight);
+  color: var(--pcf-gray-900);
+  margin-bottom: 1.5rem;
+  position: relative;
+  text-align: center;
+}
+
+.clothing-submission-form h2:after {
+  content: '';
+  position: absolute;
+  bottom: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: var(--pcf-gradient-primary);
+  border-radius: var(--pcf-radius-full);
+}
+
+.clothing-submission-form h3 {
+  font-weight: 600;
+  font-size: clamp(1.25rem, 4vw, 1.5rem);
+  color: var(--pcf-primary-600);
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.clothing-submission-form h4 {
+  font-weight: 500;
+  font-size: 1.125rem;
+  color: var(--pcf-gray-700);
+  margin-top: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+/**
+ * Form elements with enhanced styling
+ */
+.clothing-submission-form label {
+  font-weight: 500;
+  font-size: 0.9375rem;
+  margin-bottom: 0.5rem;
+  display: block;
+  color: var(--pcf-gray-700);
+}
+
+.clothing-submission-form input[type="text"],
+.clothing-submission-form input[type="email"],
+.clothing-submission-form input[type="number"],
+.clothing-submission-form select {
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--pcf-radius);
+  border: 1px solid var(--pcf-gray-300);
+  background-color: var(--pcf-gray-50);
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.clothing-submission-form textarea {
+  font-size: 1rem;
+  line-height: var(--pcf-line-height-normal);
+  padding: 0.75rem 1rem;
+  border-radius: var(--pcf-radius);
+  border: 1px solid var(--pcf-gray-300);
+  background-color: var(--pcf-gray-50);
+  width: 100%;
+  min-height: 120px;
+  transition: all 0.2s ease;
+}
+
+/* Focus states */
+.clothing-submission-form input:focus,
+.clothing-submission-form select:focus,
+.clothing-submission-form textarea:focus {
+  outline: none;
+  border-color: var(--pcf-primary-500);
+  box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.15);
+}
+
+/**
+ * Buttons with modern gradient look
+ */
+.clothing-submission-form .submit-button {
+  background: var(--pcf-gradient-primary);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  font-size: 1.0625rem;
+  padding: 0.875rem 2rem;
+  border-radius: var(--pcf-radius-full);
+  cursor: pointer;
+  box-shadow: var(--pcf-shadow-md);
+  transition: all 0.3s ease;
+}
+
+.clothing-submission-form .submit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--pcf-shadow-lg);
+  background: linear-gradient(135deg, #008ac9, var(--pcf-primary-500));
+}
+
+.clothing-submission-form .add-item-btn {
+  border-color: var(--pcf-primary-500);
+  color: var(--pcf-primary-500);
+  background: transparent;
+  font-weight: 500;
+  border-radius: var(--pcf-radius-lg);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.clothing-submission-form .add-item-btn:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: var(--pcf-primary-100);
+  z-index: -1;
+  transition: width 0.3s ease;
+}
+
+.clothing-submission-form .add-item-btn:hover:before {
+  width: 100%;
+}
+
+.clothing-submission-form .add-item-btn:hover {
+  color: var(--pcf-primary-600);
+  border-color: var(--pcf-primary-600);
+  transform: translateY(-2px);
+}
+
+/**
+ * Cards with enhanced appearance
+ */
+.clothing-submission-form .clothing-item-container {
+  background: #ffffff;
+  border-radius: var(--pcf-radius-lg);
+  box-shadow: var(--pcf-shadow);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.clothing-submission-form .clothing-item-container:hover {
+  box-shadow: var(--pcf-shadow-md);
+}
+
+.clothing-submission-form .clothing-item-header {
+  background: var(--pcf-gradient-light);
+  border-bottom: 1px solid var(--pcf-gray-200);
+  padding: 1rem 1.25rem;
+}
+
+.clothing-submission-form .item-number-badge {
+  background: var(--pcf-gradient-primary);
+  color: white;
+  font-weight: 600;
+  box-shadow: var(--pcf-shadow-sm);
+}
+
+/**
+ * Form guidance with improved readability
+ */
+.clothing-submission-form .form-guidance {
+  background: linear-gradient(to right bottom, #ffffff, var(--pcf-gray-50));
+  border-left: 5px solid var(--pcf-primary-500);
+  border-radius: var(--pcf-radius);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--pcf-shadow);
+}
+
+.clothing-submission-form .form-guidance h3 {
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: var(--pcf-primary-500);
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.clothing-submission-form .form-guidance ul {
+  font-size: 1rem;
+  line-height: var(--pcf-line-height-relaxed);
+  color: var(--pcf-gray-700);
+}
+
+.clothing-submission-form .form-guidance li {
+  margin-bottom: 0.5rem;
+}
+
+/**
+ * Responsive adjustments
+ */
+@media (max-width: 768px) {
+  .clothing-submission-form {
+    padding: 1rem;
+  }
+  
+  .clothing-submission-form h2 {
+    font-size: 1.625rem;
+  }
+  
+  .clothing-submission-form h3 {
+    font-size: 1.325rem;
+  }
+}
+
+/**
+ * Success/Error messages with modern style
+ */
+.clothing-submission-form .submission-feedback {
+  padding: 1.25rem;
+  border-radius: var(--pcf-radius);
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.clothing-submission-form .submission-feedback.success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--pcf-success);
+  border-left: 4px solid var(--pcf-success);
+}
+
+.clothing-submission-form .submission-feedback.error {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--pcf-error);
+  border-left: 4px solid var(--pcf-error);
+}
+
+/* Required indicator with better contrast */
+.clothing-submission-form .required-indicator {
+  color: var(--pcf-error);
+  font-weight: 600;
+  margin-left: 0.25rem;
+}
+
+/* Better image upload area */
+.clothing-submission-form .image-upload-box {
+  border: 2px dashed var(--pcf-gray-300);
+  border-radius: var(--pcf-radius);
+  background: var(--pcf-gray-50);
+  transition: all 0.2s ease;
+}
+
+.clothing-submission-form .image-upload-box:hover {
+  border-color: var(--pcf-primary-500);
+  background: linear-gradient(to bottom, white, var(--pcf-primary-100));
+}
+
+.clothing-submission-form .image-upload-box.required {
+  border-color: var(--pcf-primary-400);
+}
+
+/* Enhance image captions */
+.clothing-submission-form .upload-label {
+  font-weight: 600;
+  color: var(--pcf-gray-700);
+}
+
+.clothing-submission-form .upload-hint {
+  color: var(--pcf-gray-500);
+  font-size: 0.875rem;
+}

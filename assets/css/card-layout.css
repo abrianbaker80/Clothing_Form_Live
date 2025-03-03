@@ -1,0 +1,498 @@
+/**
+ * Card-Based Layout Enhancement for Clothing Form
+ * Modern UI styling for the entire plugin
+ */
+
+/* Modernize main form container */
+.clothing-submission-form {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 30px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #f8f9fa;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+/* Page title enhancement */
+.clothing-submission-form h2 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 25px;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.clothing-submission-form h2:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(to right, #0073aa, #5b9dd9);
+    border-radius: 3px;
+}
+
+/* Section headings */
+.clothing-submission-form h3 {
+    font-size: 22px;
+    font-weight: 500;
+    color: #2c3e50;
+    margin: 30px 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Modernize form guidance section */
+.form-guidance {
+    background: linear-gradient(to right bottom, #ffffff, #f9fbfd);
+    border-left: none;
+    border-radius: 8px;
+    padding: 20px 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    position: relative;
+    overflow: hidden;
+}
+
+.form-guidance:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 5px;
+    background: linear-gradient(to bottom, #0073aa, #5b9dd9);
+    border-radius: 3px 0 0 3px;
+}
+
+.form-guidance h3 {
+    color: #0073aa;
+    font-size: 20px;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.form-guidance ul {
+    margin: 15px 0;
+    padding-left: 18px;
+}
+
+.form-guidance li {
+    margin-bottom: 8px;
+    position: relative;
+    list-style-type: none;
+}
+
+.form-guidance li:before {
+    content: '✓';
+    position: absolute;
+    left: -18px;
+    color: #0073aa;
+    font-weight: bold;
+}
+
+/* Contact information section styling */
+.clothing-submission-form .form-group {
+    margin-bottom: 20px;
+}
+
+.clothing-submission-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #495057;
+    font-size: 15px;
+}
+
+.clothing-submission-form input[type="text"],
+.clothing-submission-form input[type="email"],
+.clothing-submission-form select,
+.clothing-submission-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background-color: #fff;
+}
+
+.clothing-submission-form input[type="text"]:focus,
+.clothing-submission-form input[type="email"]:focus,
+.clothing-submission-form select:focus,
+.clothing-submission-form textarea:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.2);
+    outline: none;
+}
+
+/* Card container styling */
+.clothing-item-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    padding: 24px;
+    margin-bottom: 24px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.clothing-item-container:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* Card header enhancements */
+.clothing-item-header {
+    background: linear-gradient(to right, rgba(0, 115, 170, 0.1), rgba(0, 115, 170, 0.05));
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(0, 115, 170, 0.2);
+    border-radius: 8px 8px 0 0;
+}
+
+/* Item number badge enhancements */
+.item-number-badge {
+    width: 35px;
+    height: 35px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+}
+
+.clothing-item-container:hover .item-number-badge {
+    transform: scale(1.1);
+}
+
+/* Item title animation */
+.clothing-item-title {
+    transition: color 0.2s ease;
+}
+
+.clothing-item-container:hover .clothing-item-title {
+    color: #0073aa;
+}
+
+/* Form group enhancements inside cards */
+.clothing-item-container .form-group {
+    padding: 0 20px;
+    margin-bottom: 20px;
+}
+
+/* Form fields focus effect */
+.clothing-item-container input:focus,
+.clothing-item-container select:focus,
+.clothing-item-container textarea:focus {
+    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.3);
+    outline: none;
+    border-color: #0073aa;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+/* Image upload container enhancements */
+.clothing-item-container .image-upload-container {
+    padding: 0 20px;
+}
+
+/* Better remove button microinteraction */
+.remove-item-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background-color: #f8f9fa;
+    color: #dc3545;
+    border: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.remove-item-btn:hover {
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+/* Add spacing between form elements */
+.clothing-item-container .category-select-container,
+.clothing-item-container textarea {
+    margin-bottom: 10px;
+}
+
+/* Card animation when adding new items */
+@keyframes cardAppear {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.clothing-item-container.new-card {
+    animation: cardAppear 0.5s ease forwards;
+}
+
+/* Form section headings inside cards */
+.clothing-item-container h4 {
+    margin-top: 5px;
+    color: #0073aa;
+    font-weight: 500;
+    padding: 0 20px;
+}
+
+/* Enhanced submit button */
+.submit-button {
+    background: linear-gradient(to right, #0073aa, #00a0d2);
+    color: white;
+    padding: 14px 30px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 115, 170, 0.3);
+}
+
+.submit-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 14px rgba(0, 115, 170, 0.4);
+    background: linear-gradient(to right, #005177, #0073aa);
+}
+
+.submit-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 3px 6px rgba(0, 115, 170, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .clothing-submission-form {
+        padding: 20px 15px;
+        margin: 10px;
+    }
+
+    .clothing-item-container:hover {
+        transform: none;
+    }
+
+    .form-guidance {
+        padding: 15px;
+    }
+
+    .submit-button {
+        width: 100%;
+    }
+    
+    .clothing-submission-form h2 {
+        font-size: 24px;
+    }
+    
+    .clothing-submission-form h3 {
+        font-size: 20px;
+    }
+    
+    .clothing-card, .clothing-item-container {
+        padding: 16px;
+    }
+    
+    .add-item-btn {
+        width: 100%;
+    }
+}
+
+/* Style the add item button container */
+.add-item-btn-container {
+    text-align: center;
+    margin: 25px 0;
+}
+
+/* Enhanced add item button */
+.add-item-btn {
+    background-color: #ffffff;
+    color: #0073aa;
+    border: 2px dashed #0073aa;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.add-item-btn:hover {
+    background-color: #e8f4f9;
+}
+
+.add-item-btn i {
+    margin-right: 8px;
+}
+
+/* Add icon styling */
+.add-icon {
+    font-weight: bold;
+    margin-right: 5px;
+    display: inline-block;
+}
+
+/* Enhanced submit button container */
+.submit-button-container {
+    margin-top: 40px;
+    text-align: center;
+}
+
+/* Modern submit button */
+.submit-button {
+    background: linear-gradient(to right, #0073aa, #00a0d2);
+    color: white;
+    padding: 14px 30px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 115, 170, 0.3);
+}
+
+.submit-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 14px rgba(0, 115, 170, 0.4);
+    background: linear-gradient(to right, #005177, #0073aa);
+}
+
+.submit-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 3px 6px rgba(0, 115, 170, 0.3);
+}
+
+/* Enhanced success/error message */
+.submission-feedback {
+    border-radius: 8px;
+    padding: 20px 25px;
+    margin: 20px 0;
+    font-size: 16px;
+    line-height: 1.6;
+    position: relative;
+    animation: fadeInUp 0.5s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.submission-feedback.success {
+    background: linear-gradient(to right bottom, #d4edda, #e2f3e5);
+    border-left: 5px solid #28a745;
+    color: #155724;
+}
+
+.submission-feedback.error {
+    background: linear-gradient(to right bottom, #f8d7da, #f9e2e5);
+    border-left: 5px solid #dc3545;
+    color: #721c24;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Enhance image upload styling */
+.image-upload-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-gap: 15px;
+    margin: 15px 0;
+}
+
+.image-upload-box {
+    position: relative;
+    height: 180px;
+    border: 2px dashed #ced4da;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.image-upload-box.required {
+    border-color: #0073aa;
+}
+
+.image-upload-box:hover {
+    border-color: #0073aa;
+    background: linear-gradient(to bottom, #e7f3f9, #f1f8fc);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Required indicator */
+.required-indicator {
+    color: #dc3545;
+    margin-left: 4px;
+    font-weight: bold;
+}
+
+/* Form validation styling */
+.clothing-submission-form input:invalid:focus,
+.clothing-submission-form textarea:invalid:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25);
+}
+
+/* Card Base Styles */
+.clothing-card {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    padding: 24px;
+    margin-bottom: 24px;
+    transition: all 0.2s ease;
+}
+
+.clothing-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+/* Card Header */
+.clothing-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 16px;
+}
+
+.clothing-card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}

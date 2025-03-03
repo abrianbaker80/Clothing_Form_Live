@@ -1,0 +1,240 @@
+/**
+ * Mobile Admin Enhancements
+ * 
+ * Improves the admin experience on mobile devices
+ */
+
+@media screen and (max-width: 782px) {
+    /* Admin list view */
+    .wp-list-table.submissions-table {
+        table-layout: auto;
+    }
+    
+    /* Make action buttons more touch-friendly */
+    .wp-admin .action-buttons .button {
+        min-height: 40px;
+        min-width: 40px;
+        line-height: 2.5;
+        padding: 0 10px;
+    }
+    
+    /* Image gallery on admin screens */
+    .image-gallery {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .image-container {
+        height: 150px;
+    }
+    
+    .image-container img {
+        object-fit: cover;
+        height: 100%;
+        width: 100%;
+    }
+    
+    /* Improve scrolling in detail view */
+    .submission-detail-container {
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Make dropdown menus more touch-friendly */
+    .actions-cell .dropdown-content {
+        min-width: 200px;
+    }
+    
+    .actions-cell .dropdown-content a {
+        padding: 12px 15px;
+        font-size: 14px;
+    }
+    
+    /* Fixed action bar at bottom */
+    .submission-actions {
+        position: sticky;
+        bottom: 0;
+        background: #fff;
+        padding: 10px 0;
+        border-top: 1px solid #ddd;
+        margin: 0 -23px;
+        padding: 10px 23px;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+    }
+    
+    /* Full width table cells */
+    .wp-list-table tr:not(.inline-edit-row):not(.no-items) td:not(.check-column) {
+        display: block;
+        width: auto;
+        padding: 10px;
+    }
+    
+    /* Item tabs scroll horizontally */
+    .items-tabs {
+        white-space: nowrap;
+        overflow-x: auto;
+        padding-bottom: 5px;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Admin settings page */
+    .form-table th {
+        padding-bottom: 5px;
+    }
+    
+    .form-table td {
+        padding-top: 5px;
+    }
+
+    /* Improved touch targets */
+    .clothing-admin-wrapper .button {
+        min-height: 40px;
+        line-height: 2.2;
+        padding: 0 14px;
+    }
+    
+    /* Make status badges more visible on small screens */
+    .status-pending,
+    .status-contacted,
+    .status-completed {
+        width: 100%;
+        text-align: center;
+        padding: 8px 5px;
+        margin: 5px 0;
+    }
+    
+    /* Better form layouts on mobile */
+    .filter-row {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .filter-group {
+        margin-bottom: 15px;
+        width: 100%;
+    }
+    
+    /* Stack filter buttons on mobile */
+    .filter-buttons {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .filter-buttons .button {
+        margin-bottom: 10px;
+        width: 100%;
+        text-align: center;
+    }
+    
+    /* Full width submission detail layout */
+    .submission-meta {
+        display: block !important;
+    }
+    
+    .meta-col {
+        margin-bottom: 20px;
+    }
+    
+    /* Adjust tab navigation for mobile */
+    .items-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 5px;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .item-tab a {
+        white-space: nowrap;
+        padding: 10px 15px;
+        font-size: 13px;
+    }
+    
+    /* Image galleries on mobile */
+    .image-gallery {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    /* Make table rows more readable on mobile */
+    .wp-list-table td.column-primary {
+        padding-right: 50px !important;
+    }
+    
+    .action-buttons .button {
+        width: 100%;
+        margin-bottom: 8px;
+        text-align: center;
+    }
+    
+    /* Card styling adjustments for mobile */
+    .clothing-admin-wrapper .card:hover {
+        transform: none;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    /* Card header on mobile */
+    .clothing-admin-wrapper .card-header,
+    .submission-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .submission-header .submission-date {
+        margin-top: 10px;
+    }
+    
+    /* Add some space between stacked buttons */
+    .action-buttons {
+        margin: 10px 0;
+    }
+    
+    /* Better checkboxes on mobile */
+    input[type=checkbox] {
+        height: 25px;
+        width: 25px;
+    }
+    
+    .wp-list-table .check-column {
+        width: 2.2em;
+    }
+}
+
+/* Ultra-small devices */
+@media screen and (max-width: 480px) {
+    .image-gallery {
+        grid-template-columns: 1fr;
+    }
+    
+    .image-container {
+        height: 200px;
+    }
+    
+    .pc-lightbox-close {
+        top: 10px;
+        right: 10px;
+        background: rgba(0,0,0,0.5);
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Single column image gallery */
+    .image-gallery {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Simplified header */
+    .clothing-admin-wrapper h1.wp-heading-inline {
+        font-size: 20px;
+    }
+    
+    /* Stack action buttons */
+    .clothing-admin-wrapper .page-title-action {
+        margin: 5px 0;
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+    }
+}

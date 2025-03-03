@@ -1,0 +1,306 @@
+/**
+ * Card-Based Layout Enhancement for Admin Interface
+ * Modern UI styling for the admin dashboard
+ */
+
+/* Card container styling */
+.clothing-admin-wrapper .card,
+.submission-detail-container {
+    background: #ffffff;
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.clothing-admin-wrapper .card:hover {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-3px);
+}
+
+/* Card header styling */
+.clothing-admin-wrapper .card-header,
+.submission-header {
+    background: linear-gradient(to right, #f8f9fa, #ffffff);
+    border-bottom: 1px solid rgba(0, 115, 170, 0.2);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.clothing-admin-wrapper h2,
+.clothing-admin-wrapper h3 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Status badges */
+.status-pending,
+.status-contacted,
+.status-completed {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 12px;
+    font-weight: 500;
+    font-size: 14px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-pending {
+    background: linear-gradient(to right, #f8f9fa, #e9ecef);
+    color: #495057;
+    border: 1px solid #dee2e6;
+}
+
+.status-contacted {
+    background: linear-gradient(to right, #fff3cd, #fff8e6);
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+.status-completed {
+    background: linear-gradient(to right, #d1e7dd, #e2f3e5);
+    color: #0f5132;
+    border: 1px solid #badbcc;
+}
+
+/* Enhanced buttons */
+.clothing-admin-wrapper .button,
+.clothing-admin-wrapper .page-title-action {
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.clothing-admin-wrapper .button-primary {
+    background: linear-gradient(to right, #0073aa, #00a0d2);
+    border-color: #0073aa;
+}
+
+.clothing-admin-wrapper .button-primary:hover {
+    background: linear-gradient(to right, #005177, #0073aa);
+    border-color: #005177;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15);
+}
+
+.clothing-admin-wrapper .button-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Delete button with warning color */
+.clothing-admin-wrapper .delete-button {
+    background: linear-gradient(to right, #dc3545, #e35d6a);
+    border-color: #dc3545;
+    color: white;
+}
+
+.clothing-admin-wrapper .delete-button:hover {
+    background: linear-gradient(to right, #c82333, #dc3545);
+    border-color: #c82333;
+}
+
+/* Enhance tables */
+.clothing-admin-wrapper .widefat {
+    border: none;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.clothing-admin-wrapper .widefat thead th {
+    background: linear-gradient(to right, #f1f3f5, #f8f9fa);
+    border-bottom: 1px solid #e9ecef;
+}
+
+.clothing-admin-wrapper .widefat tbody tr:hover {
+    background-color: rgba(0, 115, 170, 0.04);
+}
+
+/* Item details layout */
+.item-content {
+    padding: 20px;
+    background: #fafafa;
+    border-radius: 6px;
+    margin: 15px 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Image gallery enhancements */
+.image-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-gap: 15px;
+    margin: 15px 0;
+}
+
+.image-container {
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.image-container:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.image-container img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: opacity 0.2s;
+}
+
+.image-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0));
+    color: white;
+    padding: 15px 10px 5px;
+    font-size: 12px;
+    text-align: center;
+}
+
+/* Enhance tab navigation */
+.items-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 20px;
+}
+
+.item-tab a {
+    border-radius: 5px 5px 0 0;
+    padding: 12px 20px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.item-tab.active a {
+    background: #ffffff;
+    box-shadow: 0 -3px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* Submission meta layout */
+.submission-meta {
+    background: #ffffff;
+    border-radius: 6px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.meta-col h3 {
+    color: #0073aa;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+/* Enhance notes field */
+.notes-field textarea {
+    border-radius: 4px;
+    border-color: #e9ecef;
+    padding: 10px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notes-field textarea:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.2);
+    outline: none;
+}
+
+/* Category tags styling */
+.category-tag {
+    background: linear-gradient(to right, #e7f3f9, #f1f8fc);
+    color: #0073aa;
+    border-radius: 50px;
+    padding: 3px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    margin: 2px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Item count badge */
+.item-count {
+    background: linear-gradient(to right, #0073aa, #00a0d2);
+    color: white;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Action button groups */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    margin: 15px 0;
+}
+
+/* Popups and modals */
+.pc-lightbox-overlay {
+    backdrop-filter: blur(3px);
+}
+
+.pc-lightbox-content img {
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Mobile responsive improvements */
+@media screen and (max-width: 782px) {
+    .clothing-admin-wrapper .card,
+    .submission-detail-container {
+        margin: 15px 0;
+    }
+    
+    .clothing-admin-wrapper .card:hover {
+        transform: none;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .action-buttons .button {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* Animated state transitions */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.clothing-admin-wrapper .updated,
+.clothing-admin-wrapper .notice {
+    animation: fadeIn 0.3s ease;
+    border-left: 4px solid #0073aa;
+    border-radius: 3px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}

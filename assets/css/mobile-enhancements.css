@@ -1,0 +1,388 @@
+/* Mobile Responsive Enhancements for Preowned Clothing Form */
+
+/* Base responsive fixes */
+@media screen and (max-width: 782px) {
+    /* Form layout adjustments */
+    .clothing-submission-form {
+        padding: 15px;
+        margin: 10px auto;
+    }
+    
+    /* Field layouts */
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group select,
+    .form-group textarea {
+        font-size: 16px; /* Prevents iOS zoom on focus */
+        padding: 10px;
+    }
+    
+    /* Item container spacing */
+    .clothing-item-container {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    /* Category selects stacked layout */
+    .category-select-wrapper {
+        margin-bottom: 15px;
+    }
+    
+    /* Image upload grid */
+    .image-upload-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .image-upload-box {
+        height: 140px;
+    }
+    
+    .image-upload-box .upload-hint {
+        display: none; /* Hide hints on small screens to save space */
+    }
+    
+    /* Buttons */
+    .submit-button {
+        width: 100%;
+        padding: 15px;
+    }
+    
+    .add-item-btn {
+        width: 100%;
+        padding: 12px;
+    }
+    
+    /* Drag and drop hint */
+    .mobile-upload-hint {
+        display: block;
+        text-align: center;
+        margin: 10px 0;
+        font-size: 12px;
+        color: #666;
+    }
+    
+    /* Form progress */
+    .form-progress-container {
+        height: 8px;
+    }
+    
+    /* Improve visual focus indicators for touch devices */
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px #0073aa;
+    }
+}
+
+/* Smaller mobile devices */
+@media screen and (max-width: 480px) {
+    /* Further adjustments */
+    .clothing-item-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .remove-item-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+    
+    .clothing-item-title {
+        margin-bottom: 10px;
+        padding-right: 40px; /* Make room for the delete button */
+    }
+    
+    /* Image uploads in single column for very small screens */
+    .image-upload-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .image-upload-box {
+        height: 180px; /* Taller on mobile for easier targeting */
+    }
+    
+    /* Form progress */
+    .form-progress-container {
+        height: 10px;
+    }
+    
+    /* Improve field spacing */
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    /* Make form group labels more prominent */
+    .form-group label {
+        font-size: 15px;
+        margin-bottom: 8px;
+    }
+}
+
+/* Touch-specific enhancements */
+@media (hover: none) {
+    /* Larger touch targets */
+    .add-item-btn,
+    .submit-button,
+    .remove-item-btn {
+        min-height: 44px; /* Apple's recommended minimum */
+    }
+    
+    /* Enhanced visual feedback for touch */
+    .image-upload-box {
+        position: relative;
+    }
+    
+    .image-upload-box::after {
+        content: "Tap to upload";
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 12px;
+        color: #0073aa;
+        background-color: rgba(255,255,255,0.8);
+        padding: 3px 0;
+    }
+    
+    .image-upload-box.has-image::after {
+        content: "Tap to replace";
+    }
+    
+    /* Add touch feedback for buttons */
+    .add-item-btn:active,
+    .submit-button:active,
+    .remove-item-btn:active {
+        transform: scale(0.98);
+        opacity: 0.9;
+    }
+    
+    /* Increased spacing for touch accuracy */
+    .form-group label {
+        padding-bottom: 8px;
+    }
+    
+    /* More visible validation errors on touch devices */
+    select.error,
+    input.error,
+    textarea.error {
+        border-width: 2px; /* More visible validation errors */
+    }
+    
+    /* Better touch scrolling */
+    .clothing-submission-form {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Admin responsive fixes */
+@media screen and (max-width: 782px) {
+    .submission-meta,
+    .item-content {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .image-gallery {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    
+    .pc-lightbox-content img {
+        max-width: 95vw;
+        max-height: 80vh;
+    }
+    
+    .pc-lightbox-close {
+        top: -25px;
+        right: -5px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .clothing-submission-form.auto-dark-mode {
+        background-color: #2c2c2c;
+        color: #f0f0f0;
+    }
+    
+    .clothing-submission-form.auto-dark-mode input[type="text"],
+    .clothing-submission-form.auto-dark-mode input[type="email"],
+    .clothing-submission-form.auto-dark-mode select,
+    .clothing-submission-form.auto-dark-mode textarea {
+        background-color: #3a3a3a;
+        border-color: #555;
+        color: #f0f0f0;
+    }
+    
+    .clothing-submission-form.auto-dark-mode .clothing-item-container {
+        background-color: #333;
+        border-color: #444;
+    }
+    
+    .clothing-submission-form.auto-dark-mode .image-upload-box {
+        background-color: #3a3a3a;
+        border-color: #555;
+    }
+    
+    .clothing-submission-form.auto-dark-mode .form-guidance {
+        background-color: #333;
+        border-color: #0073aa;
+    }
+}
+
+/* Accessibility improvements for mobile */
+.image-upload-box input[type="file"]:focus + .upload-placeholder {
+    outline: 2px solid #0073aa;
+}
+
+/* Form progress bar enhancements */
+.form-progress-container {
+    height: 6px;
+    background-color: #f1f1f1;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.form-progress-bar {
+    height: 100%;
+    background-color: #0073aa;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+/* Mobile-specific button styles */
+@media (max-width: 782px) {
+    .submit-button,
+    .add-item-btn {
+        -webkit-appearance: none;
+        appearance: none;
+        border-radius: 4px;
+    }
+    
+    /* Fix for iOS button styling */
+    .submit-button {
+        font-size: 16px;
+        background-image: none;
+    }
+    
+    /* Improved item stacking on mobile */
+    .clothing-item-container {
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Fixed position submit button for long forms */
+    .long-form .submit-button-container {
+        position: sticky;
+        bottom: 20px;
+        background: #fff;
+        padding: 10px 0;
+        margin: 0 -15px -15px;
+        border-top: 1px solid #eee;
+        z-index: 10;
+    }
+    
+    .long-form .submit-button-container .submit-button {
+        margin: 0 15px;
+        width: calc(100% - 30px);
+    }
+    
+    /* Item swipe actions */
+    .swipe-hint {
+        display: block;
+        text-align: center;
+        color: #666;
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+}
+
+/* Add pull-to-refresh animation */
+.pull-indicator {
+    display: none;
+    text-align: center;
+    height: 40px;
+    line-height: 40px;
+    color: #0073aa;
+    font-size: 14px;
+}
+
+@media (max-width: 782px) {
+    .pull-enabled .pull-indicator {
+        display: block;
+    }
+}
+
+/* Autosave notification styling */
+.autosave-notification {
+    background-color: #e7f3f9;
+    border-left: 4px solid #0073aa;
+    margin: 10px 0 20px;
+    padding: 12px 15px;
+    position: relative;
+    font-size: 14px;
+    animation: fadeIn 0.3s;
+}
+
+.autosave-notification p {
+    margin: 0;
+    padding-right: 25px;
+}
+
+.autosave-notification .close-notification {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #0073aa;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 0;
+    height: 20px;
+    width: 20px;
+    line-height: 1;
+}
+
+.autosave-notification .clear-autosave {
+    background-color: transparent;
+    border: 1px solid #0073aa;
+    color: #0073aa;
+    padding: 3px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-left: 10px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.autosave-notification .clear-autosave:hover {
+    background-color: #0073aa;
+    color: #fff;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Validation enhancements */
+.field-validated input,
+.field-validated textarea,
+.field-validated select {
+    border-left-width: 4px !important;
+}
+
+/* Image placeholder animation */
+.placeholder-icon {
+    transition: transform 0.2s ease;
+}
+
+.image-upload-box:hover .placeholder-icon {
+    transform: scale(1.1);
+}
