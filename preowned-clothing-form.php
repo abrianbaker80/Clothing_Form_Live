@@ -3,7 +3,7 @@
  * Plugin Name: Preowned Clothing Form
  * Plugin URI:  https://github.com/abrianbaker80/Clothing_Form
  * Description: A plugin to create a form for submitting pre-owned clothing items.
- * Version:     2.5.9.5
+ * Version:     2.5.9.6
  * Author:      Allen Baker
  * Author URI:  Your Website/Author URL
  * License:     GPL2
