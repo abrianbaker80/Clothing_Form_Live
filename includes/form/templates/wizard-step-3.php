@@ -6,8 +6,21 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
-$max_image_size = $this->get_option('max_image_size', 2);
-$required_images = $this->get_option('required_images', ['front', 'back', 'brand_tag']);
+// Get settings from the class if available, otherwise use defaults
+$max_image_size = 2;
+$required_images = ['front', 'back', 'brand_tag'];
+
+// Check if we're in an object context by examining backtrace
+$in_object_context = false;
+if (function_exists('debug_backtrace')) {
+    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+    $in_object_context = isset($backtrace[1]['object']) && is_object($backtrace[1]['object']) && method_exists($backtrace[1]['object'], 'get_option');
+    if ($in_object_context) {
+        $object = $backtrace[1]['object'];
+        $max_image_size = $object->get_option('max_image_size', 2);
+        $required_images = $object->get_option('required_images', ['front', 'back', 'brand_tag']);
+    }
+}
 
 // Define image types with guidance text and placeholder icons
 $image_types = array(

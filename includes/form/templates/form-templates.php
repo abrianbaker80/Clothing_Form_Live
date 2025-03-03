@@ -67,7 +67,7 @@ if (!defined('ABSPATH')) {
 <template id="photos-template">
     <div class="form-group additional-photos">
         <label>Item [ITEM_ID] Photos <span class="required-indicator">*</span></label>
-        <div class="image-upload-container" data-max-size="<?php echo esc_attr($this->get_option('max_image_size', 2)); ?>">
+        <div class="image-upload-container" data-max-size="<?php echo esc_attr(apply_filters('clothing_form_max_image_size', 2)); ?>">
             <?php 
             $image_types = array(
                 'front' => array(

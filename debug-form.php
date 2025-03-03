@@ -92,7 +92,7 @@ function pcf_debug_information() {
             // Test session functions
             try {
                 PCF_Session_Manager::initialize();
-                PCF_Session_Manager::set_feedback('test', 'This is a test message', 'Debug test');
+                PCF_Session_Manager::set_feedback('test', 'This is a test message');
                 $feedback = PCF_Session_Manager::get_feedback();
                 
                 echo '<p>Session test: ';

@@ -26,8 +26,7 @@ function preowned_clothing_handle_form_submission() {
     if (!$validation_result['is_valid']) {
         PCF_Session_Manager::set_feedback(
             'error',
-            $validation_result['message'],
-            $validation_result['debug_info']
+            $validation_result['message']
         );
         return;
     }
@@ -37,12 +36,11 @@ function preowned_clothing_handle_form_submission() {
     $result = $processor->process($validation_result['data']);
     
     // 3. Set appropriate feedback
+    // 3. Set appropriate feedback
     PCF_Session_Manager::set_feedback(
         $result['status'],
-        $result['message'],
-        isset($result['debug_info']) ? $result['debug_info'] : ''
+        $result['message']
     );
-    
     // 4. Redirect if needed
     if (!empty($result['redirect'])) {
         wp_safe_redirect($result['redirect']);

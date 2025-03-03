@@ -9,12 +9,18 @@
  * License:     GPL2
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * GitHub Plugin URI: abrianbaker80/Clothing_Form
+ * 
  */
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
+// Check if plugin_dir_url is defined, if not, define it
+if (!function_exists('plugin_dir_url')) {
+    function plugin_dir_url($file) {
+        return plugins_url('/', $file);
+    }}
 // Define plugin constants
 define('PCF_VERSION', '2.5.0'); // Updated to match plugin header version
 define('PCF_PLUGIN_DIR', plugin_dir_path(__FILE__));
@@ -32,8 +38,8 @@ require_once PCF_PLUGIN_DIR . 'includes/form/image-uploader.php';
 require_once PCF_PLUGIN_DIR . 'includes/form/database.php';
 
 // Make sure we load all required WordPress plugin functions
-if (is_admin() && !function_exists('get_plugin_data')) {
-    require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+if (!function_exists('get_plugin_data') && function_exists('is_admin') && is_admin()) {
+    include_once ABSPATH . 'wp-admin/includes/plugin.php';
 }
 
 // Safely include GitHub updater - wrapped in a try/catch to prevent fatal errors

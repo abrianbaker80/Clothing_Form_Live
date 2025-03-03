@@ -52,10 +52,11 @@ function preowned_clothing_display_form($atts = []) {
     // Enqueue necessary scripts and styles
     preowned_clothing_enqueue_form_assets();
     
-    // Return the rendered form
-    return $renderer->render();
+    // Get the rendered form
+    $form_html = $renderer->render();
     
-    return ob_get_clean();
+    // Combine with any buffered output and return
+    return ob_get_clean() . $form_html;
 }
 
 // Define alias function for compatibility with main plugin file

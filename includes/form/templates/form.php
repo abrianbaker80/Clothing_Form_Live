@@ -12,11 +12,11 @@ if (!defined('ABSPATH')) {
 global $clothing_categories_hierarchical;
 
 // Get form options from renderer
-$form_title = $this->get_option('form_title', 'Submit Your Pre-owned Clothing');
-$form_intro = $this->get_option('form_intro', 'You can submit multiple clothing items...');
-$max_items = intval($this->get_option('max_items', 10));
-$primary_color = $this->get_option('primary_color', '#0073aa');
-$max_image_size = intval($this->get_option('max_image_size', 2));
+$form_title = $renderer->get_option('form_title', 'Submit Your Pre-owned Clothing');
+$form_intro = $renderer->get_option('form_intro', 'You can submit multiple clothing items...');
+$max_items = intval($renderer->get_option('max_items', 10));
+$primary_color = $renderer->get_option('primary_color', '#0073aa');
+$max_image_size = intval($renderer->get_option('max_image_size', 2));
 ?>
 
 <div class="clothing-submission-form">
@@ -60,7 +60,7 @@ $max_image_size = intval($this->get_option('max_image_size', 2));
             <?php 
             // Render each step
             for ($i = 1; $i <= 4; $i++) {
-                $this->render_step($i);
+                $renderer->render_step($i);
             }
             ?>
         </div>

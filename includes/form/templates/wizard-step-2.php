@@ -6,7 +6,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
-$max_items = $this->get_option('max_items', 10);
+// Get max_items from passed parameters or use default
+$max_items = isset($max_items) ? $max_items : 10;
 ?>
 <!-- Step 2: Item Details -->
 <div class="wizard-step">
