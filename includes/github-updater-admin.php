@@ -52,8 +52,8 @@ function preowned_clothing_github_updater_page() {
     
     // Check GitHub version if we have settings
     $github_version = 'Unknown';
-    $username = get_option('preowned_clothing_github_username', '');
-    $repository = get_option('preowned_clothing_github_repository', '');
+    $username = get_option('preowned_clothing_github_username', 'abrianbaker80');
+    $repository = get_option('preowned_clothing_github_repository', 'Clothing_Form');
     $token = get_option('preowned_clothing_github_token', '');
     
     if (!empty($username) && !empty($repository)) {
@@ -72,11 +72,41 @@ function preowned_clothing_github_updater_page() {
         $test_repository = sanitize_text_field($_POST['preowned_clothing_github_repository']);
         $test_token = sanitize_text_field($_POST['preowned_clothing_github_token']);
         
-        $test_result = preowned_clothing_test_github_connection(
-            $test_username, 
-            $test_repository, 
+        // First test if the repository exists
+        $repo_exists = preowned_clothing_test_repo_exists(
+            $test_username,
+            $test_repository,
             $test_token
         );
+        
+        // Then test for releases if repo exists
+        if ($repo_exists['success']) {
+            $test_result = preowned_clothing_test_github_connection(
+                $test_username, 
+                $test_repository, 
+                $test_token
+            );
+        } else {
+            $test_result = $repo_exists;
+        }
+    }
+    
+    // Handle verify repository
+    if (isset($_POST['verify_repository'])) {
+        check_admin_referer('preowned_clothing_github_updater');
+        
+        $test_username = sanitize_text_field($_POST['preowned_clothing_github_username']);
+        $test_repository = sanitize_text_field($_POST['preowned_clothing_github_repository']);
+        $test_token = sanitize_text_field($_POST['preowned_clothing_github_token']);
+        
+        $repo_exists = preowned_clothing_test_repo_exists(
+            $test_username,
+            $test_repository,
+            $test_token
+        );
+        
+        $test_result = $repo_exists;
+        $test_result['phase'] = 'repository_check';
     }
     
     // Handle force update check
@@ -134,6 +164,30 @@ function preowned_clothing_github_updater_page() {
                         <?php endif; ?>
                     </td>
                 </tr>
+                <tr>
+                    <th>Repository URL:</th>
+                    <td>
+                        <?php if (!empty($username) && !empty($repository)): ?>
+                            <a href="https://github.com/<?php echo esc_attr($username); ?>/<?php echo esc_attr($repository); ?>" target="_blank">
+                                https://github.com/<?php echo esc_attr($username); ?>/<?php echo esc_attr($repository); ?>
+                            </a>
+                        <?php else: ?>
+                            <em>Not configured</em>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Releases URL:</th>
+                    <td>
+                        <?php if (!empty($username) && !empty($repository)): ?>
+                            <a href="https://github.com/<?php echo esc_attr($username); ?>/<?php echo esc_attr($repository); ?>/releases" target="_blank">
+                                https://github.com/<?php echo esc_attr($username); ?>/<?php echo esc_attr($repository); ?>/releases
+                            </a>
+                        <?php else: ?>
+                            <em>Not configured</em>
+                        <?php endif; ?>
+                    </td>
+                </tr>
             </table>
         </div>
         
@@ -149,6 +203,9 @@ function preowned_clothing_github_updater_page() {
                     <td>
                         <input name="preowned_clothing_github_username" type="text" id="preowned_clothing_github_username" 
                             value="<?php echo esc_attr($username); ?>" class="regular-text">
+                        <p class="description">
+                            The GitHub username that owns the repository (e.g., <code>abrianbaker80</code>).
+                        </p>
                     </td>
                 </tr>
                 <tr>
@@ -156,6 +213,10 @@ function preowned_clothing_github_updater_page() {
                     <td>
                         <input name="preowned_clothing_github_repository" type="text" id="preowned_clothing_github_repository" 
                             value="<?php echo esc_attr($repository); ?>" class="regular-text">
+                        <p class="description">
+                            The exact name of your GitHub repository (e.g., <code>Clothing_Form</code>). 
+                            This is case-sensitive and should not include the username or slashes.
+                        </p>
                     </td>
                 </tr>
                 <tr>
@@ -165,6 +226,7 @@ function preowned_clothing_github_updater_page() {
                             value="<?php echo esc_attr($token); ?>" class="regular-text">
                         <p class="description">
                             Required for private repositories. <a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token" target="_blank">Learn how to create a token</a>.
+                            Your token needs at least the <code>repo</code> scope for private repositories.
                         </p>
                     </td>
                 </tr>
@@ -172,18 +234,24 @@ function preowned_clothing_github_updater_page() {
             
             <p class="submit">
                 <input type="submit" name="save_github_settings" class="button-primary" value="Save Settings">
-                <input type="submit" name="test_github_connection" class="button" value="Test Connection">
+                <input type="submit" name="verify_repository" class="button" value="Verify Repository">
+                <input type="submit" name="test_github_connection" class="button" value="Test Releases">
                 <input type="submit" name="force_update_check" class="button" value="Force Update Check">
             </p>
         </form>
         
         <?php if (isset($test_result)): ?>
             <div class="github-test-result">
-                <h2>Connection Test Result</h2>
+                <h2><?php echo isset($test_result['phase']) && $test_result['phase'] == 'repository_check' ? 'Repository Verification Result' : 'GitHub Releases Test Result'; ?></h2>
                 <?php if ($test_result['success']): ?>
                     <div class="notice notice-success">
                         <p>Connection successful!</p>
-                        <p>Latest version on GitHub: <?php echo esc_html($test_result['version']); ?></p>
+                        <?php if (isset($test_result['version'])): ?>
+                            <p>Latest version on GitHub: <?php echo esc_html($test_result['version']); ?></p>
+                        <?php endif; ?>
+                        <?php if (isset($test_result['message'])): ?>
+                            <p><?php echo esc_html($test_result['message']); ?></p>
+                        <?php endif; ?>
                         <?php if (!empty($test_result['details'])): ?>
                             <pre><?php echo esc_html($test_result['details']); ?></pre>
                         <?php endif; ?>
@@ -191,13 +259,56 @@ function preowned_clothing_github_updater_page() {
                 <?php else: ?>
                     <div class="notice notice-error">
                         <p>Connection failed: <?php echo esc_html($test_result['error']); ?></p>
+                        <?php if (isset($test_result['api_url'])): ?>
+                            <p>API URL tried: <code><?php echo esc_html($test_result['api_url']); ?></code></p>
+                        <?php endif; ?>
                         <?php if (!empty($test_result['details'])): ?>
                             <pre><?php echo esc_html($test_result['details']); ?></pre>
+                        <?php endif; ?>
+                        
+                        <?php if (strpos($test_result['error'], '404') !== false): ?>
+                            <div class="error-help">
+                                <h3>How to Fix 404 Errors</h3>
+                                <ol>
+                                    <li>Verify that the repository exists: <a href="https://github.com/<?php echo esc_attr($test_username); ?>/<?php echo esc_attr($test_repository); ?>" target="_blank">https://github.com/<?php echo esc_attr($test_username); ?>/<?php echo esc_attr($test_repository); ?></a></li>
+                                    <li>Check that the username and repository name are spelled correctly (they're case-sensitive)</li>
+                                    <li>If it's a private repository, ensure your token has the correct permissions</li>
+                                    <li>Confirm that the repository has at least one release: <a href="https://github.com/<?php echo esc_attr($test_username); ?>/<?php echo esc_attr($test_repository); ?>/releases" target="_blank">View Releases</a></li>
+                                </ol>
+                            </div>
+                        <?php elseif (strpos($test_result['error'], '401') !== false): ?>
+                            <div class="error-help">
+                                <h3>How to Fix 401 Unauthorized Errors</h3>
+                                <ol>
+                                    <li>Make sure you've created a valid GitHub Personal Access Token</li>
+                                    <li>Ensure the token has at least the 'repo' scope for private repositories</li>
+                                    <li>Check that the token has not expired</li>
+                                </ol>
+                            </div>
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
+        
+        <div class="github-updater-troubleshooting">
+            <h2>Troubleshooting</h2>
+            
+            <h3>Common Issues</h3>
+            <ul>
+                <li><strong>404 Not Found</strong>: The repository or releases page was not found. Check the username and repository name.</li>
+                <li><strong>401 Unauthorized</strong>: Your token doesn't have the right permissions.</li>
+                <li><strong>No releases found</strong>: You need to create <a href="https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository" target="_blank">at least one release</a> on GitHub.</li>
+            </ul>
+            
+            <h3>Release Requirements</h3>
+            <p>For the updater to work properly:</p>
+            <ul>
+                <li>Your GitHub repository must have at least one published release</li>
+                <li>Release tags should follow semantic versioning (e.g., "1.2.3" or "v1.2.3")</li>
+                <li>The repository should contain a valid WordPress plugin with the same version number in its main file</li>
+            </ul>
+        </div>
         
         <div class="github-updater-log">
             <h2>Debug Log</h2>
@@ -243,8 +354,121 @@ function preowned_clothing_github_updater_page() {
                 });
             });
         </script>
+        
+        <style>
+            .github-test-result pre {
+                background: #f5f5f5;
+                padding: 10px;
+                overflow: auto;
+                max-height: 200px;
+                border: 1px solid #ddd;
+                margin-top: 10px;
+            }
+            .error-help {
+                background: #f9f9f9;
+                border-left: 4px solid #0073aa;
+                padding: 10px 15px;
+                margin-top: 15px;
+            }
+            .error-help h3 {
+                margin-top: 0;
+            }
+            #debug-log-container {
+                background: #f5f5f5;
+                padding: 10px;
+                margin-top: 10px;
+                border: 1px solid #ddd;
+            }
+            #debug-log {
+                max-height: 300px;
+                overflow: auto;
+                margin: 0;
+            }
+            .github-updater-troubleshooting {
+                background: #fff;
+                padding: 15px;
+                margin-top: 20px;
+                border: 1px solid #ddd;
+                border-left: 4px solid #46b450;
+            }
+            .github-updater-troubleshooting h3 {
+                margin-top: 15px;
+                margin-bottom: 5px;
+            }
+        </style>
+        
+        <?php preowned_clothing_maybe_show_advanced_debug(); ?>
+        <?php preowned_clothing_add_help_links_to_main_page(); ?>
     </div>
     <?php
+}
+
+/**
+ * Test if repository exists
+ */
+function preowned_clothing_test_repo_exists($username, $repository, $token = '') {
+    // GitHub API URL for the repository (not releases)
+    $url = "https://api.github.com/repos/{$username}/{$repository}";
+    
+    // Set up the API request
+    $args = array(
+        'headers' => array(
+            'Accept' => 'application/vnd.github.v3+json',
+            'User-Agent' => 'WordPress/' . get_bloginfo('version') . '; ' . get_bloginfo('url')
+        ),
+        'timeout' => 15,
+    );
+    
+    // Add authorization if token exists
+    if (!empty($token)) {
+        $args['headers']['Authorization'] = "token {$token}";
+    }
+    
+    // Prepare result
+    $result = array(
+        'success' => false,
+        'error' => '',
+        'message' => '',
+        'details' => '',
+        'api_url' => $url
+    );
+    
+    // Make the request
+    $response = wp_remote_get($url, $args);
+    
+    // Check for errors
+    if (is_wp_error($response)) {
+        $result['error'] = $response->get_error_message();
+        return $result;
+    }
+    
+    // Check response code
+    $response_code = wp_remote_retrieve_response_code($response);
+    if ($response_code !== 200) {
+        $result['error'] = "API Error: HTTP {$response_code}";
+        $result['details'] = wp_remote_retrieve_body($response);
+        return $result;
+    }
+    
+    // Decode response
+    $body = wp_remote_retrieve_body($response);
+    $data = json_decode($body, true);
+    
+    if (empty($data) || !isset($data['full_name'])) {
+        $result['error'] = 'Invalid API response';
+        $result['details'] = substr($body, 0, 500) . '...';
+        return $result;
+    }
+    
+    // Success!
+    $result['success'] = true;
+    $result['message'] = "Repository found: {$data['full_name']}";
+    $result['details'] = "Repository ID: {$data['id']}\n";
+    $result['details'] .= "Owner: {$data['owner']['login']}\n";
+    $result['details'] .= "Private: " . ($data['private'] ? 'Yes' : 'No') . "\n";
+    $result['details'] .= "Description: {$data['description']}";
+    
+    return $result;
 }
 
 /**
@@ -295,7 +519,7 @@ function preowned_clothing_get_github_version($username, $repository, $token = '
 }
 
 /**
- * Test GitHub connection
+ * Test GitHub connection specifically for releases
  */
 function preowned_clothing_test_github_connection($username, $repository, $token = '') {
     // GitHub API URL for the latest release
@@ -323,7 +547,8 @@ function preowned_clothing_test_github_connection($username, $repository, $token
         'success' => false,
         'error' => '',
         'version' => '',
-        'details' => ''
+        'details' => '',
+        'api_url' => $url
     );
     
     // Check for errors
@@ -337,6 +562,19 @@ function preowned_clothing_test_github_connection($username, $repository, $token
     if ($response_code !== 200) {
         $result['error'] = "API Error: HTTP {$response_code}";
         $result['details'] = wp_remote_retrieve_body($response);
+        
+        // Special handling for 404 on releases
+        if ($response_code === 404) {
+            // Check if repo exists but has no releases
+            $repo_exists = preowned_clothing_test_repo_exists($username, $repository, $token);
+            if ($repo_exists['success']) {
+                $result['error'] = "Repository exists but no releases were found";
+                $result['details'] = "Your repository was found, but it needs at least one published release.\n\n"
+                    . "Please create a release on GitHub and try again.\n\n"
+                    . "Learn more: https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository";
+            }
+        }
+        
         return $result;
     }
     
@@ -360,6 +598,9 @@ function preowned_clothing_test_github_connection($username, $repository, $token
     $result['success'] = true;
     $result['version'] = ltrim($data['tag_name'], 'v');
     $result['details'] = "Rate Limit: {$rate_limit}\nRemaining: {$rate_remaining}\nReset: {$rate_reset}\n";
+    $result['details'] .= "Release Name: {$data['name']}\n";
+    $result['details'] .= "Published: " . date('Y-m-d H:i:s', strtotime($data['published_at'])) . "\n";
+    $result['details'] .= "Download URL: {$data['zipball_url']}";
     
     return $result;
 }
@@ -451,3 +692,355 @@ function preowned_clothing_add_github_settings_link($links) {
     return $links;
 }
 add_filter('plugin_action_links_' . plugin_basename(dirname(dirname(__FILE__)) . '/preowned-clothing-form.php'), 'preowned_clothing_add_github_settings_link');
+
+/**
+ * Add help section to admin page
+ */
+function preowned_clothing_github_help_section() {
+    ?>
+    <div class="github-updater-help">
+        <h2>GitHub Release Guide</h2>
+        
+        <div class="help-section">
+            <h3>Creating a New Release on GitHub</h3>
+            <ol>
+                <li>Go to your GitHub repository</li>
+                <li>Click on "Releases" in the right sidebar</li>
+                <li>Click the "Create a new release" button</li>
+                <li>Enter a version tag (e.g., "v2.5.9")</li>
+                <li>Enter a title for the release (e.g., "Version 2.5.9")</li>
+                <li>Add release notes in the description field</li>
+                <li>Click "Publish release"</li>
+            </ol>
+            
+            <p><strong>Note:</strong> The version tag (without the "v" prefix) should match the version number in your plugin's main PHP file.</p>
+        </div>
+        
+        <div class="help-section">
+            <h3>Version Naming</h3>
+            <p>WordPress uses semantic versioning for plugins:</p>
+            <ul>
+                <li><strong>Major.Minor.Patch</strong> (e.g., 2.5.9)</li>
+                <li><strong>Major:</strong> Big changes that might break compatibility</li>
+                <li><strong>Minor:</strong> New features that are backward compatible</li>
+                <li><strong>Patch:</strong> Bug fixes and small improvements</li>
+            </ul>
+        </div>
+        
+        <div class="help-section">
+            <h3>Quick Links</h3>
+            <?php 
+            $username = get_option('preowned_clothing_github_username', '');
+            $repository = get_option('preowned_clothing_github_repository', '');
+            if (!empty($username) && !empty($repository)) : 
+            ?>
+            <ul>
+                <li><a href="https://github.com/<?php echo esc_attr($username); ?>/<?php echo esc_attr($repository); ?>/releases/new" target="_blank">Create a New Release</a></li>
+                <li><a href="https://github.com/<?php echo esc_attr($username); ?>/<?php echo esc_attr($repository); ?>/releases" target="_blank">View All Releases</a></li>
+                <li><a href="https://github.com/<?php echo esc_attr($username); ?>/<?php echo esc_attr($repository); ?>/tags" target="_blank">View Tags</a></li>
+            </ul>
+            <?php else : ?>
+            <p><em>Configure your repository settings first to see quick links.</em></p>
+            <?php endif; ?>
+        </div>
+    </div>
+    <style>
+        .github-updater-help {
+            background: #fff;
+            padding: 15px;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-left: 4px solid #00a0d2;
+        }
+        .help-section {
+            margin-bottom: 20px;
+        }
+        .help-section h3 {
+            margin-top: 15px;
+            margin-bottom: 5px;
+            color: #0073aa;
+        }
+    </style>
+    <?php
+}
+
+/**
+ * Register the admin page under GitHub menu
+ */
+function preowned_clothing_register_github_menu() {
+    // Create a dedicated GitHub menu
+    add_menu_page(
+        'GitHub Updater',
+        'GitHub',
+        'manage_options',
+        'github-updater',
+        'preowned_clothing_github_updater_page',
+        'dashicons-update',
+        100
+    );
+    
+    // Add submenu items
+    add_submenu_page(
+        'github-updater',
+        'GitHub Updater Settings',
+        'Settings',
+        'manage_options',
+        'github-updater',
+        'preowned_clothing_github_updater_page'
+    );
+    
+    // Add help submenu
+    add_submenu_page(
+        'github-updater',
+        'GitHub Release Guide',
+        'Release Guide',
+        'manage_options',
+        'github-release-guide',
+        'preowned_clothing_github_release_guide_page'
+    );
+}
+// Only register if not already registered in options-general.php
+if (get_option('preowned_clothing_use_github_menu', false)) {
+    add_action('admin_menu', 'preowned_clothing_register_github_menu');
+}
+
+/**
+ * Display the GitHub release guide page
+ */
+function preowned_clothing_github_release_guide_page() {
+    ?>
+    <div class="wrap">
+        <h1>GitHub Release Guide</h1>
+        <?php preowned_clothing_github_help_section(); ?>
+        
+        <div class="github-examples">
+            <h2>Example Release Notes Template</h2>
+            <textarea rows="10" style="width:100%;" onclick="this.select()">## Version <?php echo esc_html(get_option('preowned_clothing_next_version', '2.6.0')); ?>
+
+### Added
+- New feature: [Description]
+- Another addition: [Description]
+
+### Changed
+- Updated [something] to improve [benefit]
+- Modified [feature] for better [reason]
+
+### Fixed
+- Fixed issue where [description of bug]
+- Resolved problem with [description]
+
+### Removed
+- Deprecated [feature] in favor of [new approach]
+</textarea>
+        </div>
+    </div>
+    <?php
+}
+
+/**
+ * Add advanced debugging section - call this from the main page when needed
+ */
+function preowned_clothing_add_advanced_debugging() {
+    ?>
+    <div class="github-advanced-debug">
+        <h2>Advanced Debugging</h2>
+        
+        <div class="debug-section">
+            <h3>Plugin Data</h3>
+            <?php
+            $plugin_file = dirname(dirname(__FILE__)) . '/preowned-clothing-form.php';
+            if (file_exists($plugin_file)) {
+                $plugin_data = get_plugin_data($plugin_file);
+                echo '<table class="widefat striped">';
+                foreach ($plugin_data as $key => $value) {
+                    if (is_string($value)) {
+                        echo '<tr><th>' . esc_html($key) . '</th><td>' . esc_html($value) . '</td></tr>';
+                    }
+                }
+                echo '</table>';
+            } else {
+                echo '<p>Plugin file not found at: ' . esc_html($plugin_file) . '</p>';
+            }
+            ?>
+        </div>
+        
+        <div class="debug-section">
+            <h3>WordPress Update System</h3>
+            <?php
+            echo '<p><strong>WordPress Version:</strong> ' . get_bloginfo('version') . '</p>';
+            
+            // Check if update_plugins transient exists
+            $update_transient = get_site_transient('update_plugins');
+            echo '<p><strong>Update Transient:</strong> ' . (is_object($update_transient) ? 'Exists' : 'Not Found') . '</p>';
+            
+            // Check if our plugin is in the transient
+            $plugin_basename = plugin_basename($plugin_file);
+            $normalized_basename = 'Clothing_Form/preowned-clothing-form.php';
+            echo '<p><strong>Plugin Basename:</strong> ' . esc_html($plugin_basename) . '</p>';
+            echo '<p><strong>Normalized Basename:</strong> ' . esc_html($normalized_basename) . '</p>';
+            
+            if (is_object($update_transient)) {
+                // Check if plugin is in checked array
+                $in_checked = isset($update_transient->checked[$plugin_basename]) || 
+                             isset($update_transient->checked[$normalized_basename]);
+                echo '<p><strong>In Checked Array:</strong> ' . ($in_checked ? 'Yes' : 'No') . '</p>';
+                
+                // Check if plugin is in response array (has update)
+                $in_response = isset($update_transient->response[$plugin_basename]) || 
+                              isset($update_transient->response[$normalized_basename]);
+                echo '<p><strong>In Response Array (Has Update):</strong> ' . ($in_response ? 'Yes' : 'No') . '</p>';
+                
+                if ($in_response) {
+                    // Show update details
+                    $update_obj = isset($update_transient->response[$plugin_basename]) ? 
+                                 $update_transient->response[$plugin_basename] : 
+                                 $update_transient->response[$normalized_basename];
+                    echo '<h4>Update Info:</h4>';
+                    echo '<pre>' . esc_html(print_r($update_obj, true)) . '</pre>';
+                }
+            }
+            ?>
+        </div>
+        
+        <div class="debug-section">
+            <h3>System Information</h3>
+            <?php
+            echo '<p><strong>PHP Version:</strong> ' . phpversion() . '</p>';
+            echo '<p><strong>WordPress Memory Limit:</strong> ' . WP_MEMORY_LIMIT . '</p>';
+            echo '<p><strong>SSL Available:</strong> ' . (extension_loaded('openssl') ? 'Yes' : 'No') . '</p>';
+            // Check if WordPress can make outbound HTTPS requests
+            $test_url = 'https://api.github.com/';
+            $test_args = array(
+                'timeout' => 5,
+                'redirection' => 5,
+                'sslverify' => true
+            );
+            $test_response = wp_remote_get($test_url, $test_args);
+            $can_connect = !is_wp_error($test_response);
+            echo '<p><strong>Can Connect to GitHub API:</strong> ' . ($can_connect ? 'Yes' : 'No') . '</p>';
+            if (!$can_connect && is_wp_error($test_response)) {
+                echo '<p><strong>Connection Error:</strong> ' . esc_html($test_response->get_error_message()) . '</p>';
+            }
+            ?>
+            
+            <h4>Server Variables</h4>
+            <table class="widefat striped">
+                <?php
+                $server_vars = array(
+                    'SERVER_SOFTWARE',
+                    'HTTP_USER_AGENT',
+                    'HTTPS',
+                    'PHP_SELF',
+                );
+                foreach ($server_vars as $var) {
+                    if (isset($_SERVER[$var])) {
+                        echo '<tr><th>' . esc_html($var) . '</th><td>' . esc_html($_SERVER[$var]) . '</td></tr>';
+                    }
+                }
+                ?>
+            </table>
+        </div>
+    </div>
+    <style>
+        .github-advanced-debug {
+            background: #fff;
+            padding: 15px;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+        }
+        .debug-section {
+            margin-bottom: 20px;
+        }
+        .debug-section h3 {
+            margin-top: 15px;
+            margin-bottom: 10px;
+            color: #23282d;
+        }
+        .debug-section table {
+            margin-top: 10px;
+        }
+    </style>
+    <?php
+}
+
+/**
+ * Add this to the main updater admin page to include the advanced debugging
+ */
+function preowned_clothing_maybe_show_advanced_debug() {
+    if (isset($_GET['advanced_debug']) && $_GET['advanced_debug'] === '1') {
+        preowned_clothing_add_advanced_debugging();
+    } else {
+        echo '<p style="margin-top: 20px;"><a href="' . esc_url(add_query_arg('advanced_debug', '1')) . '" class="button">Show Advanced Debug Info</a></p>';
+    }
+}
+
+/**
+ * Add this code to the main page right after the troubleshooting section
+ */
+function preowned_clothing_add_help_links_to_main_page() {
+    ?>
+    <div style="margin: 15px 0;">
+        <h3>Helpful Resources</h3>
+        <p>
+            <a href="https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository" target="_blank" class="button">GitHub Releases Documentation</a>
+            <a href="<?php echo admin_url('admin.php?page=github-release-guide'); ?>" class="button">Release Guide</a>
+            <a href="https://github.com/settings/tokens" target="_blank" class="button">Manage GitHub Tokens</a>
+        </p>
+    </div>
+    <?php
+}
+
+/**
+ * Add notice for new GitHub Updater release
+ */
+function preowned_clothing_updater_release_notice() {
+    // Only show to admins and only once
+    if (!current_user_can('manage_options') || get_option('preowned_clothing_release_notice_dismissed', false)) {
+        return;
+    }
+    
+    // Check if settings are incomplete
+    $username = get_option('preowned_clothing_github_username', '');
+    $repository = get_option('preowned_clothing_github_repository', '');
+    
+    if (empty($username) || empty($repository)) {
+        ?>
+        <div class="notice notice-info is-dismissible" id="preowned-clothing-release-notice">
+            <h3>GitHub Updater Ready to Use!</h3>
+            <p>The new GitHub Updater feature can automatically update your plugin from your GitHub repository.</p>
+            <p>Simply <a href="<?php echo admin_url('options-general.php?page=preowned-clothing-github-updater'); ?>">configure your repository details</a> to get started.</p>
+            <button type="button" class="notice-dismiss">
+                <span class="screen-reader-text">Dismiss this notice.</span>
+            </button>
+        </div>
+        <script>
+            jQuery(document).ready(function($) {
+                $(document).on('click', '#preowned-clothing-release-notice .notice-dismiss', function() {
+                    $.ajax({
+                        url: ajaxurl,
+                        data: {
+                            action: 'dismiss_updater_notice',
+                            security: '<?php echo wp_create_nonce('dismiss_updater_notice'); ?>'
+                        }
+                    });
+                });
+            });
+        </script>
+        <?php
+    }
+}
+add_action('admin_notices', 'preowned_clothing_updater_release_notice');
+
+/**
+ * AJAX handler to dismiss the release notice
+ */
+function preowned_clothing_dismiss_updater_notice() {
+    check_ajax_referer('dismiss_updater_notice', 'security');
+    
+    if (current_user_can('manage_options')) {
+        update_option('preowned_clothing_release_notice_dismissed', true);
+    }
+    
+    wp_die();
+}
+add_action('wp_ajax_dismiss_updater_notice', 'preowned_clothing_dismiss_updater_notice');
