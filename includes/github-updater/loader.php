@@ -166,11 +166,11 @@ function preowned_clothing_force_update_check() {
     
     // Get plugin file
     global $preowned_clothing_updater;
-    if (empty($preowned_clothing_updater) || empty($preowned_clothing_updater->file)) {
+    if (empty($preowned_clothing_updater) || !method_exists($preowned_clothing_updater, 'get_plugin_file')) {
         return;
     }
     
-    $plugin_file = $preowned_clothing_updater->file;
+    $plugin_file = $preowned_clothing_updater->get_plugin_file();
     $plugin_data = preowned_clothing_get_plugin_data($plugin_file);
     $plugin_basename = plugin_basename($plugin_file);
     $normalized_basename = preowned_clothing_get_normalized_basename($plugin_file);
