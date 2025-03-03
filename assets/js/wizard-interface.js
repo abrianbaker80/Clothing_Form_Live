@@ -464,3 +464,158 @@
     $(document).ready(initWizard);
     
 })(jQuery);
+
+/**
+ * Wizard Interface
+ * Handles the multi-step form navigation
+ */
+jQuery(document).ready(function($) {
+    console.log('Wizard Interface script loaded');
+    
+    const $wizardSteps = $('.wizard-step');
+    const $wizardNav = $('.wizard-navigation');
+    const $progressBar = $('.progress-bar-fill');
+    const $stepIndicators = $('.step-indicator');
+    
+    // Set up initial state
+    let currentStep = 0;
+    updateWizardState();
+    
+    // Next button click
+    $wizardNav.on('click', '.wizard-next', function() {
+        // Validate the current step
+        if (validateStep(currentStep)) {
+            // Save the form data before proceeding
+            if (typeof saveFormData === 'function') {
+                saveFormData();
+            }
+            
+            // Go to next step
+            currentStep++;
+            updateWizardState();
+            scrollToTop();
+        }
+    });
+    
+    // Previous button click
+    $wizardNav.on('click', '.wizard-prev', function() {
+        currentStep--;
+        updateWizardState();
+        scrollToTop();
+    });
+    
+    // Update the wizard state (visibility, buttons, progress)
+    function updateWizardState() {
+        // Constrain current step to valid range
+        currentStep = Math.max(0, Math.min(currentStep, $wizardSteps.length - 1));
+        
+        // Update step visibility
+        $wizardSteps.removeClass('active');
+        $wizardSteps.eq(currentStep).addClass('active');
+        
+        // Update step indicators
+        $stepIndicators.removeClass('active completed');
+        for (let i = 0; i <= currentStep; i++) {
+            if (i < currentStep) {
+                $stepIndicators.eq(i).addClass('completed');
+            } else {
+                $stepIndicators.eq(i).addClass('active');
+            }
+        }
+        
+        // Update progress bar
+        const progress = ((currentStep + 1) / $wizardSteps.length) * 100;
+        $progressBar.css('width', progress + '%');
+        
+        // Update navigation buttons
+        const isFirstStep = currentStep === 0;
+        const isLastStep = currentStep === $wizardSteps.length - 1;
+        
+        $('.wizard-prev').toggle(!isFirstStep);
+        $('.wizard-next').toggle(!isLastStep);
+        $('.wizard-submit').toggle(isLastStep);
+        
+        // If this is the last step (review), update the review content
+        if (isLastStep) {
+            // Ensure review page is updated with the latest data
+            if (typeof saveFormData === 'function') {
+                const formData = saveFormData();
+                // If there's a separate function for updating the review, call it
+                if (typeof updateReviewStep === 'function') {
+                    updateReviewStep(formData);
+                }
+            }
+        }
+    }
+    
+    // Validate the current step
+    function validateStep(stepIndex) {
+        const $currentStep = $wizardSteps.eq(stepIndex);
+        let isValid = true;
+        
+        // Get all required fields in this step
+        const $requiredFields = $currentStep.find('input[required], select[required], textarea[required]');
+        
+        // Check if all required fields are filled
+        $requiredFields.each(function() {
+            const $field = $(this);
+            
+            // Skip validation for hidden fields (e.g., in unselected items)
+            if ($field.closest('.clothing-item-container').length && !$field.is(':visible')) {
+                return;
+            }
+            
+            if (!$field.val()) {
+                isValid = false;
+                
+                // Add error styling
+                $field.addClass('error');
+                
+                // Show error message if none exists
+                if ($field.next('.error-message').length === 0) {
+                    $field.after('<div class="error-message">This field is required</div>');
+                }
+            } else {
+                // Remove error styling
+                $field.removeClass('error');
+                $field.next('.error-message').remove();
+            }
+        });
+        
+        // If not valid, show a message at the top of the step
+        if (!isValid) {
+            if ($currentStep.find('.step-error-message').length === 0) {
+                $currentStep.prepend('<div class="step-error-message">Please fill out all required fields before continuing.</div>');
+                
+                // Scroll to first error
+                const $firstError = $currentStep.find('.error').first();
+                if ($firstError.length) {
+                    $('html, body').animate({
+                        scrollTop: $firstError.offset().top - 100
+                    }, 300);
+                }
+            }
+        } else {
+            // Remove any existing error message
+            $currentStep.find('.step-error-message').remove();
+        }
+        
+        return isValid;
+    }
+    
+    // Remove error styling when field is changed
+    $(document).on('change keyup', '.error', function() {
+        const $field = $(this);
+        if ($field.val()) {
+            $field.removeClass('error');
+            $field.next('.error-message').remove();
+        }
+    });
+    
+    // Scroll to the top of the form
+    function scrollToTop() {
+        $('html, body').animate({
+            scrollTop: $('.clothing-submission-form').offset().top - 50
+        }, 300);
+    }
+});

@@ -1,6 +1,6 @@
 <?php
 /**
- * GitHub Updater for Preowned Clothing Form Plugin
+ * Enhanced GitHub Updater for Preowned Clothing Form Plugin
  * 
  * Checks for updates to the plugin on GitHub and handles the update process
  * 
@@ -75,9 +75,9 @@ function preowned_clothing_force_update_check() {
 add_action('admin_init', 'preowned_clothing_force_update_check', 5);
 
 /**
- * GitHub Updater Class
+ * Enhanced GitHub Updater Class
  * 
- * Handles checking for and performing updates from GitHub
+ * Handles checking for and performing updates from GitHub with improved error handling
  */
 class Preowned_Clothing_GitHub_Updater {
     private $file;
@@ -118,6 +118,7 @@ class Preowned_Clothing_GitHub_Updater {
             error_log('Preowned Clothing GitHub Updater: Initializing for ' . $this->plugin_data['Name']);
             error_log('Preowned Clothing GitHub Updater: Actual basename: ' . $this->basename);
             error_log('Preowned Clothing GitHub Updater: Normalized basename: ' . $this->normalized_basename);
+            error_log('Preowned Clothing GitHub Updater: Current plugin version: ' . $this->plugin_data['Version']);
         }
     }
 
@@ -152,6 +153,7 @@ class Preowned_Clothing_GitHub_Updater {
      * Initialize the updater
      */
     public function initialize() {
+        // Add filters to modify update check behavior
         add_filter('pre_set_site_transient_update_plugins', array($this, 'modify_transient'), 10, 1);
         add_filter('plugins_api', array($this, 'plugin_popup'), 10, 3);
         add_filter('upgrader_post_install', array($this, 'after_install'), 10, 3);
@@ -170,6 +172,49 @@ class Preowned_Clothing_GitHub_Updater {
         if ($this->debug_mode) {
             add_action('after_plugin_row_' . $this->basename, array($this, 'debug_info_row'), 10, 2);
         }
+        
+        // Manually check for updates on plugin page
+        if (is_admin() && !wp_doing_ajax() && isset($_GET['page']) && $_GET['page'] === 'preowned-clothing-settings') {
+            // Clear cache and fetch updates when on settings page
+            $this->get_repository_info();
+            if ($this->debug_mode) {
+                error_log('Preowned Clothing GitHub Updater: Manually checking for updates from settings page');
+            }
+        }
+        
+        // Run a daily check for updates in the background
+        if (!wp_next_scheduled('preowned_clothing_daily_update_check')) {
+            wp_schedule_event(time(), 'daily', 'preowned_clothing_daily_update_check');
+        }
+        add_action('preowned_clothing_daily_update_check', array($this, 'daily_check_for_update'));
+    }
+    
+    /**
+     * Daily check for updates
+     */
+    public function daily_check_for_update() {
+        if ($this->debug_mode) {
+            error_log('Preowned Clothing GitHub Updater: Running daily update check');
+        }
+        
+        $this->get_repository_info(true); // Force refresh
+        update_option('preowned_clothing_last_update_check', time());
+        
+        if ($this->debug_mode && $this->github_response) {
+            // Compare current version with GitHub version
+            $current_version = $this->plugin_data['Version'];
+            $github_version = ltrim($this->github_response['tag_name'], 'v');
+            
+            error_log("Preowned Clothing GitHub Updater: Daily check results - Current: $current_version, GitHub: $github_version");
+            if (version_compare($github_version, $current_version, '>')) {
+                error_log("Preowned Clothing GitHub Updater: Update available!");
+            } else {
+                error_log("Preowned Clothing GitHub Updater: No update needed");
+            }
+        }
+        
+        // Force WordPress to check for updates
+        delete_site_transient('update_plugins');
     }
     
     /**
@@ -178,16 +223,22 @@ class Preowned_Clothing_GitHub_Updater {
     public function debug_info_row($file, $plugin_data) {
         $current_version = $plugin_data['Version'];
         $github_version = isset($this->github_response) && isset($this->github_response['tag_name']) ? 
-                         $this->github_response['tag_name'] : 'Unknown';
+                         ltrim($this->github_response['tag_name'], 'v') : 'Unknown';
                          
         $last_check = $this->last_check ? date('Y-m-d H:i:s', $this->last_check) : 'Never';
+        $update_available = 'No';
+        
+        if ($github_version !== 'Unknown' && version_compare($github_version, $current_version, '>')) {
+            $update_available = '<strong style="color: green;">Yes</strong>';
+        }
                 
         $debug_info = "<tr class='plugin-update-tr'><td colspan='3' class='plugin-update'>";
         $debug_info .= "<div class='update-message notice inline notice-info notice-alt'>";
         $debug_info .= "<p><strong>Debug Info:</strong> Current: $current_version | ";
         $debug_info .= "Latest on GitHub: $github_version | ";
+        $debug_info .= "Update available: $update_available | ";
         $debug_info .= "Last checked: $last_check | ";
-        $debug_info .= "<a href='" . admin_url('plugins.php?force-check=1') . "'>Force Check Now</a>";
+        $debug_info .= "<a href='" . admin_url('options-general.php?page=preowned-clothing-settings&force-check=1') . "'>Force Check Now</a>";
         $debug_info .= "</p></div></td></tr>";
         
         echo $debug_info;
@@ -211,14 +262,18 @@ class Preowned_Clothing_GitHub_Updater {
         }
         
         // Fetch update info from GitHub if not already loaded or force checking
-        if (!$this->github_response || $force_check) {
-            $this->get_repository_info();
-            update_option('preowned_clothing_last_update_check', time());
-            update_option('preowned_clothing_github_response', $this->github_response);
+        if ($force_check || !isset($this->github_response) || empty($this->github_response)) {
+            $this->github_response = get_option('preowned_clothing_github_response');
             
-            // Debug log the GitHub response
-            if ($this->debug_mode && $this->github_response) {
-                error_log('Preowned Clothing GitHub Updater: GitHub API found version: ' . $this->github_response['tag_name']);
+            if ($force_check || empty($this->github_response)) {
+                $this->get_repository_info($force_check);
+                update_option('preowned_clothing_last_update_check', time());
+                update_option('preowned_clothing_github_response', $this->github_response);
+                
+                // Debug log the GitHub response
+                if ($this->debug_mode && $this->github_response) {
+                    error_log('Preowned Clothing GitHub Updater: GitHub API found version: ' . $this->github_response['tag_name']);
+                }
             }
         }
         
@@ -244,6 +299,12 @@ class Preowned_Clothing_GitHub_Updater {
         // Get tag without 'v' prefix for version comparison
         $github_version = ltrim($this->github_response['tag_name'], 'v');
         
+        // Debug comparison logic
+        if ($this->debug_mode) {
+            error_log("Preowned Clothing GitHub Updater: Comparing versions - Current: $current_version | GitHub: $github_version");
+            error_log("Preowned Clothing GitHub Updater: Comparison result: " . version_compare($github_version, $current_version, '>'));
+        }
+        
         // Compare versions with version_compare() - handles semantic versioning properly
         if (version_compare($github_version, $current_version, '>')) {
             if ($this->debug_mode) {
@@ -252,17 +313,21 @@ class Preowned_Clothing_GitHub_Updater {
             
             // Format the download URL
             $download_url = $this->github_response['zipball_url'];
+            
+            // Add token for private repos
             if ($this->authorize_token) {
                 $download_url = add_query_arg('access_token', $this->authorize_token, $download_url);
             }
             
             // Set transient data for update - for both actual and normalized basename
             $obj = new stdClass();
-            $obj->slug = 'Clothing_Form';
+            $obj->slug = dirname($this->basename); // Use directory name as slug
             $obj->plugin = $this->basename;  // Use actual basename for plugin field
             $obj->new_version = $github_version;
             $obj->url = $this->plugin_data['PluginURI'];
             $obj->package = $download_url;
+            $obj->tested = isset($this->github_response['tested']) ? $this->github_response['tested'] : '';
+            $obj->requires_php = isset($this->github_response['requires_php']) ? $this->github_response['requires_php'] : '';
             
             // Add to transient using both basenames to ensure it's found
             $transient->response[$this->basename] = $obj;
@@ -296,14 +361,18 @@ class Preowned_Clothing_GitHub_Updater {
      * @return object|boolean Modified response or false
      */
     public function plugin_popup($false, $action, $response) {
-        if ($response->slug !== $this->basename) {
+        // Verify this is for our plugin
+        if (!isset($response->slug) || $response->slug !== dirname($this->basename)) {
             return $false;
         }
         
         // Get plugin & GitHub response
         $this->plugin_data = get_plugin_data($this->file);
         if (empty($this->github_response)) {
-            $this->get_repository_info();
+            $this->github_response = get_option('preowned_clothing_github_response');
+            if (empty($this->github_response)) {
+                $this->get_repository_info();
+            }
         }
         
         // Return false if no GitHub response
@@ -312,8 +381,8 @@ class Preowned_Clothing_GitHub_Updater {
         }
         
         // Parse GitHub releases info
-        $response->slug = $this->basename;
-        $response->plugin = $this->plugin;
+        $response->slug = dirname($this->basename);
+        $response->plugin = $this->basename;
         $response->name = $this->plugin_data['Name'];
         $response->plugin_name = $this->plugin_data['Name'];
         $response->version = ltrim($this->github_response['tag_name'], 'v');
@@ -352,7 +421,6 @@ class Preowned_Clothing_GitHub_Updater {
         }
         
         // Fetch additional details that might be in GitHub API
-        $response->version = ltrim($this->github_response['tag_name'], 'v');
         $response->last_updated = $this->github_response['published_at'];
         $response->download_link = $this->github_response['zipball_url'];
         
@@ -412,24 +480,56 @@ class Preowned_Clothing_GitHub_Updater {
     public function upgrader_pre_download($reply, $package, $upgrader) {
         // Only apply to our plugin and if token is set
         if (strpos($package, 'github.com/' . $this->username . '/' . $this->repository) !== false && $this->authorize_token) {
-            $package = add_query_arg('access_token', $this->authorize_token, $package);
-            
-            // Create a special upgrader skin for our plugin
             if ($this->debug_mode) {
                 error_log('Preowned Clothing GitHub Updater: Adding authorization token to download package');
             }
             
-            return false; // Let WordPress handle the download with modified URL
+            // Add token to URL
+            $package = add_query_arg('access_token', $this->authorize_token, $package);
+            // Tell WordPress to use the modified URL
+            $upgrader->strings['downloading_package'] = 'Downloading package from GitHub...';
+            $upgrader->skin->feedback('downloading_package');
+            
+            // Use the WordPress HTTP API to download the package
+            $download_file = download_url($package);
+            
+            if (is_wp_error($download_file)) {
+                // Log the error
+                if ($this->debug_mode) {
+                    error_log('Preowned Clothing GitHub Updater: Download failed: ' . $download_file->get_error_message());
+                }
+                return new WP_Error(
+                    'download_failed',
+                    'Error downloading package from GitHub: ' . $download_file->get_error_message(),
+                    $download_file->get_error_data()
+                );
+            }
+            
+            return $download_file;
         }
-        return $reply; // Return default for all other packages
+        return $reply;
     }
 
     /**
      * Get the repository info from the GitHub API
+     * 
+     * @param boolean $force_refresh Force refresh of data from GitHub
      */
-    private function get_repository_info() {
-        if (!empty($this->github_response)) {
-            return; // Already have the data
+    private function get_repository_info($force_refresh = false) {
+        if (!empty($this->github_response) && !$force_refresh) {
+            return; // Already have the data and not forcing refresh
+        }
+        
+        // Clear existing response if forcing refresh
+        if ($force_refresh) {
+            $this->github_response = null;
+        }
+        
+        if (!isset($this->username) || !isset($this->repository)) {
+            if ($this->debug_mode) {
+                error_log('Preowned Clothing GitHub Updater: Username or repository not set');
+            }
+            return;
         }
         
         // GitHub API URL for the latest release
@@ -449,12 +549,18 @@ class Preowned_Clothing_GitHub_Updater {
             $args['headers']['Authorization'] = "token {$this->authorize_token}";
         }
         
+        if ($this->debug_mode) {
+            error_log("Preowned Clothing GitHub Updater: Making API request to $url");
+        }
+        
         // Make the request
         $response = wp_remote_get($url, $args);
         
         // Log errors in debug mode
-        if ($this->debug_mode && is_wp_error($response)) {
-            error_log('Preowned Clothing GitHub Updater: API Error - ' . $response->get_error_message());
+        if (is_wp_error($response)) {
+            if ($this->debug_mode) {
+                error_log('Preowned Clothing GitHub Updater: API Error - ' . $response->get_error_message());
+            }
             return;
         }
         
@@ -464,17 +570,31 @@ class Preowned_Clothing_GitHub_Updater {
         
         // Log rate limit info in debug mode
         if ($this->debug_mode) {
-            $rate_limit = isset($response['headers']['x-ratelimit-limit']) ? $response['headers']['x-ratelimit-limit'] : 'Unknown';
-            $rate_remaining = isset($response['headers']['x-ratelimit-remaining']) ? $response['headers']['x-ratelimit-remaining'] : 'Unknown';
-            $rate_reset = isset($response['headers']['x-ratelimit-reset']) ? date('Y-m-d H:i:s', $response['headers']['x-ratelimit-reset']) : 'Unknown';
+            $rate_limit = wp_remote_retrieve_header($response, 'x-ratelimit-limit');
+            $rate_remaining = wp_remote_retrieve_header($response, 'x-ratelimit-remaining');
+            $rate_reset = wp_remote_retrieve_header($response, 'x-ratelimit-reset');
             
-            error_log("Preowned Clothing GitHub Updater: API Status Code: $response_code, Rate Limit: $rate_limit, Remaining: $rate_remaining, Reset: $rate_reset");
+            if ($rate_reset) {
+                $rate_reset_time = date('Y-m-d H:i:s', $rate_reset);
+                error_log("Preowned Clothing GitHub Updater: API Status Code: $response_code, Rate Limit: $rate_limit, Remaining: $rate_remaining, Reset: $rate_reset_time");
+            } else {
+                error_log("Preowned Clothing GitHub Updater: API Status Code: $response_code");
+            }
         }
         
         // Handle error responses
         if ($response_code !== 200) {
             if ($this->debug_mode) {
-                error_log("Preowned Clothing GitHub Updater: API Error - Status $response_code, Response: $body");
+                // Log the specific error
+                if ($response_code === 404) {
+                    error_log("Preowned Clothing GitHub Updater: API Error - Repository or release not found (404)");
+                } elseif ($response_code === 403) {
+                    error_log("Preowned Clothing GitHub Updater: API Error - Rate limited or authentication required (403)");
+                } elseif ($response_code === 401) {
+                    error_log("Preowned Clothing GitHub Updater: API Error - Unauthorized, check your token (401)");
+                } else {
+                    error_log("Preowned Clothing GitHub Updater: API Error - Status $response_code, Response: $body");
+                }
             }
             return;
         }
@@ -503,6 +623,14 @@ class Preowned_Clothing_GitHub_Updater {
         
         if ($this->debug_mode) {
             error_log('Preowned Clothing GitHub Updater: API request successful, found version: ' . $data['tag_name']);
+            
+            // Also log the current plugin version for comparison
+            $current_version = $this->plugin_data['Version'];
+            $github_version = ltrim($data['tag_name'], 'v');
+            
+            error_log("Preowned Clothing GitHub Updater: Current plugin version: $current_version");
+            error_log("Preowned Clothing GitHub Updater: GitHub version: $github_version");
+            error_log("Preowned Clothing GitHub Updater: Update needed: " . (version_compare($github_version, $current_version, '>') ? 'Yes' : 'No'));
         }
     }
     

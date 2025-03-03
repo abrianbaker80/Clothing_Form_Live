@@ -3,7 +3,7 @@
  * Plugin Name: Preowned Clothing Form
  * Plugin URI:  https://github.com/abrianbaker80/Clothing_Form
  * Description: A plugin to create a form for submitting pre-owned clothing items.
- * Version:     2.5.7 Live
+ * Version:     2.5.9 Live
  * Author:      Allen Baker
  * Author URI:  Your Website/Author URL
  * License:     GPL2
@@ -22,7 +22,7 @@ if (!function_exists('plugin_dir_url')) {
     require_once(ABSPATH . 'wp-includes/plugin.php');
 }
 // Define plugin constants
-define('PCF_VERSION', '2.5.7'); // Updated version
+define('PCF_VERSION', '2.5.9'); // Updated version
 define('PCF_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PCF_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -47,16 +47,25 @@ try {
     if (file_exists(plugin_dir_path(__FILE__) . 'includes/github-updater.php')) {
         require_once plugin_dir_path(__FILE__) . 'includes/github-updater.php';
         
+        // Include the admin interface for GitHub updater
+        if (is_admin() && file_exists(plugin_dir_path(__FILE__) . 'includes/github-updater-admin.php')) {
+            require_once plugin_dir_path(__FILE__) . 'includes/github-updater-admin.php';
+        }
+        
         // Only initialize if we're in admin and have the right functions
         if (is_admin() && function_exists('preowned_clothing_can_run_updater') && preowned_clothing_can_run_updater()) {
             // Setup the updater safely
             add_action('admin_init', function() {
                 $updater = new Preowned_Clothing_GitHub_Updater(__FILE__);
-                $updater->set_username('abrianbaker80');
-                $updater->set_repository('Clothing_Form');
                 
-                // Get token from settings if available
+                // Use options from settings
+                $username = get_option('preowned_clothing_github_username', 'abrianbaker80');
+                $repository = get_option('preowned_clothing_github_repository', 'Clothing_Form');
                 $token = get_option('preowned_clothing_github_token', '');
+                
+                $updater->set_username($username);
+                $updater->set_repository($repository);
+                
                 if (!empty($token)) {
                     $updater->authorize($token);
                 }
@@ -165,6 +174,16 @@ function preowned_clothing_enqueue_scripts() {
     wp_enqueue_script('preowned-clothing-form-validation',
         plugin_dir_url(__FILE__) . 'assets/js/form-validation.js',
         ['jquery'], '1.0.0', true);
+    
+    // Enqueue form storage script
+    wp_enqueue_script('preowned-clothing-form-storage',
+        plugin_dir_url(__FILE__) . 'assets/js/form-storage.js',
+        ['jquery'], '1.0.0', true);
+    
+    // Enqueue item management script
+    wp_enqueue_script('preowned-clothing-item-management',
+        plugin_dir_url(__FILE__) . 'assets/js/item-management.js',
+        ['jquery', 'preowned-clothing-form-storage'], '1.0.0', true);
         
     // Remove any previous category-handler scripts
     wp_deregister_script('preowned-clothing-category-handler');
