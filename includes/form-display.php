@@ -98,6 +98,8 @@ function preowned_clothing_display_form($atts = []) {
     }
     
     // Create and render the form
+    global $clothing_categories_hierarchical;
+    $options['categories'] = $clothing_categories_hierarchical; // Add categories to options
     $renderer = new PCF_Form_Renderer($options);
     echo $renderer->render();
     
@@ -149,12 +151,16 @@ function preowned_clothing_enqueue_form_assets() {
         plugin_dir_url(dirname(__FILE__)) . 'assets/js/category-handler.js',
         ['jquery'], time(), true);
     
+    // Get the clothing categories for JavaScript
+    global $clothing_categories_hierarchical;
+    
     // Localize script with form options and ajax URL
     wp_localize_script('preowned-clothing-category-handler', 'pcfFormOptions', [
         'ajax_url' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('preowned_clothing_ajax_nonce'),
         'plugin_url' => plugin_dir_url(dirname(__FILE__)),
-        'debug' => true
+        'debug' => true,
+        'categories' => $clothing_categories_hierarchical // Add categories data for JS
     ]);
 }
 add_action('wp_enqueue_scripts', 'preowned_clothing_enqueue_form_assets');

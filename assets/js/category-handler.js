@@ -1,223 +1,120 @@
 /**
- * Enhanced Category Handler for Preowned Clothing Form
- * Handles hierarchical selection of gender → category → subcategory → size
+ * Category Handler for Clothing Form
  */
 jQuery(document).ready(function($) {
-    console.log('Category handler initialized');
-    
-    // Cache DOM elements
-    const $genderField = $('#clothing_gender');
-    const $categoryField = $('#clothing_category');
-    const $subcategoryField = $('#clothing_subcategory');
-    const $sizeField = $('#clothing_size');
-    
-    // Cache container elements
-    const $categoryContainer = $('#category_container');
-    const $subcategoryContainer = $('#subcategory_container');
-    const $sizeContainer = $('#size_container');
-    
-    // Track our current categories data
-    let categoriesData = null;
-    let currentGender = null;
-    let currentCategory = null;
-    let currentSubcategory = null;
-    
-    // Function to fetch categories data via AJAX
-    function fetchCategoriesData() {
-        console.log('Fetching category data...');
-        
-        // Initially hide the category, subcategory and size fields
-        $categoryContainer.hide();
-        $subcategoryContainer.hide();
-        $sizeContainer.hide();
-        
-        // Make AJAX request to get categories
-        $.ajax({
-            url: pcfFormOptions.ajax_url,
-            type: 'POST',
-            data: {
-                action: 'get_clothing_categories',
-                nonce: pcfFormOptions.nonce
-            },
-            success: function(response) {
-                console.log('Categories data received');
-                if (response.success && response.data) {
-                    categoriesData = response.data;
-                    initializeGenderDropdown();
-                } else {
-                    console.error('Error fetching categories data:', response);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX error:', error);
-            }
-        });
-    }
-    
-    // Initialize the gender dropdown
-    function initializeGenderDropdown() {
-        // Clear current options
-        $genderField.empty();
-        
-        // Add default option
-        $genderField.append($('<option>', {
-            value: '',
-            text: 'Select Gender',
-            disabled: true,
-            selected: true
-        }));
-        
-        // Add gender options
-        if (categoriesData && categoriesData.gender) {
-            $.each(categoriesData.gender, function(key, data) {
-                $genderField.append($('<option>', {
-                    value: key,
-                    text: data.label
-                }));
-            });
-            
-            // Show gender field
-            $genderField.closest('.form-group').show();
-        }
-    }
-    
-    // Handle gender selection
-    function handleGenderChange() {
-        const gender = $genderField.val();
-        currentGender = gender;
-        
-        // Clear subsequent fields
-        $categoryField.empty();
-        $subcategoryField.empty();
-        $sizeField.empty();
-        
-        // Hide subsequent containers
-        $subcategoryContainer.hide();
-        $sizeContainer.hide();
-        
-        if (gender && categoriesData.gender[gender]) {
-            populateCategoryDropdown(gender);
-            $categoryContainer.show();
-        } else {
-            $categoryContainer.hide();
-        }
-    }
-    
-    // Populate category dropdown based on selected gender
-    function populateCategoryDropdown(gender) {
-        // Clear current options
-        $categoryField.empty();
-        
-        // Add default option
-        $categoryField.append($('<option>', {
-            value: '',
-            text: 'Select Category',
-            disabled: true,
-            selected: true
-        }));
-        
-        // Add category options for the selected gender
-        const categories = categoriesData.gender[gender].categories;
-        
-        $.each(categories, function(key, data) {
-            $categoryField.append($('<option>', {
-                value: key,
-                text: data.label
-            }));
-        });
+    // Debug info
+    if (pcfFormOptions.debug) {
+        console.log('PCF Category Handler loaded');
+        console.log('Categories:', pcfFormOptions.categories);
     }
     
     // Handle category selection
-    function handleCategoryChange() {
-        const category = $categoryField.val();
-        currentCategory = category;
+    $(document).on('change', '.main-category', function() {
+        const $select = $(this);
+        const itemIndex = $select.closest('.clothing-item').data('item-index');
+        const categoryKey = $select.val();
+        const $subcategoryContainer = $('#subcategory-container-' + itemIndex);
         
-        // Clear subsequent fields
-        $subcategoryField.empty();
-        $sizeField.empty();
+        // Clear existing subcategories
+        $subcategoryContainer.empty();
         
-        // Hide size container
-        $sizeContainer.hide();
+        if (!categoryKey) return; // Exit if no category selected
         
-        if (category && 
-            categoriesData.gender[currentGender].categories[category].subcategories) {
-            populateSubcategoryDropdown(currentGender, category);
-            $subcategoryContainer.show();
-        } else {
-            $subcategoryContainer.hide();
+        // Get subcategories for this main category
+        const category = pcfFormOptions.categories[categoryKey];
+        if (!category || !category.subcategories) {
+            console.error('No subcategories found for', categoryKey);
+            return;
         }
-    }
-    
-    // Populate subcategory dropdown based on selected gender and category
-    function populateSubcategoryDropdown(gender, category) {
-        // Clear current options
-        $subcategoryField.empty();
         
-        // Add default option
-        $subcategoryField.append($('<option>', {
-            value: '',
-            text: 'Select Subcategory',
-            disabled: true,
-            selected: true
-        }));
+        // Create subcategory dropdown
+        const $subcategoryGroup = $('<div class="form-group"></div>');
+        $subcategoryGroup.append('<label for="item-subcategory-' + itemIndex + '">Sub Category</label>');
+        
+        const $subcategorySelect = $('<select class="form-control subcategory" id="item-subcategory-' + itemIndex + '" name="items[' + itemIndex + '][subcategory]" required></select>');
+        $subcategorySelect.append('<option value="">Select a Sub-Category</option>');
         
         // Add subcategory options
-        const subcategories = categoriesData.gender[gender].categories[category].subcategories;
-        
-        $.each(subcategories, function(key, data) {
-            $subcategoryField.append($('<option>', {
-                value: key,
-                text: data.label
-            }));
+        $.each(category.subcategories, function(subKey, subcategory) {
+            $subcategorySelect.append('<option value="' + subKey + '">' + subcategory.name + '</option>');
         });
-    }
+        
+        $subcategoryGroup.append($subcategorySelect);
+        $subcategoryContainer.append($subcategoryGroup);
+        
+        // Set up event handler for subcategory changes (for deeper hierarchies)
+        $subcategorySelect.on('change', function() {
+            handleSubcategorySelection($(this), itemIndex);
+        });
+    });
     
     // Handle subcategory selection
-    function handleSubcategoryChange() {
-        const subcategory = $subcategoryField.val();
-        currentSubcategory = subcategory;
+    function handleSubcategorySelection($select, itemIndex) {
+        const mainCategoryKey = $('#item-category-' + itemIndex).val();
+        const subcategoryKey = $select.val();
+        const $container = $select.closest('.subcategory-container');
         
-        // Clear size field
-        $sizeField.empty();
+        // Remove any subsequent dropdowns
+        $select.closest('.form-group').nextAll().remove();
         
-        if (subcategory && 
-            categoriesData.gender[currentGender].categories[currentCategory].subcategories[subcategory].sizes) {
-            populateSizeDropdown(currentGender, currentCategory, subcategory);
-            $sizeContainer.show();
-        } else {
-            $sizeContainer.hide();
+        if (!subcategoryKey) return;
+        
+        // Get the subcategory data
+        const mainCategory = pcfFormOptions.categories[mainCategoryKey];
+        const subcategory = mainCategory.subcategories[subcategoryKey];
+        
+        // Check if we have deeper subcategories
+        if (subcategory && subcategory.subcategories && Object.keys(subcategory.subcategories).length > 0) {
+            // Create the next level dropdown
+            const $nextGroup = $('<div class="form-group"></div>');
+            $nextGroup.append('<label for="item-subcategory-' + itemIndex + '-level2">Specific Type</label>');
+            
+            const $nextSelect = $('<select class="form-control subcategory-level2" id="item-subcategory-' + itemIndex + '-level2" name="items[' + itemIndex + '][subcategory_level2]" required></select>');
+            $nextSelect.append('<option value="">Select Option</option>');
+            
+            // Add options
+            $.each(subcategory.subcategories, function(key, value) {
+                $nextSelect.append('<option value="' + key + '">' + value.name + '</option>');
+            });
+            
+            $nextGroup.append($nextSelect);
+            $container.append($nextGroup);
+            
+            // Set up event handler for deeper levels if needed
+            $nextSelect.on('change', function() {
+                // You can extend this for deeper levels if needed
+            });
         }
     }
     
-    // Populate size dropdown based on selected gender, category, and subcategory
-    function populateSizeDropdown(gender, category, subcategory) {
-        // Clear current options
-        $sizeField.empty();
-        
-        // Add default option
-        $sizeField.append($('<option>', {
-            value: '',
-            text: 'Select Size',
-            disabled: true,
-            selected: true
-        }));
-        
-        // Add size options
-        const sizes = categoriesData.gender[gender].categories[category].subcategories[subcategory].sizes;
-        
-        $.each(sizes, function(index, size) {
-            $sizeField.append($('<option>', {
-                value: size,
-                text: size
-            }));
-        });
+    // Restore previous selections if form has saved data
+    function restoreCategorySelections() {
+        if (typeof(Storage) !== "undefined" && localStorage.getItem("clothingFormData")) {
+            const savedData = JSON.parse(localStorage.getItem("clothingFormData"));
+            
+            if (savedData.items) {
+                $.each(savedData.items, function(index, item) {
+                    if (item.category) {
+                        const $categorySelect = $('#item-category-' + index);
+                        if ($categorySelect.length) {
+                            $categorySelect.val(item.category).trigger('change');
+                            
+                            // Short timeout to allow the subcategory dropdown to be created
+                            setTimeout(function() {
+                                if (item.subcategory) {
+                                    const $subcategorySelect = $('#item-subcategory-' + index);
+                                    if ($subcategorySelect.length) {
+                                        $subcategorySelect.val(item.subcategory).trigger('change');
+                                    }
+                                }
+                            }, 100);
+                        }
+                    }
+                });
+            }
+        }
     }
     
-    // Set up event listeners
-    $genderField.on('change', handleGenderChange);
-    $categoryField.on('change', handleCategoryChange);
-    $subcategoryField.on('change', handleSubcategoryChange);
-    
-    // Initialize the form
-    fetchCategoriesData();
+    // Call restore function when document is ready
+    restoreCategorySelections();
 });
