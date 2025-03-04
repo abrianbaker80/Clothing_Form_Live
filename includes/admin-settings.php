@@ -54,11 +54,11 @@ class Preowned_Clothing_Admin_Settings {
      * Register admin menu items
      */
     public function add_admin_menu() {
-        // Add main settings page
+        // Add main settings page under Settings menu
         add_options_page(
             'Preowned Clothing Form Settings',
             'Clothing Form',
-            'manage_options',
+            'manage_options',  // Standard capability for admin settings
             'preowned-clothing-settings',
             array($this, 'settings_page')
         );
@@ -297,8 +297,9 @@ class Preowned_Clothing_Admin_Settings {
      * Display the admin settings page
      */
     public function settings_page() {
+        // Double-check user permissions to prevent unauthorized access
         if (!current_user_can('manage_options')) {
-            wp_die('Unauthorized access');
+            wp_die(__('Sorry, you do not have sufficient permissions to access this page.', 'preowned-clothing-form'));
         }
         
         // Get active tab
@@ -893,9 +894,16 @@ class Preowned_Clothing_Admin_Settings {
     }
 }
 
-// Initialize the settings class on the appropriate WordPress hook
+// Initialize the settings class - replace both previous initialization hooks with this one
 function initialize_preowned_clothing_admin_settings() {
+    // Only load admin settings in admin area
+    if (!is_admin()) {
+        return;
+    }
+    
     $preowned_clothing_admin_settings = Preowned_Clothing_Admin_Settings::get_instance();
 }
-add_action('plugins_loaded', 'initialize_preowned_clothing_admin_settings');
-add_action('admin_init', 'initialize_preowned_clothing_admin_settings', 5);
+// Use a single hook for initialization, remove any duplicate calls
+remove_action('plugins_loaded', 'initialize_preowned_clothing_admin_settings');
+remove_action('admin_init', 'initialize_preowned_clothing_admin_settings', 5);
+add_action('admin_menu', 'initialize_preowned_clothing_admin_settings', 9); // Run just before standard admin_menu priority
