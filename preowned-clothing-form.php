@@ -3,7 +3,7 @@
  * Plugin Name: Preowned Clothing Form
  * Plugin URI:  https://github.com/abrianbaker80/Clothing_Form
  * Description: A plugin to create a form for submitting pre-owned clothing items.
- * Version:     v2.6.0.0
+ * Version:     2.6.0.1
  * Author:      Allen Baker
  * Author URI:  Your Website/Author URL
  * License:     GPL2
@@ -22,7 +22,7 @@ if (!function_exists('plugin_dir_url')) {
     require_once(ABSPATH . 'wp-includes/plugin.php');
 }
 // Define plugin constants
-define('PCF_VERSION', '2.5.9'); // Updated version
+define('PCF_VERSION', '2.6.0.0'); // Updated to four-segment format
 define('PCF_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PCF_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -80,6 +80,24 @@ try {
         error_log('Preowned Clothing Form - GitHub updater error: ' . $e->getMessage());
     }
 }
+
+// Initialize GitHub updater if the files exist
+function preowned_clothing_init_github_updater() {
+    $loader_file = PCF_PLUGIN_DIR . 'includes/github-updater/loader.php';
+    if (file_exists($loader_file)) {
+        require_once $loader_file;
+        
+        // Only initialize if the function exists
+        if (function_exists('preowned_clothing_register_updater_hooks')) {
+            preowned_clothing_register_updater_hooks(__FILE__, [
+                'username' => 'abrianbaker80',
+                'repository' => 'Clothing_Form',
+                'debug' => defined('WP_DEBUG') && WP_DEBUG,
+            ]);
+        }
+    }
+}
+add_action('plugins_loaded', 'preowned_clothing_init_github_updater');
 
 // Include admin settings - also in a try/catch for safety
 try {

@@ -3,10 +3,10 @@ name: Create Release
 on:
   push:
     tags:
-      - 'v*.*.*.*'
+      - 'v*.*.*'  # Match v2.6.0 format
+      - 'v*.*.*.*' # Also match four-segment versions
   workflow_dispatch:  # Allow manual triggering
 
-# Explicitly define permissions required
 permissions:
   contents: write
 
@@ -18,11 +18,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Fetch all history for changelog generation
+          fetch-depth: 0
       
       - name: Get version from tag
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      
+      - name: Create custom zip file
+        run: |
+          # Remove .git directory and other unnecessary files
+          rm -rf .git .github .gitignore
+
+          # Create zip with custom name (without version)
+          zip -r Clothing_Form.zip .
       
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -35,3 +43,6 @@ jobs:
             
             ### Changes in this release:
             - See the [changelog](https://github.com/abrianbaker80/Clothing_Form/blob/main/CHANGELOG.md) for details.
+          files: Clothing_Form.zip
+          generate_release_notes: false
+          skipIfReleaseExists: false
