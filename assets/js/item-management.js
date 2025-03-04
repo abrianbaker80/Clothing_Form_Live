@@ -8,9 +8,20 @@ jQuery(document).ready(function($) {
     // Store the max number of items allowed
     const MAX_ITEMS = parseInt($('#add-item-btn').data('max-items')) || 10;
     
-    // Add another item button click handler
-    $('#add-item-btn').on('click', function() {
+    // Debug check if the button exists
+    if ($('#add-item-btn').length === 0) {
+        console.error('Add item button not found! Check if the button ID is correct.');
+    } else {
+        console.log('Add item button found with max-items:', MAX_ITEMS);
+    }
+    
+    // Add another item button click handler - use document delegation for reliability
+    $(document).on('click', '#add-item-btn', function(e) {
+        e.preventDefault();
+        console.log('Add item button clicked');
+        
         const currentItemCount = $('.clothing-item-container').length;
+        console.log('Current item count:', currentItemCount);
         
         // Check if we've reached the maximum number of items
         if (currentItemCount >= MAX_ITEMS) {
@@ -18,81 +29,94 @@ jQuery(document).ready(function($) {
             return;
         }
         
-        // Get the new item index
-        const newItemIndex = currentItemCount + 1;
-        
-        // Clone the first item container and update IDs
-        const $newItem = $('.clothing-item-container').first().clone(true);
-        
-        // Update item index and other attributes
-        $newItem.attr('data-item-id', newItemIndex);
-        
-        // Update the item number and ordinal
-        $newItem.find('.item-number-badge').text(newItemIndex);
-        $newItem.find('.item-ordinal').text(getOrdinal(newItemIndex) + ' Item');
-        
-        // Show the remove button for this item
-        $newItem.find('.remove-item-btn').show();
-        
-        // Update all input names and IDs
-        $newItem.find('input, select, textarea').each(function() {
-            const $input = $(this);
-            const name = $input.attr('name');
-            const id = $input.attr('id');
+        try {
+            // Get the new item index
+            const newItemIndex = currentItemCount + 1;
             
-            if (name) {
-                $input.attr('name', name.replace(/items\[1\]/g, 'items[' + newItemIndex + ']'));
+            // Clone the first item container and update IDs
+            const $firstItem = $('.clothing-item-container').first();
+            
+            if ($firstItem.length === 0) {
+                console.error('No item container found to clone!');
+                return;
             }
             
-            if (id) {
-                const newId = id.replace(/-1-|-1$/g, function(match) {
-                    return match.replace('1', newItemIndex);
-                });
-                $input.attr('id', newId);
+            const $newItem = $firstItem.clone(true);
+            
+            // Update item index and other attributes
+            $newItem.attr('data-item-id', newItemIndex);
+            
+            // Update the item number and ordinal
+            $newItem.find('.item-number-badge').text(newItemIndex);
+            $newItem.find('.item-ordinal').text(getOrdinal(newItemIndex) + ' Item');
+            
+            // Show the remove button for this item
+            $newItem.find('.remove-item-btn').show();
+            
+            // Update all input names and IDs
+            $newItem.find('input, select, textarea').each(function() {
+                const $input = $(this);
+                const name = $input.attr('name');
+                const id = $input.attr('id');
                 
-                // Also update any labels pointing to this input
-                $newItem.find('label[for="' + id + '"]').attr('for', newId);
+                if (name) {
+                    $input.attr('name', name.replace(/items\[1\]/g, 'items[' + newItemIndex + ']'));
+                }
+                
+                if (id) {
+                    const newId = id.replace(/-1-|-1$/g, function(match) {
+                        return match.replace('1', newItemIndex);
+                    });
+                    $input.attr('id', newId);
+                    
+                    // Also update any labels pointing to this input
+                    $newItem.find('label[for="' + id + '"]').attr('for', newId);
+                }
+            });
+            
+            // Update container IDs
+            $newItem.find('[id]').each(function() {
+                const $el = $(this);
+                const id = $el.attr('id');
+                if (id && id.includes('-1')) {
+                    $el.attr('id', id.replace(/-1/g, '-' + newItemIndex));
+                }
+            });
+            
+            // Clear all inputs
+            $newItem.find('input[type="text"], input[type="number"], textarea').val('');
+            $newItem.find('select').val('');
+            $newItem.find('.image-upload-box').removeClass('has-image');
+            $newItem.find('.upload-placeholder').show();
+            
+            // Reset image upload preview areas
+            $newItem.find('.image-preview').empty();
+            
+            // Append the new item to the items container
+            $('#items-container').append($newItem);
+            console.log('New item appended with index:', newItemIndex);
+            
+            // Initialize event handlers for the new item
+            initializeItemHandlers($newItem);
+            
+            // Update form storage
+            if (typeof saveFormData === 'function') {
+                saveFormData();
             }
-        });
-        
-        // Update container IDs
-        $newItem.find('[id]').each(function() {
-            const $el = $(this);
-            const id = $el.attr('id');
-            if (id && id.includes('-1')) {
-                $el.attr('id', id.replace(/-1/g, '-' + newItemIndex));
+            
+            // Check if we've reached the max items
+            if (newItemIndex >= MAX_ITEMS) {
+                $('#add-item-btn').hide();
             }
-        });
-        
-        // Clear all inputs
-        $newItem.find('input[type="text"], input[type="number"], textarea').val('');
-        $newItem.find('select').val('');
-        $newItem.find('.image-upload-box').removeClass('has-image');
-        $newItem.find('.upload-placeholder').show();
-        
-        // Reset image upload preview areas
-        $newItem.find('.image-preview').empty();
-        
-        // Append the new item to the items container
-        $('#items-container').append($newItem);
-        
-        // Initialize event handlers for the new item
-        initializeItemHandlers($newItem);
-        
-        // Update form storage
-        if (typeof saveFormData === 'function') {
-            saveFormData();
+            
+            // Scroll to the new item
+            $('html, body').animate({
+                scrollTop: $newItem.offset().top - 50
+            }, 500);
+        } catch (error) {
+            console.error('Error adding new item:', error);
+            alert('There was an error adding a new item. Please check the console for details.');
         }
-        
-        // Check if we've reached the max items
-        if (newItemIndex >= MAX_ITEMS) {
-            $('#add-item-btn').hide();
-        }
-        
-        // Scroll to the new item
-        $('html, body').animate({
-            scrollTop: $newItem.offset().top - 50
-        }, 500);
     });
     
     // Remove item button click handler

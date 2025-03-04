@@ -1,0 +1,43 @@
+# IDE specific files
+.vs/
+.vscode/
+*.vsidx
+*.vspscc
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio temp files
+.vs/*
+FileContentIndex/
+*.vsidx
+
+# Local environment files
+.env
+.env.local
+
+# WordPress specific
+wp-config.php
+wp-content/advanced-cache.php
+wp-content/backup-db/
+wp-content/backups/
+wp-content/blogs.dir/
+wp-content/cache/
+wp-content/upgrade/
+wp-content/uploads/
+wp-content/mu-plugins/
+wp-content/wp-cache-config.php
+wp-content/plugins/hello.php
+
+# Log files
+*.log
+error_log
+access_log
+
+# OS specific files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
