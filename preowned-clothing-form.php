@@ -3,7 +3,7 @@
  * Plugin Name: Preowned Clothing Form
  * Plugin URI:  https://github.com/abrianbaker80/Clothing_Form
  * Description: A plugin to create a form for submitting pre-owned clothing items.
- * Version:     2.5.9.7
+ * Version:     2.5.9.8
  * Author:      Allen Baker
  * Author URI:  Your Website/Author URL
  * License:     GPL2
@@ -83,8 +83,9 @@ try {
 
 // Include admin settings - also in a try/catch for safety
 try {
-    if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin-settings.php')) {
-        require_once plugin_dir_path(__FILE__) . 'includes/admin-settings.php';
+    if (file_exists(plugin_dir_path(__FILE__) . 'includes/class-preowned-clothing-admin-settings.php')) {
+        require_once plugin_dir_path(__FILE__) . 'includes/class-preowned-clothing-admin-settings.php';
+        // Class is auto-initialized through the get_instance call
     }
 } catch (Exception $e) {
     if (defined('WP_DEBUG') && WP_DEBUG) {
@@ -119,6 +120,12 @@ function preowned_clothing_enqueue_scripts() {
     
     // Enqueue card-based layout enhancements
     wp_enqueue_style('preowned-clothing-card-layout', plugin_dir_url(__FILE__) . 'assets/css/card-layout.css', array('preowned-clothing-style'), '1.0.0');
+
+    // Enqueue form controls stylesheet
+    $form_controls_path = plugin_dir_path(__FILE__) . 'assets/css/form-controls.css';
+    if (file_exists($form_controls_path)) {
+        wp_enqueue_style('preowned-clothing-form-controls', plugin_dir_url(__FILE__) . 'assets/css/form-controls.css', array('preowned-clothing-style'), '1.0.0');
+    }
 
     // Enqueue wizard interface styles
     $wizard_interface_path = plugin_dir_path(__FILE__) . 'assets/css/wizard-interface.css';
@@ -203,6 +210,16 @@ function preowned_clothing_enqueue_scripts() {
             [], '1.0.0', true);
     }
     
+    // Enqueue form autosave script
+    wp_enqueue_script('preowned-clothing-form-autosave',
+        plugin_dir_url(__FILE__) . 'assets/js/form-autosave.js',
+        ['jquery'], '1.0.1', true);
+    
+    // Enqueue keyboard accessibility enhancements
+    wp_enqueue_script('preowned-clothing-keyboard-accessibility',
+        plugin_dir_url(__FILE__) . 'assets/js/keyboard-accessibility.js',
+        ['jquery'], '1.0.0', true);
+    
     // Only add to admin or pages with our shortcode
     global $post;
     if (is_admin() || (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'preowned_clothing_form'))) {
@@ -247,10 +264,32 @@ require_once plugin_dir_path(__FILE__) . 'includes/email-notifications.php';
 
 // Include additional admin files
 if (is_admin()) {
-    require_once plugin_dir_path(__FILE__) . 'includes/admin-settings.php';
     require_once plugin_dir_path(__FILE__) . 'includes/admin-submissions.php';
     require_once plugin_dir_path(__FILE__) . 'includes/admin-image-test.php';
     require_once plugin_dir_path(__FILE__) . 'includes/dashboard-widget.php';
+    
+    // Include new admin customization modules
+    $admin_dir = plugin_dir_path(__FILE__) . 'includes/admin/';
+    if (is_dir($admin_dir)) {
+        // Create directory if it doesn't exist
+        if (!file_exists($admin_dir)) {
+            mkdir($admin_dir, 0755, true);
+        }
+        
+        // Check for individual files
+        $admin_files = [
+            'category-manager.php',
+            'size-manager.php',
+            'form-field-manager.php'
+        ];
+        
+        foreach ($admin_files as $file) {
+            $file_path = $admin_dir . $file;
+            if (file_exists($file_path)) {
+                require_once $file_path;
+            }
+        }
+    }
 }
 
 /**

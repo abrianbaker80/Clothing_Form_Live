@@ -57,26 +57,60 @@
      * Initialize image upload functionality for an item
      */
     function initializeImageUploads(itemId) {
+        console.log('Initializing image uploads for item:', itemId);
+        
+        // Find all file inputs for this specific item
         const fileInputs = document.querySelectorAll(`input[name^="items[${itemId}][images]"]`);
         
         fileInputs.forEach(input => {
+            // Get the container box
             const box = input.closest('.image-upload-box');
             if (!box) return;
             
+            // Remove old event listeners to prevent duplicates
+            const newInput = input.cloneNode(true);
+            input.parentNode.replaceWith(newInput, input);
+            
             // Add click handler to box
             box.addEventListener('click', function(e) {
-                if (e.target !== input) {
-                    input.click();
+                // Don't trigger if clicking on preview or remove button
+                if (e.target.closest('.image-preview') || 
+                    e.target.closest('.remove-preview-btn')) {
+                    return;
+                }
+                
+                // Otherwise, trigger file input click
+                if (e.target !== newInput) {
+                    newInput.click();
                 }
             });
             
             // Handle file selection
-            input.addEventListener('change', function() {
+            newInput.addEventListener('change', function() {
                 handleFileSelect(this, box);
             });
             
             // Initialize drag and drop for this box
-            setupSingleBoxDragDrop(box, input);
+            setupSingleBoxDragDrop(box, newInput);
+            
+            // Clear any existing previews
+            const existingPreview = box.querySelector('.image-preview');
+            const existingRemoveBtn = box.querySelector('.remove-preview-btn');
+            
+            if (existingPreview && !newInput.files.length) {
+                existingPreview.remove();
+            }
+            
+            if (existingRemoveBtn && !newInput.files.length) {
+                existingRemoveBtn.remove();
+            }
+            
+            // Show placeholder if no file is selected
+            const placeholder = box.querySelector('.upload-placeholder');
+            if (placeholder && !newInput.files.length) {
+                placeholder.style.display = '';
+                box.classList.remove('has-image');
+            }
         });
     }
     
@@ -187,49 +221,61 @@
                 
                 // Create/update preview
                 let preview = box.querySelector('.image-preview');
-                if (!preview) {
-                    preview = document.createElement('div');
-                    preview.className = 'image-preview';
-                    box.appendChild(preview);
+                if (preview) {
+                    preview.remove(); // Remove existing preview
                 }
+                
+                preview = document.createElement('div');
+                preview.className = 'image-preview';
+                box.appendChild(preview);
                 
                 // Set background image
                 preview.style.backgroundImage = `url(${e.target.result})`;
                 
                 // Add remove button
                 let removeBtn = box.querySelector('.remove-preview-btn');
-                if (!removeBtn) {
-                    removeBtn = document.createElement('button');
-                    removeBtn.type = 'button';
-                    removeBtn.className = 'remove-preview-btn';
-                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-                    removeBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        // Reset file input
-                        const input = box.querySelector('input[type="file"]');
-                        if (input) input.value = '';
-                        
-                        // Remove preview
-                        preview.remove();
-                        removeBtn.remove();
-                        
-                        // Show placeholder
-                        if (placeholder) placeholder.style.display = '';
-                        
-                        // Update review section if available
-                        if (window.pcfWizard && typeof window.pcfWizard.updateReviewSection === 'function') {
-                            window.pcfWizard.updateReviewSection();
-                        }
-                        
-                        // Re-validate
-                        if (window.pcfWizard && typeof window.pcfWizard.validateStep === 'function') {
-                            window.pcfWizard.validateStep(2);
-                        }
-                    });
-                    box.appendChild(removeBtn);
+                if (removeBtn) {
+                    removeBtn.remove(); // Remove existing button
                 }
+                
+                removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'remove-preview-btn';
+                removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                
+                // Event handler for remove button
+                removeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Reset file input
+                    const input = box.querySelector('input[type="file"]');
+                    if (input) {
+                        // Need to clone to truly clear the file input
+                        const newInput = input.cloneNode(true);
+                        input.parentNode.replaceWith(newInput, input);
+                        
+                        // Re-add change handler to new input
+                        newInput.addEventListener('change', function() {
+                            handleFileSelect(this, box);
+                        });
+                    }
+                    
+                    // Remove preview
+                    preview.remove();
+                    removeBtn.remove();
+                    
+                    // Show placeholder
+                    if (placeholder) placeholder.style.display = '';
+                    box.classList.remove('has-image');
+                    
+                    // Update review section if available
+                    if (window.pcfWizard && typeof window.pcfWizard.updateReviewSection === 'function') {
+                        window.pcfWizard.updateReviewSection();
+                    }
+                });
+                
+                box.appendChild(removeBtn);
                 
                 // Add has-image class to box
                 box.classList.add('has-image');

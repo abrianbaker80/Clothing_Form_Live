@@ -16,6 +16,9 @@
             // Initialize autosave functionality
             initAutosave();
         }
+        
+        // Add "Clear Form" button to the form header
+        addClearFormButton();
     });
     
     /**
@@ -44,6 +47,7 @@
                 notification.find('.clear-autosave').on('click', function(e) {
                     e.preventDefault();
                     clearSavedFormData();
+                    clearFormFields();
                     notification.fadeOut(300);
                 });
                 
@@ -70,6 +74,89 @@
         $('.clothing-submission-form').on('submit', function() {
             clearSavedFormData();
         });
+    }
+    
+    /**
+     * Add a clear form button to the form header
+     */
+    function addClearFormButton() {
+        const $formHeader = $('.clothing-submission-form .form-header');
+        if ($formHeader.length && !$formHeader.find('.clear-form-btn').length) {
+            const $clearBtn = $('<button type="button" class="clear-form-btn">Clear Form</button>');
+            $formHeader.append($clearBtn);
+            
+            $clearBtn.on('click', function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to clear all form data?')) {
+                    clearSavedFormData();
+                    clearFormFields();
+                }
+            });
+        }
+    }
+    
+    /**
+     * Clear all form fields
+     */
+    function clearFormFields() {
+        console.log('Clearing all form fields');
+        
+        // Reset the form
+        const form = document.getElementById('clothing-form');
+        if (form) {
+            form.reset();
+        }
+        
+        // Clear all text inputs and textareas
+        $('.clothing-submission-form input[type="text"], .clothing-submission-form input[type="email"], .clothing-submission-form textarea').val('');
+        
+        // Reset all select elements and trigger change event
+        $('.clothing-submission-form select').each(function() {
+            $(this).val('');
+            $(this).trigger('change');
+        });
+        
+        // Remove additional items (keep only the first one)
+        $('.clothing-item-container:not(:first)').remove();
+        
+        // Reset the first item's gender and category selects
+        const $firstItem = $('.clothing-item-container').first();
+        $firstItem.find('select').val('').trigger('change');
+        
+        // Clear image previews from all items
+        $('.image-upload-box').removeClass('has-image');
+        $('.image-preview').remove();
+        $('.remove-image, .remove-preview-btn').remove();
+        $('.upload-placeholder').show();
+        
+        // Clear file inputs (need to clone and replace due to security restrictions)
+        $('.clothing-submission-form input[type="file"]').each(function() {
+            const $input = $(this);
+            
+            // Create a new clean file input
+            const $newInput = $('<input>').attr({
+                'type': 'file',
+                'name': $input.attr('name'),
+                'id': $input.attr('id'),
+                'class': $input.attr('class'),
+                'accept': $input.attr('accept')
+            });
+            
+            // Replace the old input
+            $input.replaceWith($newInput);
+        });
+        
+        // If the category handler has an initialization function, call it
+        if (typeof initializeGenderBasedCategories === 'function') {
+            setTimeout(initializeGenderBasedCategories, 100);
+        }
+        
+        // Update review section if we're on the last step
+        if (window.pcfWizard && typeof window.pcfWizard.updateReviewSection === 'function') {
+            setTimeout(window.pcfWizard.updateReviewSection, 200);
+        }
+        
+        console.log('Form data cleared');
     }
     
     /**
@@ -101,6 +188,9 @@
      * Restore form data from saved state
      */
     function restoreFormData(data) {
+        // First clear any existing data
+        clearFormFields();
+        
         // Populate form fields
         Object.keys(data).forEach(function(key) {
             const input = $('.clothing-submission-form').find('[name="' + key + '"]');
@@ -113,6 +203,11 @@
                 }
             }
         });
+        
+        // If we have gender fields in the data, make sure categories are updated
+        if (typeof initializeGenderBasedCategories === 'function') {
+            setTimeout(initializeGenderBasedCategories, 100);
+        }
     }
     
     /**

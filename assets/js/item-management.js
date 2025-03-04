@@ -41,7 +41,7 @@ jQuery(document).ready(function($) {
                 return;
             }
             
-            const $newItem = $firstItem.clone(true);
+            const $newItem = $firstItem.clone(false); // Changed to false to not clone event handlers
             
             // Update item index and other attributes
             $newItem.attr('data-item-id', newItemIndex);
@@ -72,6 +72,23 @@ jQuery(document).ready(function($) {
                     // Also update any labels pointing to this input
                     $newItem.find('label[for="' + id + '"]').attr('for', newId);
                 }
+                
+                // Clear values completely
+                if ($input.is('select')) {
+                    $input.val('');
+                } else if ($input.attr('type') === 'file') {
+                    // For file inputs, replace with a new empty one to clear
+                    const $newFileInput = $('<input>').attr({
+                        'type': 'file',
+                        'name': $input.attr('name'),
+                        'id': $input.attr('id'),
+                        'class': $input.attr('class'),
+                        'accept': $input.attr('accept')
+                    });
+                    $input.replaceWith($newFileInput);
+                } else {
+                    $input.val('');
+                }
             });
             
             // Update container IDs
@@ -83,14 +100,12 @@ jQuery(document).ready(function($) {
                 }
             });
             
-            // Clear all inputs
-            $newItem.find('input[type="text"], input[type="number"], textarea').val('');
-            $newItem.find('select').val('');
+            // Remove any image previews and reset upload boxes
+            $newItem.find('.image-preview').remove();
+            $newItem.find('.remove-image, .remove-preview-btn').remove();
+            $newItem.find('.upload-error').remove();
             $newItem.find('.image-upload-box').removeClass('has-image');
             $newItem.find('.upload-placeholder').show();
-            
-            // Reset image upload preview areas
-            $newItem.find('.image-preview').empty();
             
             // Append the new item to the items container
             $('#items-container').append($newItem);
@@ -113,6 +128,9 @@ jQuery(document).ready(function($) {
             $('html, body').animate({
                 scrollTop: $newItem.offset().top - 50
             }, 500);
+            
+            // Trigger custom event for other scripts to respond to the new item
+            $(document).trigger('itemAdded', [newItemIndex]);
         } catch (error) {
             console.error('Error adding new item:', error);
             alert('There was an error adding a new item. Please check the console for details.');
@@ -204,25 +222,46 @@ jQuery(document).ready(function($) {
     
     // Function to initialize event handlers for a new item
     function initializeItemHandlers($item) {
-        // Initialize any special event handlers for the new item
-        // For example, category handling, image uploads, etc.
-        
-        // Initialize gender selection
         const itemId = $item.data('item-id');
-        const $genderSelect = $item.find('#gender-' + itemId);
+        console.log('Initializing handlers for item:', itemId);
         
-        if ($genderSelect.length) {
-            // If we have a resetSizeSelector function available (from category-handler.js)
-            if (typeof resetSizeSelector === 'function') {
-                const $sizeSelect = $('#size-' + itemId);
-                resetSizeSelector($sizeSelect, null);
+        // Initialize category selects for the new item
+        if (typeof initializeGenderBasedCategories === 'function') {
+            initializeGenderBasedCategories();
+        }
+        
+        // Initialize image uploads for this item
+        if (window.pcfImageUpload && typeof window.pcfImageUpload.initializeImageUploads === 'function') {
+            setTimeout(function() {
+                window.pcfImageUpload.initializeImageUploads(itemId);
+            }, 100);
+        }
+        
+        // Initialize validation for description field
+        const $descriptionField = $item.find('textarea[id^="description-"]');
+        if ($descriptionField.length) {
+            // Remove any previous event handlers to prevent duplicates
+            $descriptionField.off();
+            
+            // Add event handlers for validation and character counting
+            const fieldId = $descriptionField.attr('id');
+            if (typeof setupFieldValidation === 'function') {
+                setupFieldValidation('#' + fieldId, validateDescription);
             }
             
-            // Manually trigger the category-handler logic
-            if (typeof initializeGenderBasedCategories === 'function') {
-                initializeGenderBasedCategories(); // Re-initialize for the new selects
+            if (typeof addCharacterCounter === 'function') {
+                addCharacterCounter('#' + fieldId);
             }
         }
+        
+        // Make sure gender selector has no initial selection
+        const $genderSelect = $item.find('select[id^="gender-"]');
+        if ($genderSelect.length) {
+            $genderSelect.val('').trigger('change');
+        }
+        
+        // Trigger a custom event that other scripts can listen for
+        $(document).trigger('itemInitialized', [itemId, $item]);
     }
     
     // Helper function to get ordinal suffix (1st, 2nd, 3rd, etc.)

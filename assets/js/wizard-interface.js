@@ -392,6 +392,11 @@
         
         // Update items section
         const reviewItemsContainer = document.getElementById('review-items-container');
+        if (!reviewItemsContainer) {
+            console.error("Review items container not found");
+            return;
+        }
+        
         reviewItemsContainer.innerHTML = '';
         
         // Get all item containers
@@ -402,7 +407,8 @@
             
             // Get gender
             const genderSelect = document.getElementById('gender-' + itemId);
-            const gender = genderSelect ? genderSelect.options[genderSelect.selectedIndex].text : 'Not selected';
+            const gender = genderSelect && genderSelect.selectedIndex > 0 ? 
+                           genderSelect.options[genderSelect.selectedIndex].text : 'Not selected';
             
             // Get category path
             const categorySelects = container.querySelectorAll('.category-select');
@@ -422,23 +428,47 @@
             const descriptionEl = document.getElementById('description-' + itemId);
             const description = descriptionEl && descriptionEl.value ? descriptionEl.value : 'Not provided yet';
             
-            // Count photos
+            // Count photos and create previews
             let photoCount = 0;
-            const photoInputs = container.querySelectorAll('input[type="file"]');
             let photoHtml = '<div class="review-photos">';
             
+            // Find all file inputs in this item container
+            const photoInputs = container.querySelectorAll('input[type="file"]');
             photoInputs.forEach(input => {
                 if (input.files && input.files.length > 0) {
                     photoCount++;
                     
-                    // Add thumbnail preview for the image
-                    const file = input.files[0];
-                    const fileType = input.getAttribute('name').split('[').pop().split(']')[0];
-                    
-                    photoHtml += `<div class="review-photo-thumb">
-                        <div class="review-photo-label">${fileType.replace('_', ' ')}</div>
-                        <img src="${URL.createObjectURL(file)}" alt="${fileType}" class="review-thumb">
-                    </div>`;
+                    try {
+                        // Add thumbnail preview for the image
+                        const file = input.files[0];
+                        
+                        // Get file type from input name (e.g., items[1][images][front])
+                        const nameParts = input.name.split('[');
+                        let fileType = 'Image';
+                        
+                        if (nameParts.length > 2) {
+                            // Extract the image type (front, back, etc)
+                            const typeMatch = input.name.match(/\[([^\]]+)\]$/);
+                            if (typeMatch && typeMatch[1]) {
+                                fileType = typeMatch[1].replace(/_/g, ' ');
+                                fileType = fileType.charAt(0).toUpperCase() + fileType.slice(1);
+                            }
+                        }
+                        
+                        // Create object URL for the image preview
+                        const objectUrl = URL.createObjectURL(file);
+                        
+                        photoHtml += `<div class="review-photo-thumb">
+                            <div class="review-photo-label">${fileType}</div>
+                            <img src="${objectUrl}" alt="${fileType}" class="review-thumb">
+                        </div>`;
+                        
+                        // Store the URL to revoke later
+                        if (!window.reviewImageUrls) window.reviewImageUrls = [];
+                        window.reviewImageUrls.push(objectUrl);
+                    } catch (e) {
+                        console.error('Error creating image preview:', e);
+                    }
                 }
             });
             
@@ -458,6 +488,32 @@
             
             reviewItemsContainer.appendChild(reviewItem);
         });
+        
+        // Clean up old blob URLs to prevent memory leaks
+        cleanupReviewImageUrls();
+    }
+    
+    /**
+     * Clean up object URLs to prevent memory leaks
+     */
+    function cleanupReviewImageUrls() {
+        // Get all currently displayed image URLs
+        const currentUrls = [];
+        document.querySelectorAll('.review-thumb').forEach(img => {
+            currentUrls.push(img.src);
+        });
+        
+        // Revoke any URLs that are no longer displayed
+        if (window.reviewImageUrls) {
+            window.reviewImageUrls.forEach(url => {
+                if (!currentUrls.includes(url)) {
+                    URL.revokeObjectURL(url);
+                }
+            });
+        }
+        
+        // Update the stored URLs to only include current ones
+        window.reviewImageUrls = currentUrls;
     }
     
     // Initialize on document ready
@@ -537,13 +593,9 @@ jQuery(document).ready(function($) {
         
         // If this is the last step (review), update the review content
         if (isLastStep) {
-            // Ensure review page is updated with the latest data
-            if (typeof saveFormData === 'function') {
-                const formData = saveFormData();
-                // If there's a separate function for updating the review, call it
-                if (typeof updateReviewStep === 'function') {
-                    updateReviewStep(formData);
-                }
+            // Call the updateReviewSection function directly
+            if (typeof updateReviewSection === 'function') {
+                updateReviewSection();
             }
         }
     }
@@ -619,3 +671,9 @@ jQuery(document).ready(function($) {
         }, 300);
     }
 });
+
+// Make updateReviewSection available globally
+window.pcfWizard = {
+    updateReviewSection: updateReviewSection,
+    validateStep: validateCurrentStep
+};
