@@ -2,6 +2,19 @@
 
 All notable changes to the Preowned Clothing Form plugin will be documented in this file.
 
+## [2.6.0.9] - 2023-10-18
+
+### Added
+- Size Manager with category associations
+- Default size groups for different clothing types
+- Reset option for size groups
+- What's New tab in admin settings
+
+### Fixed
+- Admin menu registration now properly shows submenus
+- Improved permission checks on all admin pages
+- Size options now correctly display and associate with categories
+
 ## [2.5.7] - 2023-05-22
 
 ### Added
@@ -35,3 +48,30 @@ All notable changes to the Preowned Clothing Form plugin will be documented in t
 - Category and subcategory selection
 - Image upload functionality
 - Admin dashboard for submission management
+
+# Preowned Clothing Form Changelog
+
+## 1.2.0 - 2023-10-18
+### Added
+- Size Manager with category associations
+- Default size groups for different clothing types
+- Reset option for size groups
+
+### Fixed
+- Admin menu registration now properly shows submenus
+- Improved permission checks on all admin pages
+
+## 1.1.0 - 2023-09-30
+### Added
+- Form Field Manager for customizing all form fields
+- Category Manager for organizing clothing types
+- Custom field support
+
+### Changed
+- Reorganized admin interface with tabbed settings
+
+## 1.0.0 - 2023-09-15
+### Initial Release
+- Basic clothing submission form
+- Image upload functionality
+- Email notifications

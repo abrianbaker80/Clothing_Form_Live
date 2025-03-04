@@ -333,6 +333,9 @@ class Preowned_Clothing_Admin_Settings {
                 <a href="?page=preowned-clothing-settings&tab=advanced" class="nav-tab <?php echo $active_tab == 'advanced' ? 'nav-tab-active' : ''; ?>">
                     <span class="dashicons dashicons-admin-tools"></span> <?php echo esc_html__('Advanced', 'preowned-clothing-form'); ?>
                 </a>
+                <a href="?page=preowned-clothing-settings&tab=changelog" class="nav-tab <?php echo $active_tab == 'changelog' ? 'nav-tab-active' : ''; ?>">
+                    <span class="dashicons dashicons-backup"></span> <?php echo esc_html__('What\'s New', 'preowned-clothing-form'); ?>
+                </a>
             </h2>
             
             <div class="clothing-admin-wrapper">
@@ -352,6 +355,8 @@ class Preowned_Clothing_Admin_Settings {
                         $this->display_appearance_settings();
                     } elseif ($active_tab == 'advanced') {
                         $this->display_advanced_settings();
+                    } elseif ($active_tab == 'changelog') {
+                        $this->display_changelog();
                     }
                     ?>
                 </div>
@@ -852,6 +857,106 @@ class Preowned_Clothing_Admin_Settings {
                 </p>
             </div>
         </div>
+        <?php
+    }
+
+    /**
+     * Display the changelog/what's new tab
+     */
+    public function display_changelog() {
+        ?>
+        <div class="card">
+            <h2><?php echo esc_html__('What\'s New', 'preowned-clothing-form'); ?></h2>
+            
+            <div class="changelog-wrapper">
+                <div class="version-entry">
+                    <h3>Version 1.2.0 <span class="version-date">October 18, 2023</span></h3>
+                    
+                    <h4><?php echo esc_html__('New Features', 'preowned-clothing-form'); ?></h4>
+                    <ul>
+                        <li><?php echo esc_html__('Size Manager with category associations', 'preowned-clothing-form'); ?></li>
+                        <li><?php echo esc_html__('Default size groups for different clothing types', 'preowned-clothing-form'); ?></li>
+                        <li><?php echo esc_html__('Reset option for size groups', 'preowned-clothing-form'); ?></li>
+                    </ul>
+                    
+                    <h4><?php echo esc_html__('Improvements', 'preowned-clothing-form'); ?></h4>
+                    <ul>
+                        <li><?php echo esc_html__('Admin menu registration now properly shows submenus', 'preowned-clothing-form'); ?></li>
+                        <li><?php echo esc_html__('Improved permission checks on all admin pages', 'preowned-clothing-form'); ?></li>
+                    </ul>
+                </div>
+                
+                <div class="version-entry">
+                    <h3>Version 1.1.0 <span class="version-date">September 30, 2023</span></h3>
+                    
+                    <h4><?php echo esc_html__('New Features', 'preowned-clothing-form'); ?></h4>
+                    <ul>
+                        <li><?php echo esc_html__('Form Field Manager for customizing all form fields', 'preowned-clothing-form'); ?></li>
+                        <li><?php echo esc_html__('Category Manager for organizing clothing types', 'preowned-clothing-form'); ?></li>
+                        <li><?php echo esc_html__('Custom field support', 'preowned-clothing-form'); ?></li>
+                    </ul>
+                    
+                    <h4><?php echo esc_html__('Changes', 'preowned-clothing-form'); ?></h4>
+                    <ul>
+                        <li><?php echo esc_html__('Reorganized admin interface with tabbed settings', 'preowned-clothing-form'); ?></li>
+                    </ul>
+                </div>
+                
+                <div class="version-entry">
+                    <h3>Version 1.0.0 <span class="version-date">September 15, 2023</span></h3>
+                    <p><?php echo esc_html__('Initial Release', 'preowned-clothing-form'); ?></p>
+                    
+                    <ul>
+                        <li><?php echo esc_html__('Basic clothing submission form', 'preowned-clothing-form'); ?></li>
+                        <li><?php echo esc_html__('Image upload functionality', 'preowned-clothing-form'); ?></li>
+                        <li><?php echo esc_html__('Email notifications', 'preowned-clothing-form'); ?></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <style>
+            .changelog-wrapper {
+                background-color: #f9f9f9;
+                padding: 15px;
+                border-radius: 5px;
+            }
+            
+            .version-entry {
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 1px solid #ddd;
+            }
+            
+            .version-entry:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
+            
+            .version-entry h3 {
+                margin-top: 0;
+                color: #0073aa;
+                font-size: 1.3em;
+            }
+            
+            .version-entry h4 {
+                margin: 1.33em 0 0.5em;
+                font-size: 1.1em;
+            }
+            
+            .version-date {
+                color: #666;
+                font-size: 0.8em;
+                font-weight: normal;
+                margin-left: 10px;
+            }
+            
+            .version-entry ul {
+                margin-left: 20px;
+                list-style-type: disc;
+            }
+        </style>
         <?php
     }
 

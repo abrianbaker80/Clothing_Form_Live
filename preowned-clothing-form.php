@@ -1,19 +1,23 @@
 <?php
 /**
  * Plugin Name: Preowned Clothing Form
- * Plugin URI:  https://github.com/abrianbaker80/Clothing_Form
- * Description: A plugin to create a form for submitting pre-owned clothing items.
- * Version:     2.6.0.8
- * Author:      Allen Baker
- * Author URI:  Your Website/Author URL
- * License:     GPL2
- * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * GitHub Plugin URI: abrianbaker80/Clothing_Form
- * 
+ * Plugin URI: https://yourwebsite.com/plugins/preowned-clothing-form
+ * Description: A customizable form for submitting preowned clothing items.
+ * Version: 2.6.0.9
+ * Author: Your Name
+ * Author URI: https://yourwebsite.com
+ * Text Domain: preowned-clothing-form
+ * Domain Path: /languages
+ *
+ * Changelog:
+ * 2.6.0.9 - Size Manager improvements, admin menu fixes
+ * 1.1.0 - Added Form Field Manager, Category Manager
+ * 1.0.0 - Initial release
  */
 
+// Prevent direct access
 if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly.
+    exit;
 }
 
 // Check if plugin_dir_url is defined, if not, make sure we have WordPress core functions
@@ -23,7 +27,7 @@ if (!function_exists('plugin_dir_url')) {
 }
 
 // Define plugin constants
-define('PCF_VERSION', '2.6.0.7');
+define('PCF_VERSION', '2.6.0.9');
 define('PCF_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PCF_PLUGIN_URL', plugin_dir_url(__FILE__));
 
