@@ -157,8 +157,9 @@ function preowned_clothing_get_normalized_basename($plugin_file) {
 
 /**
  * Force WordPress to recognize our plugin in update checks
+ * Renamed to avoid conflict with function in github-updater.php
  */
-function preowned_clothing_force_update_check() {
+function preowned_clothing_loader_force_update_check() {
     // Only run this once per page load and only in admin
     static $already_ran = false;
     if ($already_ran || !is_admin()) {
@@ -198,4 +199,4 @@ function preowned_clothing_force_update_check() {
         error_log('GitHub Updater: Also added normalized basename: ' . $normalized_basename);
     }
 }
-add_action('admin_init', 'preowned_clothing_force_update_check', 5);
+add_action('admin_init', 'preowned_clothing_loader_force_update_check', 5);
