@@ -45,6 +45,7 @@ class Preowned_Clothing_Admin_Settings {
      * Constructor
      */
     private function __construct() {
+        // Use proper WordPress hook for admin initialization
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
     }
@@ -460,7 +461,7 @@ class Preowned_Clothing_Admin_Settings {
                         <th scope="row">
                             <label for="max_image_size"><?php echo esc_html__('Maximum Image Size (MB)', 'preowned-clothing-form'); ?></label>
                         </th>
-                        <td></td>
+                        <td>
                             <input type="number" id="max_image_size" name="max_image_size" min="1" max="10"
                                 value="<?php echo esc_attr(get_option('preowned_clothing_max_image_size', 2)); ?>">
                             <p class="description"><?php echo esc_html__('Maximum file size allowed for uploaded images in megabytes.', 'preowned-clothing-form'); ?></p>
@@ -700,13 +701,13 @@ class Preowned_Clothing_Admin_Settings {
                     </tr>
                     
                     <tr>
-                        <th scope="row"></th>
+                        <th scope="row">
                             <label for="enable_modern_theme"><?php echo esc_html__('Enable Modern Theme', 'preowned-clothing-form'); ?></label>
                         </th>
                         <td>
                             <input type="checkbox" id="enable_modern_theme" name="enable_modern_theme" value="1" 
                                 <?php checked('1', get_option('preowned_clothing_enable_modern_theme', '1')); ?>>
-                            <label><?php echo esc_html__('Use enhanced modern styling for the form.', 'preowned-clothing-form'); ?></label>
+                            <label for="enable_modern_theme"><?php echo esc_html__('Use enhanced modern styling for the form.', 'preowned-clothing-form'); ?></label>
                         </td>
                     </tr>
                 </table>
@@ -892,6 +893,9 @@ class Preowned_Clothing_Admin_Settings {
     }
 }
 
-// Initialize the settings class
-$preowned_clothing_admin_settings = Preowned_Clothing_Admin_Settings::get_instance();
-?>
+// Initialize the settings class on the appropriate WordPress hook
+function initialize_preowned_clothing_admin_settings() {
+    $preowned_clothing_admin_settings = Preowned_Clothing_Admin_Settings::get_instance();
+}
+add_action('plugins_loaded', 'initialize_preowned_clothing_admin_settings');
+add_action('admin_init', 'initialize_preowned_clothing_admin_settings', 5);
