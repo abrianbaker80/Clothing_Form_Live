@@ -9,6 +9,11 @@ if (!defined('ABSPATH')) {
 }
 
 function preowned_clothing_size_manager_page() {
+    // Check user permissions
+    if (!current_user_can('manage_options')) {
+        wp_die(__('Sorry, you do not have sufficient permissions to access this page.', 'preowned-clothing-form'));
+    }
+    
     // Check if form was submitted
     if (isset($_POST['pcf_save_sizes']) && check_admin_referer('pcf_save_sizes')) {
         preowned_clothing_handle_size_save();

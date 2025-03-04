@@ -54,12 +54,24 @@ class Preowned_Clothing_Admin_Settings {
             error_log('Preowned Clothing Form - Adding admin menu');
         }
         
-        // Add main settings page under Settings menu
-        add_options_page(
-            'Preowned Clothing Form Settings',
+        // Add main menu page
+        add_menu_page(
+            'Preowned Clothing Form',
             'Clothing Form',
-            'manage_options',  // Standard capability for admin settings
+            'manage_options',
             'preowned-clothing-settings',
+            array($this, 'settings_page'),
+            'dashicons-admin-appearance',
+            80
+        );
+        
+        // Add settings subpage
+        add_submenu_page(
+            'preowned-clothing-settings', // Parent slug
+            'Form Settings',
+            'Settings',
+            'manage_options',
+            'preowned-clothing-settings', // Same as parent to make it the default page
             array($this, 'settings_page')
         );
         
@@ -76,7 +88,7 @@ class Preowned_Clothing_Admin_Settings {
             require_once plugin_dir_path(dirname(__FILE__)) . 'includes/admin/category-manager.php';
             
             add_submenu_page(
-                'preowned-clothing-settings',
+                'preowned-clothing-settings', // Parent slug
                 'Category Manager',
                 'Category Manager',
                 'manage_options',
@@ -90,7 +102,7 @@ class Preowned_Clothing_Admin_Settings {
             require_once plugin_dir_path(dirname(__FILE__)) . 'includes/admin/size-manager.php';
             
             add_submenu_page(
-                'preowned-clothing-settings',
+                'preowned-clothing-settings', // Parent slug
                 'Size Manager',
                 'Size Manager',
                 'manage_options',
@@ -104,7 +116,7 @@ class Preowned_Clothing_Admin_Settings {
             require_once plugin_dir_path(dirname(__FILE__)) . 'includes/admin/form-field-manager.php';
             
             add_submenu_page(
-                'preowned-clothing-settings',
+                'preowned-clothing-settings', // Parent slug
                 'Form Field Manager',
                 'Form Fields',
                 'manage_options',
@@ -325,33 +337,12 @@ class Preowned_Clothing_Admin_Settings {
             
             <div class="clothing-admin-wrapper">
                 <div class="settings-tabs-content">
-                    <!-- Customization Links -->
-                    <div class="customization-dashboard card">
-                        <div class="card-header">
-                            <h2><?php echo esc_html__('Form Customization', 'preowned-clothing-form'); ?></h2>
-                        </div>
-                        <div class="card-body">
-                            <div class="customization-links">
-                                <a href="<?php echo admin_url('options-general.php?page=preowned-clothing-form-fields'); ?>" class="customization-link">
-                                    <span class="dashicons dashicons-forms"></span>
-                                    <h3><?php echo esc_html__('Form Fields', 'preowned-clothing-form'); ?></h3>
-                                    <p><?php echo esc_html__('Manage form fields, make them required, and add custom fields', 'preowned-clothing-form'); ?></p>
-                                </a>
-                                <a href="<?php echo admin_url('options-general.php?page=preowned-clothing-categories'); ?>" class="customization-link">
-                                    <span class="dashicons dashicons-category"></span>
-                                    <h3><?php echo esc_html__('Categories', 'preowned-clothing-form'); ?></h3>
-                                    <p><?php echo esc_html__('Customize clothing categories for each gender', 'preowned-clothing-form'); ?></p>
-                                </a>
-                                <a href="<?php echo admin_url('options-general.php?page=preowned-clothing-sizes'); ?>" class="customization-link">
-                                    <span class="dashicons dashicons-editor-textcolor"></span>
-                                    <h3><?php echo esc_html__('Size Options', 'preowned-clothing-form'); ?></h3>
-                                    <p><?php echo esc_html__('Manage clothing size options for different categories', 'preowned-clothing-form'); ?></p>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <?php
+                    // Only show customization dashboard on the general tab
+                    if ($active_tab == 'general') {
+                        $this->display_customization_dashboard();
+                    }
+                    
                     // Display tab content based on active tab
                     if ($active_tab == 'general') {
                         $this->display_general_settings();
@@ -363,6 +354,39 @@ class Preowned_Clothing_Admin_Settings {
                         $this->display_advanced_settings();
                     }
                     ?>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
+
+    /**
+     * Display the customization dashboard
+     */
+    public function display_customization_dashboard() {
+        ?>
+        <!-- Customization Links -->
+        <div class="customization-dashboard card">
+            <div class="card-header">
+                <h2><?php echo esc_html__('Form Customization', 'preowned-clothing-form'); ?></h2>
+            </div>
+            <div class="card-body">
+                <div class="customization-links">
+                    <a href="<?php echo admin_url('admin.php?page=preowned-clothing-form-fields'); ?>" class="customization-link">
+                        <span class="dashicons dashicons-forms"></span>
+                        <h3><?php echo esc_html__('Form Fields', 'preowned-clothing-form'); ?></h3>
+                        <p><?php echo esc_html__('Manage form fields, make them required, and add custom fields', 'preowned-clothing-form'); ?></p>
+                    </a>
+                    <a href="<?php echo admin_url('admin.php?page=preowned-clothing-categories'); ?>" class="customization-link">
+                        <span class="dashicons dashicons-category"></span>
+                        <h3><?php echo esc_html__('Categories', 'preowned-clothing-form'); ?></h3>
+                        <p><?php echo esc_html__('Customize clothing categories for each gender', 'preowned-clothing-form'); ?></p>
+                    </a>
+                    <a href="<?php echo admin_url('admin.php?page=preowned-clothing-sizes'); ?>" class="customization-link">
+                        <span class="dashicons dashicons-editor-textcolor"></span>
+                        <h3><?php echo esc_html__('Size Options', 'preowned-clothing-form'); ?></h3>
+                        <p><?php echo esc_html__('Manage clothing size options for different categories', 'preowned-clothing-form'); ?></p>
+                    </a>
                 </div>
             </div>
         </div>

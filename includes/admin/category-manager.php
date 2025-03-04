@@ -9,6 +9,11 @@ if (!defined('ABSPATH')) {
 }
 
 function preowned_clothing_category_manager_page() {
+    // Check user permissions
+    if (!current_user_can('manage_options')) {
+        wp_die(__('Sorry, you do not have sufficient permissions to access this page.', 'preowned-clothing-form'));
+    }
+    
     // Check if form was submitted
     if (isset($_POST['pcf_save_categories']) && check_admin_referer('pcf_save_categories')) {
         preowned_clothing_handle_category_save();
