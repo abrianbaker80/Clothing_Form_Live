@@ -3,7 +3,7 @@
  * Plugin Name: Preowned Clothing Form
  * Plugin URI:  https://github.com/abrianbaker80/Clothing_Form
  * Description: A plugin to create a form for submitting pre-owned clothing items.
- * Version:     2.6.0.3
+ * Version:     2.6.0.4
  * Author:      Allen Baker
  * Author URI:  Your Website/Author URL
  * License:     GPL2
@@ -22,7 +22,7 @@ if (!function_exists('plugin_dir_url')) {
     require_once(ABSPATH . 'wp-includes/plugin.php');
 }
 // Define plugin constants
-define('PCF_VERSION', '2.6.0.1'); // Updated to four-segment format
+define('PCF_VERSION', '2.6.0.4'); // Updated to match plugin header version
 define('PCF_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PCF_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -244,13 +244,14 @@ function preowned_clothing_enqueue_scripts() {
         wp_localize_script('preowned-clothing-form', 'pcf_ajax_object', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('preowned_clothing_ajax_nonce'),
-            'plugin_url' => plugin_dir_url(__FILE__)
+            'plugin_url' => plugin_dir_url(__FILE__),
+            'plugin_version' => PCF_VERSION
          ));
         wp_localize_script('preowned-clothing-category-handler', 'pcfFormOptions', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('preowned_clothing_ajax_nonce'),
             'plugin_url' => plugin_dir_url(__FILE__),
-            'debug' => true
+            'debug' => defined('WP_DEBUG') && WP_DEBUG ? true : false
         ));
     }
 }
@@ -412,15 +413,32 @@ register_uninstall_hook(__FILE__, 'preowned_clothing_uninstall');
  * AJAX Handler for getting clothing categories
  */
 function preowned_clothing_get_categories() {
-    // Check nonce
-    check_ajax_referer('preowned_clothing_ajax_nonce', 'nonce');
+    // Verify nonce and exit if invalid
+    if (!isset($_REQUEST['nonce']) || !wp_verify_nonce($_REQUEST['nonce'], 'preowned_clothing_ajax_nonce')) {
+        wp_send_json_error('Security check failed');
+        exit;
+    }
     
-    // For debugging - log the request
-    error_log('Category data request received');
+    // For debugging - log the request only in debug mode
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('Category data request received');
+    }
     
     // Get the categories from the categories file
     $categories_file = plugin_dir_path(__FILE__) . 'includes/clothing-categories.php';
+    
+    if (!file_exists($categories_file)) {
+        wp_send_json_error('Categories file not found');
+        exit;
+    }
+    
     $categories = include($categories_file);
+    
+    // Validate the categories array
+    if (!is_array($categories)) {
+        wp_send_json_error('Invalid categories data');
+        exit;
+    }
     
     // Send the response
     wp_send_json_success($categories);
@@ -438,7 +456,7 @@ function preowned_clothing_display_messages() {
     $feedback = PCF_Session_Manager::get_feedback();
     
     // Success message
-    if (isset($_GET['success']) && $_GET['success'] == '1' || 
+    if ((isset($_GET['success']) && $_GET['success'] == '1') || 
         ($feedback['status'] === 'success')) {
         
         // Clear the session flag
@@ -451,17 +469,23 @@ function preowned_clothing_display_messages() {
         echo '<div class="submission-feedback success" data-submission-success="true">';
         echo '<strong>Success!</strong> ' . esc_html($message) . '</div>';
         
-        // Add script to clear localStorage data
+        // Add script to clear localStorage data with error handling
         echo '<script>
-            if(typeof(Storage) !== "undefined") {
-                localStorage.removeItem("clothingFormData");
-                console.log("Form submitted successfully - cleared saved data");
-            }
+            (function() {
+                try {
+                    if(typeof(Storage) !== "undefined") {
+                        localStorage.removeItem("clothingFormData");
+                        console.log("Form submitted successfully - cleared saved data");
+                    }
+                } catch(e) {
+                    console.error("Error clearing form data:", e);
+                }
+            })();
         </script>';
     }
     
     // Error message
-    if ($feedback['status'] === 'error') {
+    if ($feedback['status'] === 'error' && !empty($feedback['message'])) {
         echo '<div class="submission-feedback error">' . esc_html($feedback['message']) . '</div>';
         PCF_Session_Manager::clear_feedback();
     }

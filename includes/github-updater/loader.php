@@ -50,9 +50,24 @@ function preowned_clothing_init_updater($plugin_file, $config = array()) {
         return;
     }
 
+    // Validate plugin file
+    if (!file_exists($plugin_file)) {
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('GitHub Updater: Invalid plugin file path: ' . $plugin_file);
+        }
+        return;
+    }
+
     // Ensure required WordPress functions are available
-    if (!function_exists('get_plugin_data') && function_exists('is_admin') && is_admin()) {
-        require_once ABSPATH . 'wp-admin/includes/plugin.php';
+    if (!function_exists('get_plugin_data')) {
+        if (function_exists('is_admin') && is_admin()) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        } else {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('GitHub Updater: Could not load plugin.php in non-admin context');
+            }
+            return;
+        }
     }
 
     // Set default configuration
@@ -67,8 +82,18 @@ function preowned_clothing_init_updater($plugin_file, $config = array()) {
     $config = wp_parse_args($config, $default_config);
     
     try {
+        // Check if core updater file exists
+        $updater_file = PCF_UPDATER_DIR . 'class-updater.php';
+        if (!file_exists($updater_file)) {
+            throw new Exception('Core updater file not found: ' . $updater_file);
+        }
+        
         // Load core updater class
-        require_once PCF_UPDATER_DIR . 'class-updater.php';
+        require_once $updater_file;
+        
+        if (!class_exists('Preowned_Clothing_GitHub_Updater')) {
+            throw new Exception('Updater class not found after including the file');
+        }
         
         // Initialize updater
         $updater = new Preowned_Clothing_GitHub_Updater($plugin_file);
@@ -87,9 +112,20 @@ function preowned_clothing_init_updater($plugin_file, $config = array()) {
         
         // Register the admin interface only when in admin
         if (is_admin() && !wp_doing_ajax()) {
-            require_once PCF_UPDATER_DIR . 'admin/class-admin-page.php';
-            $admin = new Preowned_Clothing_GitHub_Admin($updater);
-            $admin->initialize();
+            $admin_file = PCF_UPDATER_DIR . 'admin/class-admin-page.php';
+            if (file_exists($admin_file)) {
+                require_once $admin_file;
+                if (class_exists('Preowned_Clothing_GitHub_Admin')) {
+                    $admin = new Preowned_Clothing_GitHub_Admin($updater);
+                    $admin->initialize();
+                } else {
+                    throw new Exception('Admin class not found after including the file');
+                }
+            } else {
+                if ($config['debug']) {
+                    error_log('GitHub Updater: Admin page file not found: ' . $admin_file);
+                }
+            }
         }
         
         // Log initialization if debugging is enabled
@@ -107,6 +143,9 @@ function preowned_clothing_init_updater($plugin_file, $config = array()) {
 
 /**
  * Register hooks to ensure the updater is initialized at the right time
+ *
+ * @param string $plugin_file Path to the main plugin file
+ * @param array $config Optional configuration parameters
  */
 function preowned_clothing_register_updater_hooks($plugin_file, $config = array()) {
     // We use admin_init with priority 15 to ensure it runs after
@@ -134,9 +173,23 @@ function preowned_clothing_get_plugin_data($plugin_file) {
     
     if (!isset($plugin_data[$plugin_file])) {
         if (!function_exists('get_plugin_data')) {
-            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+            if (function_exists('is_admin') && is_admin()) {
+                require_once ABSPATH . 'wp-admin/includes/plugin.php';
+            } else {
+                // Return empty array if we can't load plugin data
+                return array('Name' => '', 'Version' => '');
+            }
         }
-        $plugin_data[$plugin_file] = get_plugin_data($plugin_file);
+        
+        if (file_exists($plugin_file)) {
+            $plugin_data[$plugin_file] = get_plugin_data($plugin_file);
+        } else {
+            // Return empty array for invalid files
+            $plugin_data[$plugin_file] = array('Name' => '', 'Version' => '');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('GitHub Updater: Invalid plugin file in get_plugin_data: ' . $plugin_file);
+            }
+        }
     }
     
     return $plugin_data[$plugin_file];
@@ -150,7 +203,7 @@ function preowned_clothing_get_plugin_data($plugin_file) {
  */
 function preowned_clothing_get_normalized_basename($plugin_file) {
     $plugin_data = preowned_clothing_get_plugin_data($plugin_file);
-    $slug = sanitize_title($plugin_data['Name']);
+    $slug = !empty($plugin_data['Name']) ? sanitize_title($plugin_data['Name']) : '';
     $filename = basename($plugin_file);
     return $slug . '/' . $filename;
 }
@@ -174,7 +227,21 @@ function preowned_clothing_loader_force_update_check() {
     }
     
     $plugin_file = $preowned_clothing_updater->get_plugin_file();
+    if (!file_exists($plugin_file)) {
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('GitHub Updater: Plugin file not found: ' . $plugin_file);
+        }
+        return;
+    }
+    
     $plugin_data = preowned_clothing_get_plugin_data($plugin_file);
+    if (empty($plugin_data['Version'])) {
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('GitHub Updater: Could not determine plugin version');
+        }
+        return;
+    }
+    
     $plugin_basename = plugin_basename($plugin_file);
     $normalized_basename = preowned_clothing_get_normalized_basename($plugin_file);
     

@@ -903,7 +903,12 @@ function initialize_preowned_clothing_admin_settings() {
     
     $preowned_clothing_admin_settings = Preowned_Clothing_Admin_Settings::get_instance();
 }
-// Use a single hook for initialization, remove any duplicate calls
-remove_action('plugins_loaded', 'initialize_preowned_clothing_admin_settings');
-remove_action('admin_init', 'initialize_preowned_clothing_admin_settings', 5);
+// The remove_action calls may fail if these hooks were never added in the first place
+// It's safer to check if the function exists first before removing
+if (has_action('plugins_loaded', 'initialize_preowned_clothing_admin_settings')) {
+    remove_action('plugins_loaded', 'initialize_preowned_clothing_admin_settings');
+}
+if (has_action('admin_init', 'initialize_preowned_clothing_admin_settings')) {
+    remove_action('admin_init', 'initialize_preowned_clothing_admin_settings', 5);
+}
 add_action('admin_menu', 'initialize_preowned_clothing_admin_settings', 9); // Run just before standard admin_menu priority
