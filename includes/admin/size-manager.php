@@ -25,9 +25,10 @@ function preowned_clothing_size_manager_page() {
     // Get existing size groups
     $sizes = get_option('preowned_clothing_sizes', array());
     
-    // Debug message to see if sizes are being loaded
-    if (defined('WP_DEBUG') && WP_DEBUG && empty($sizes)) {
-        error_log('Preowned Clothing Form - No sizes found in options');
+    // Debug information
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('Size Manager - Categories: ' . print_r($categories, true));
+        error_log('Size Manager - Sizes: ' . print_r($sizes, true));
     }
     
     if (empty($sizes)) {
@@ -63,6 +64,19 @@ function preowned_clothing_size_manager_page() {
         );
     }
     
+    // Create a mapping of categories for easier reference
+    $category_map = array();
+    foreach ($categories as $gender => $gender_cats) {
+        foreach ($gender_cats as $cat_id => $category) {
+            $key = $gender . '|' . $cat_id;
+            $category_map[$key] = array(
+                'gender' => $gender,
+                'category_id' => $cat_id,
+                'name' => $category['name']
+            );
+        }
+    }
+    
     ?>
     <div class="wrap">
         <h1><?php echo esc_html__('Size Manager', 'preowned-clothing-form'); ?></h1>
@@ -85,6 +99,57 @@ function preowned_clothing_size_manager_page() {
                         </a>
                     </div>
                     
+                    <!-- Summary of Current Size Groups -->
+                    <div class="size-summary card">
+                        <h3><?php echo esc_html__('Current Size Groups', 'preowned-clothing-form'); ?></h3>
+                        <table class="widefat">
+                            <thead>
+                                <tr>
+                                    <th><?php echo esc_html__('Group Name', 'preowned-clothing-form'); ?></th>
+                                    <th><?php echo esc_html__('Category', 'preowned-clothing-form'); ?></th>
+                                    <th><?php echo esc_html__('Available Sizes', 'preowned-clothing-form'); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($sizes)): ?>
+                                    <?php foreach ($sizes as $group_id => $group): ?>
+                                        <tr>
+                                            <td><strong><?php echo esc_html($group['name']); ?></strong></td>
+                                            <td>
+                                                <?php 
+                                                if (isset($group['category']) && isset($category_map[$group['category']])) {
+                                                    echo esc_html(ucfirst($category_map[$group['category']]['gender']) . ' - ' . $category_map[$group['category']]['name']);
+                                                } else {
+                                                    echo '<em>' . esc_html__('No category assigned', 'preowned-clothing-form') . '</em>';
+                                                }
+                                                ?>
+                                            </td>
+                                            <td>
+                                                <?php 
+                                                if (!empty($group['sizes']) && is_array($group['sizes'])) {
+                                                    echo '<div class="size-chips">';
+                                                    foreach ($group['sizes'] as $size) {
+                                                        echo '<span class="size-chip">' . esc_html($size) . '</span>';
+                                                    }
+                                                    echo '</div>';
+                                                } else {
+                                                    echo '<em>' . esc_html__('No sizes defined', 'preowned-clothing-form') . '</em>';
+                                                }
+                                                ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="3"><?php echo esc_html__('No size groups defined yet.', 'preowned-clothing-form'); ?></td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <h3><?php echo esc_html__('Edit Size Groups', 'preowned-clothing-form'); ?></h3>
+                    
                     <div class="size-groups">
                         <?php if (!empty($sizes)): ?>
                             <?php foreach ($sizes as $group_id => $group): ?>
@@ -99,8 +164,11 @@ function preowned_clothing_size_manager_page() {
                                                 <?php foreach ($categories as $gender => $gender_cats): ?>
                                                     <optgroup label="<?php echo esc_attr(ucfirst($gender)); ?>">
                                                         <?php foreach ($gender_cats as $cat_id => $category): ?>
-                                                            <option value="<?php echo esc_attr($gender . '|' . $cat_id); ?>" 
-                                                                <?php selected(isset($group['category']) && $group['category'] === $gender . '|' . $cat_id); ?>>
+                                                            <?php 
+                                                            $cat_key = $gender . '|' . $cat_id;
+                                                            $selected = (isset($group['category']) && $group['category'] === $cat_key);
+                                                            ?>
+                                                            <option value="<?php echo esc_attr($cat_key); ?>" <?php selected($selected); ?>>
                                                                 <?php echo esc_html($category['name']); ?>
                                                             </option>
                                                         <?php endforeach; ?>
@@ -279,6 +347,28 @@ function preowned_clothing_size_manager_page() {
         .actions-row {
             margin-bottom: 15px;
             text-align: right;
+        }
+        
+        .size-summary {
+            margin-bottom: 30px;
+            background: #f9f9f9;
+            padding: 15px;
+        }
+        
+        .size-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .size-chip {
+            display: inline-block;
+            background: #e0f0fa;
+            border: 1px solid #c3e0f7;
+            border-radius: 3px;
+            padding: 2px 8px;
+            font-size: 12px;
+            font-weight: bold;
         }
         
         .size-groups {

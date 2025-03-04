@@ -1,15 +1,16 @@
 <?php
 /**
  * Plugin Name: Preowned Clothing Form
- * Plugin URI: https://yourwebsite.com/plugins/preowned-clothing-form
+ * Plugin URI: https://github.com/abrianbaker80/Clothing_Form_Live.git
  * Description: A customizable form for submitting preowned clothing items.
- * Version: 2.6.0.9
- * Author: Your Name
- * Author URI: https://yourwebsite.com
+ * Version: 2.7.0.0
+ * Author: Allen Baker
+ * Author URI: https://www.thereclaimedhanger.com
  * Text Domain: preowned-clothing-form
  * Domain Path: /languages
  *
  * Changelog:
+ * 2.7.0.0 - Enhanced Size Manager with improved category mapping and visual size display
  * 2.6.0.9 - Size Manager improvements, admin menu fixes
  * 1.1.0 - Added Form Field Manager, Category Manager
  * 1.0.0 - Initial release
@@ -27,7 +28,7 @@ if (!function_exists('plugin_dir_url')) {
 }
 
 // Define plugin constants
-define('PCF_VERSION', '2.6.0.9');
+define('PCF_VERSION', '2.7.0.0');
 define('PCF_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PCF_PLUGIN_URL', plugin_dir_url(__FILE__));
 

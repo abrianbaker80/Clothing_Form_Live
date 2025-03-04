@@ -870,6 +870,24 @@ class Preowned_Clothing_Admin_Settings {
             
             <div class="changelog-wrapper">
                 <div class="version-entry">
+                    <h3>Version 2.7.0.0 <span class="version-date">March 4, 2025</span></h3>
+                    
+                    <h4><?php echo esc_html__('New Features', 'preowned-clothing-form'); ?></h4>
+                    <ul>
+                        <li><?php echo esc_html__('Enhanced Size Manager with comprehensive size overview table', 'preowned-clothing-form'); ?></li>
+                        <li><?php echo esc_html__('Visual size chip display for better readability', 'preowned-clothing-form'); ?></li>
+                        <li><?php echo esc_html__('Improved size group categorization', 'preowned-clothing-form'); ?></li>
+                    </ul>
+                    
+                    <h4><?php echo esc_html__('Improvements', 'preowned-clothing-form'); ?></h4>
+                    <ul>
+                        <li><?php echo esc_html__('Size groups now properly display associated categories', 'preowned-clothing-form'); ?></li>
+                        <li><?php echo esc_html__('Better feedback when adding or removing sizes', 'preowned-clothing-form'); ?></li>
+                        <li><?php echo esc_html__('More intuitive size group management interface', 'preowned-clothing-form'); ?></li>
+                    </ul>
+                </div>
+                
+                <div class="version-entry">
                     <h3>Version 1.2.0 <span class="version-date">October 18, 2023</span></h3>
                     
                     <h4><?php echo esc_html__('New Features', 'preowned-clothing-form'); ?></h4>

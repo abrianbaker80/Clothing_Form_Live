@@ -2,6 +2,20 @@
 
 All notable changes to the Preowned Clothing Form plugin will be documented in this file.
 
+## [2.7.0.0] - 2025-03-04
+
+### Added
+- Enhanced Size Manager with comprehensive size overview table
+- Visual size chip display for better readability
+- Debug logging for size and category data troubleshooting
+- Improved size group categorization
+
+### Fixed
+- Size groups now properly display associated categories
+- Improved data visualization for existing size options
+- Better feedback when adding or removing sizes
+- More intuitive size group management interface
+
 ## [2.6.0.9] - 2023-10-18
 
 ### Added

@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
  */
 function preowned_clothing_form_update_notice() {
     // Current plugin version
-    $current_version = '2.6.0.9';
+    $current_version = '2.7.0.0';
     
     // Get the previously installed version
     $previous_version = get_option('preowned_clothing_form_version', '0.0.0');
