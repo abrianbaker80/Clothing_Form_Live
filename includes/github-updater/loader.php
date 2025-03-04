@@ -22,10 +22,12 @@ define('PCF_UPDATER_URL', plugin_dir_url(__FILE__));
  * 
  * @return boolean True if we can run the updater
  */
-function preowned_clothing_can_run_updater() {
-    return (!class_exists('Preowned_Clothing_GitHub_Updater') && 
-            !class_exists('GitHub_Updater') && 
-            !function_exists('github_plugin_updater_init'));
+if (!function_exists('preowned_clothing_can_run_updater')) {
+    function preowned_clothing_can_run_updater() {
+        return (!class_exists('Preowned_Clothing_GitHub_Updater') && 
+                !class_exists('GitHub_Updater') && 
+                !function_exists('github_plugin_updater_init'));
+    }
 }
 
 /**
