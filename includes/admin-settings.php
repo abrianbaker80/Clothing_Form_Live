@@ -12,11 +12,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Guard against multiple class declarations
-if (class_exists('Preowned_Clothing_Admin_Settings')) {
-    return;
-}
-
 /**
  * Admin Settings Class
  */
@@ -46,14 +41,19 @@ class Preowned_Clothing_Admin_Settings {
      */
     private function __construct() {
         // Use proper WordPress hook for admin initialization
-        add_action('admin_menu', array($this, 'add_admin_menu'));
-        add_action('admin_init', array($this, 'register_settings'));
+        add_action('admin_menu', array($this, 'add_admin_menu'), 9); // Lower priority to ensure it runs early
+        add_action('admin_init', array($this, 'register_settings'), 10);
     }
     
     /**
      * Register admin menu items
      */
     public function add_admin_menu() {
+        // Debug to help identify if the function is running
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('Preowned Clothing Form - Adding admin menu');
+        }
+        
         // Add main settings page under Settings menu
         add_options_page(
             'Preowned Clothing Form Settings',
@@ -894,21 +894,37 @@ class Preowned_Clothing_Admin_Settings {
     }
 }
 
-// Initialize the settings class - replace both previous initialization hooks with this one
+/**
+ * Get the settings instance - direct access function for debugging
+ */
+function preowned_clothing_get_settings() {
+    return Preowned_Clothing_Admin_Settings::get_instance();
+}
+
+/**
+ * Initialize the settings class - completely rewritten for reliability
+ */
 function initialize_preowned_clothing_admin_settings() {
-    // Only load admin settings in admin area
-    if (!is_admin()) {
+    // Skip on AJAX requests to avoid duplicate loads
+    if (defined('DOING_AJAX') && DOING_AJAX) {
         return;
     }
     
-    $preowned_clothing_admin_settings = Preowned_Clothing_Admin_Settings::get_instance();
+    // Get instance to initialize it
+    $instance = Preowned_Clothing_Admin_Settings::get_instance();
+    
+    // Debug to help identify if this function is running
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('Preowned Clothing Form - Admin settings initialized');
+    }
 }
-// The remove_action calls may fail if these hooks were never added in the first place
-// It's safer to check if the function exists first before removing
-if (has_action('plugins_loaded', 'initialize_preowned_clothing_admin_settings')) {
-    remove_action('plugins_loaded', 'initialize_preowned_clothing_admin_settings');
-}
-if (has_action('admin_init', 'initialize_preowned_clothing_admin_settings')) {
-    remove_action('admin_init', 'initialize_preowned_clothing_admin_settings', 5);
-}
-add_action('admin_menu', 'initialize_preowned_clothing_admin_settings', 9); // Run just before standard admin_menu priority
+
+// Remove all existing hooks for the initializer to avoid conflicts
+remove_action('plugins_loaded', 'initialize_preowned_clothing_admin_settings');
+remove_action('admin_init', 'initialize_preowned_clothing_admin_settings');
+remove_action('admin_menu', 'initialize_preowned_clothing_admin_settings');
+remove_action('init', 'initialize_preowned_clothing_admin_settings');
+
+// Attach to multiple hooks to ensure it runs
+add_action('admin_menu', 'initialize_preowned_clothing_admin_settings', 5); // Run at priority 5 (earlier)
+add_action('plugins_loaded', 'initialize_preowned_clothing_admin_settings', 5); // Also initialize on plugins_loaded for safety

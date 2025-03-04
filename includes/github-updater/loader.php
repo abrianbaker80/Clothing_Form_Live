@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define updater constants
-define('PCF_UPDATER_VERSION', '1.0.0');
+define('PCF_UPDATER_VERSION', '1.0.3');
 define('PCF_UPDATER_DIR', plugin_dir_path(__FILE__));
 define('PCF_UPDATER_URL', plugin_dir_url(__FILE__));
 
@@ -24,9 +24,30 @@ define('PCF_UPDATER_URL', plugin_dir_url(__FILE__));
  */
 if (!function_exists('preowned_clothing_can_run_updater')) {
     function preowned_clothing_can_run_updater() {
-        return (!class_exists('Preowned_Clothing_GitHub_Updater') && 
-                !class_exists('GitHub_Updater') && 
-                !function_exists('github_plugin_updater_init'));
+        global $preowned_clothing_gh_updater_running;
+        
+        // Always allow our own updater to run after we've set the flag
+        if ($preowned_clothing_gh_updater_running === true) {
+            return true;
+        }
+        
+        // Check for common GitHub updater classes from other plugins or themes
+        $conflicting_classes = [
+            'GitHub_Updater', 
+            'WP_GitHub_Updater'
+        ];
+        
+        foreach ($conflicting_classes as $class) {
+            if (class_exists($class, false)) { // false = don't autoload
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('GitHub Updater: External updater class detected: ' . $class);
+                }
+                return false;
+            }
+        }
+        
+        // No conflicts detected
+        return true;
     }
 }
 
@@ -37,13 +58,28 @@ if (!function_exists('preowned_clothing_can_run_updater')) {
  * @param array $config Optional configuration parameters
  */
 function preowned_clothing_init_updater($plugin_file, $config = array()) {
-    // Only proceed if we can safely run the updater
+    global $preowned_clothing_gh_updater_running;
+    
+    // Only allow initialization once per page load
+    static $initialized = false;
+    if ($initialized) {
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('GitHub Updater: Already initialized this page load, skipping.');
+        }
+        return;
+    }
+    
+    // Check if we can safely run the updater
     if (!preowned_clothing_can_run_updater()) {
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log('GitHub Updater: Another updater is already active. Not loading our updater.');
         }
         return;
     }
+    
+    // Set a flag to indicate initialization has occurred
+    $initialized = true;
+    $preowned_clothing_gh_updater_running = true;
     
     // Only load in admin or during AJAX/cron
     if (!is_admin() && !wp_doing_ajax() && !defined('DOING_CRON')) {
@@ -136,7 +172,7 @@ function preowned_clothing_init_updater($plugin_file, $config = array()) {
     } catch (Exception $e) {
         // Log error but don't crash
         if ($config['debug']) {
-            error_log('GitHub Updater Error: ' . $e->getMessage());
+            error_log('GitHub Updater: Error: ' . $e->getMessage());
         }
     }
 }
@@ -148,18 +184,18 @@ function preowned_clothing_init_updater($plugin_file, $config = array()) {
  * @param array $config Optional configuration parameters
  */
 function preowned_clothing_register_updater_hooks($plugin_file, $config = array()) {
-    // We use admin_init with priority 15 to ensure it runs after
-    // other critical admin functionality is initialized
+    // We use admin_init with priority 5 to ensure it runs before 
+    // other GitHub updater implementations, helping avoid conflicts
     add_action('admin_init', function() use ($plugin_file, $config) {
         preowned_clothing_init_updater($plugin_file, $config);
-    }, 15);
+    }, 5);
     
     // Also initialize during cron runs
     add_action('wp_loaded', function() use ($plugin_file, $config) {
         if (defined('DOING_CRON') && DOING_CRON) {
             preowned_clothing_init_updater($plugin_file, $config);
         }
-    });
+    }, 5);
 }
 
 /**
