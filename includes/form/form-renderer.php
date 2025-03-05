@@ -40,33 +40,29 @@ class PCF_Form_Renderer {
      * @return string The rendered form HTML
      */
     public function render() {
+        $this->enqueue_required_assets();
+        
         ob_start();
         
-        // Start the form container with custom styles
-        $this->render_form_styles();
-        
-        echo '<div class="clothing-submission-form">';
-        
-        // Form title and introduction
-        echo '<h2>' . esc_html($this->options['form_title']) . '</h2>';
-        echo '<div class="form-guidance">';
-        echo '<p>' . wp_kses_post($this->options['form_intro']) . '</p>';
-        echo '</div>';
+        $this->render_form_header();
         
         // Start the form
-        echo '<form action="' . esc_url($_SERVER['REQUEST_URI']) . '" method="post" enctype="multipart/form-data" id="clothing-form">';
+        echo '<form id="clothing-form" class="clothing-submission-form" method="post" enctype="multipart/form-data">';
+        echo wp_nonce_field('preowned_clothing_form_submission', 'pcf_nonce', true, false);
         
-        // Let other functions hook into the form start
-        do_action('preowned_clothing_form_start');
+        // Run action hook before form content - THIS IS THE CRITICAL ADDITION
+        do_action('pcf_before_form_content');
         
-        // Render the form steps
-        $this->render_wizard_container();
+        // Render contact info fields
+        $this->render_contact_info_fields();
         
-        // End the form
+        // Render clothing items section
+        $this->render_clothing_items_section();
+        
+        // Render submit button
+        $this->render_submit_button();
+        
         echo '</form>';
-        
-        // End the form container
-        echo '</div>';
         
         return ob_get_clean();
     }

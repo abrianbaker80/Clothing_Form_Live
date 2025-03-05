@@ -6,411 +6,80 @@
 (function($) {
     'use strict';
     
-    // Maximum image size in MB
-    let maxImageSize = 2;
-    
-    // Image types configuration
-    const imageTypes = {
-        'front': {
-            label: 'Front',
-            hint: 'Show the front of the garment laid flat or on a hanger'
-        },
-        'back': {
-            label: 'Back',
-            hint: 'Show the back of the garment laid flat or on a hanger'
-        },
-        'brand_tag': {
-            label: 'Brand Tag',
-            hint: 'Close-up of the brand/size tag'
-        },
-        'material_tag': {
-            label: 'Material Tag',
-            hint: 'Close-up of the fabric/care label'
-        },
-        'detail': {
-            label: 'Detail',
-            hint: 'Any special details, damage, or distinctive features'
-        }
-    };
-    
     // Initialize on document ready
     $(document).ready(function() {
+        console.log("Image upload script initializing");
+        
         // Get max size from data attribute
-        const maxSizeAttr = $('.image-upload-container').data('max-size');
-        if (maxSizeAttr) {
-            maxImageSize = maxSizeAttr;
-        }
+        const maxSizeAttr = $('.image-upload-container').data('max-size') || 2;
         
-        // Initialize image uploads for first item
-        initializeImageUploads(1);
-        
-        // Delegate event for dynamically added items
-        $('#clothing-form').on('imageUploadInit', function(e, itemId) {
-            initializeImageUploads(itemId);
-        });
-        
-        // Drag and drop functionality
-        setupDragAndDrop();
-    });
-    
-    /**
-     * Initialize image upload functionality for an item
-     */
-    function initializeImageUploads(itemId) {
-        console.log('Initializing image uploads for item:', itemId);
-        
-        // Find all file inputs for this specific item
-        const fileInputs = document.querySelectorAll(`input[name^="items[${itemId}][images]"]`);
-        
-        fileInputs.forEach(input => {
-            // Get the container box
-            const box = input.closest('.image-upload-box');
-            if (!box) return;
+        // Initialize event handlers for upload boxes
+        $('.image-upload-box').each(function(index) {
+            const box = $(this);
+            const input = box.find('input[type="file"]');
             
-            // Remove old event listeners to prevent duplicates
-            const newInput = input.cloneNode(true);
-            input.parentNode.replaceWith(newInput, input);
-            
-            // Add click handler to box
-            box.addEventListener('click', function(e) {
-                // Don't trigger if clicking on preview or remove button
-                if (e.target.closest('.image-preview') || 
-                    e.target.closest('.remove-preview-btn')) {
-                    return;
-                }
-                
-                // Otherwise, trigger file input click
-                if (e.target !== newInput) {
-                    newInput.click();
-                }
-            });
+            console.log(`Initializing upload box ${index + 1}`);
             
             // Handle file selection
-            newInput.addEventListener('change', function() {
-                handleFileSelect(this, box);
-            });
-            
-            // Initialize drag and drop for this box
-            setupSingleBoxDragDrop(box, newInput);
-            
-            // Clear any existing previews
-            const existingPreview = box.querySelector('.image-preview');
-            const existingRemoveBtn = box.querySelector('.remove-preview-btn');
-            
-            if (existingPreview && !newInput.files.length) {
-                existingPreview.remove();
-            }
-            
-            if (existingRemoveBtn && !newInput.files.length) {
-                existingRemoveBtn.remove();
-            }
-            
-            // Show placeholder if no file is selected
-            const placeholder = box.querySelector('.upload-placeholder');
-            if (placeholder && !newInput.files.length) {
-                placeholder.style.display = '';
-                box.classList.remove('has-image');
-            }
-        });
-    }
-    
-    /**
-     * Handle file selection from input
-     */
-    function handleFileSelect(input, box) {
-        if (!input.files || !input.files[0]) return;
-        
-        const file = input.files[0];
-        
-        // Check file size
-        if (!validateFileSize(file, input)) return;
-        
-        // Check file type
-        if (!validateFileType(file, input)) return;
-        
-        // Show preview
-        showImagePreview(file, box);
-        
-        // Trigger form validation update
-        if (window.pcfWizard && typeof window.pcfWizard.validateStep === 'function') {
-            window.pcfWizard.validateStep(2); // 2 is the photo step index
-        }
-    }
-    
-    /**
-     * Validate file size
-     */
-    function validateFileSize(file, input) {
-        const maxSizeBytes = maxImageSize * 1024 * 1024;
-        
-        if (file.size > maxSizeBytes) {
-            const errorMsg = `Image is too large. Please select an image smaller than ${maxImageSize}MB.`;
-            alert(errorMsg);
-            input.value = '';
-            return false;
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Validate file type
-     */
-    function validateFileType(file, input) {
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        
-        if (!allowedTypes.includes(file.type)) {
-            const errorMsg = 'Only JPEG, PNG, GIF, and WEBP images are allowed.';
-            alert(errorMsg);
-            input.value = '';
-            return false;
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Show image preview
-     */
-    function showImagePreview(file, box) {
-        // Create a progress indicator
-        let progressBar = box.querySelector('.upload-progress');
-        if (!progressBar) {
-            progressBar = document.createElement('div');
-            progressBar.className = 'upload-progress';
-            progressBar.innerHTML = `
-                <div class="progress-track">
-                    <div class="progress-fill"></div>
-                </div>
-                <div class="progress-text">Reading image...</div>
-            `;
-            box.appendChild(progressBar);
-        }
-        
-        // Hide placeholder
-        const placeholder = box.querySelector('.upload-placeholder');
-        if (placeholder) placeholder.style.display = 'none';
-        
-        // Show progress
-        const progressFill = progressBar.querySelector('.progress-fill');
-        const progressText = progressBar.querySelector('.progress-text');
-        
-        // Simulate progress 
-        let progress = 0;
-        const interval = setInterval(() => {
-            progress += 5;
-            progressFill.style.width = Math.min(progress, 90) + '%';
-            progressText.textContent = 'Processing image...';
-            
-            if (progress >= 90) {
-                clearInterval(interval);
-            }
-        }, 50);
-        
-        // Read the file and create preview
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            clearInterval(interval);
-            progressFill.style.width = '100%';
-            progressText.textContent = 'Complete!';
-            
-            // Create preview
-            setTimeout(() => {
-                // Remove progress bar
-                progressBar.remove();
-                
-                // Create/update preview
-                let preview = box.querySelector('.image-preview');
-                if (preview) {
-                    preview.remove(); // Remove existing preview
-                }
-                
-                preview = document.createElement('div');
-                preview.className = 'image-preview';
-                box.appendChild(preview);
-                
-                // Set background image
-                preview.style.backgroundImage = `url(${e.target.result})`;
-                
-                // Add remove button
-                let removeBtn = box.querySelector('.remove-preview-btn');
-                if (removeBtn) {
-                    removeBtn.remove(); // Remove existing button
-                }
-                
-                removeBtn = document.createElement('button');
-                removeBtn.type = 'button';
-                removeBtn.className = 'remove-preview-btn';
-                removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-                
-                // Event handler for remove button
-                removeBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+            input.on('change', function() {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    console.log(`File selected: ${file.name}`);
                     
-                    // Reset file input
-                    const input = box.querySelector('input[type="file"]');
-                    if (input) {
-                        // Need to clone to truly clear the file input
-                        const newInput = input.cloneNode(true);
-                        input.parentNode.replaceWith(newInput, input);
+                    // Check file size
+                    if (file.size > maxSizeAttr * 1024 * 1024) {
+                        alert(`File is too large. Maximum size is ${maxSizeAttr}MB.`);
+                        return;
+                    }
+                    
+                    // Create image preview
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Remove existing preview
+                        box.find('.image-preview, .remove-preview-btn').remove();
                         
-                        // Re-add change handler to new input
-                        newInput.addEventListener('change', function() {
-                            handleFileSelect(this, box);
+                        // Hide placeholder
+                        box.find('.upload-placeholder').hide();
+                        
+                        // Add preview elements
+                        const preview = $('<div class="image-preview"></div>').css('background-image', `url(${e.target.result})`);
+                        const removeBtn = $('<button type="button" class="remove-preview-btn" aria-label="Remove Image"><i class="fas fa-times"></i></button>');
+                        
+                        box.append(preview).append(removeBtn);
+                        box.addClass('has-image');
+                        
+                        // Handle remove button
+                        removeBtn.on('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            // Clear input
+                            input.val('');
+                            
+                            // Remove preview
+                            preview.remove();
+                            removeBtn.remove();
+                            
+                            // Show placeholder
+                            box.find('.upload-placeholder').show();
+                            box.removeClass('has-image');
                         });
-                    }
-                    
-                    // Remove preview
-                    preview.remove();
-                    removeBtn.remove();
-                    
-                    // Show placeholder
-                    if (placeholder) placeholder.style.display = '';
-                    box.classList.remove('has-image');
-                    
-                    // Update review section if available
-                    if (window.pcfWizard && typeof window.pcfWizard.updateReviewSection === 'function') {
-                        window.pcfWizard.updateReviewSection();
-                    }
-                });
-                
-                box.appendChild(removeBtn);
-                
-                // Add has-image class to box
-                box.classList.add('has-image');
-                
-                // Update review section if available
-                if (window.pcfWizard && typeof window.pcfWizard.updateReviewSection === 'function') {
-                    window.pcfWizard.updateReviewSection();
+                    };
+                    reader.readAsDataURL(file);
                 }
-            }, 500);
-        };
+            });
+        });
         
-        reader.onerror = function() {
-            clearInterval(interval);
-            progressBar.remove();
-            alert('There was an error reading the file.');
-            
-            const input = box.querySelector('input[type="file"]');
-            if (input) input.value = '';
-            
-            if (placeholder) placeholder.style.display = '';
-        };
-        
-        reader.readAsDataURL(file);
-    }
+        // Initialize drag and drop if the script is available
+        if (typeof setupDragDropHandlers === 'function') {
+            setupDragDropHandlers();
+        }
+    });
     
-    /**
-     * Setup drag and drop functionality
-     */
-    function setupDragAndDrop() {
-        // Add global drag and drop support
-        const form = document.getElementById('clothing-form');
-        if (!form) return;
-        
-        form.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Highlight drop zone if we're on the photos step
-            const photoStep = document.querySelector('.wizard-step:nth-child(3)');
-            if (photoStep && photoStep.classList.contains('active')) {
-                photoStep.classList.add('drag-over');
-            }
-        });
-        
-        form.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const photoStep = document.querySelector('.wizard-step:nth-child(3)');
-            if (photoStep) {
-                photoStep.classList.remove('drag-over');
-            }
-        });
-        
-        form.addEventListener('drop', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const photoStep = document.querySelector('.wizard-step:nth-child(3)');
-            if (photoStep) {
-                photoStep.classList.remove('drag-over');
-            }
-            
-            // Check if we're on the photos step
-            if (!photoStep || !photoStep.classList.contains('active')) {
-                return;
-            }
-            
-            // Get the first available upload box
-            const emptyBoxes = photoStep.querySelectorAll('.image-upload-box:not(.has-image)');
-            if (emptyBoxes.length === 0) return;
-            
-            // Get the dropped files
-            const files = e.dataTransfer.files;
-            if (!files || files.length === 0) return;
-            
-            // Process each file (up to available boxes)
-            const maxFiles = Math.min(files.length, emptyBoxes.length);
-            for (let i = 0; i < maxFiles; i++) {
-                const input = emptyBoxes[i].querySelector('input[type="file"]');
-                if (input) {
-                    // Set the file to the input
-                    const fileList = new DataTransfer();
-                    fileList.items.add(files[i]);
-                    input.files = fileList.files;
-                    
-                    // Trigger change event
-                    const event = new Event('change', { bubbles: true });
-                    input.dispatchEvent(event);
-                }
-            }
-        });
-    }
-    
-    /**
-     * Setup drag and drop for an individual upload box
-     */
-    function setupSingleBoxDragDrop(box, input) {
-        box.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            box.classList.add('drag-over');
-        });
-        
-        box.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            box.classList.remove('drag-over');
-        });
-        
-        box.addEventListener('drop', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            box.classList.remove('drag-over');
-            
-            const files = e.dataTransfer.files;
-            if (!files || files.length === 0) return;
-            
-            // Use only first file
-            const fileList = new DataTransfer();
-            fileList.items.add(files[0]);
-            input.files = fileList.files;
-            
-            // Trigger change event
-            const event = new Event('change', { bubbles: true });
-            input.dispatchEvent(event);
-        });
-    }
-    
-    // Expose functions to global scope
+    // Public methods - expose if needed
     window.pcfImageUpload = {
-        initializeImageUploads: initializeImageUploads,
-        showImagePreview: showImagePreview
+        // Any functions you want to expose globally
     };
-    
 })(jQuery);
 
 /**

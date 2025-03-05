@@ -3,13 +3,14 @@
  * Plugin Name: Preowned Clothing Form
  * Plugin URI: https://github.com/abrianbaker80/Clothing_Form_Live.git
  * Description: A customizable form for submitting preowned clothing items.
- * Version: 2.7.2.0
+ * Version: 2.7.3.0
  * Author: Allen Baker
  * Author URI: https://www.thereclaimedhanger.com
  * Text Domain: preowned-clothing-form
  * Domain Path: /languages
  *
  * Changelog:
+ * 2.7.3.0 - Fixed image upload display and preview functionality, added proper form renderer hook integration
  * 2.7.2.0 - Enhanced image upload system: fixed SVG placeholders, restored image optimizer, improved display styles
  * 2.7.1.0 - Fixed image upload section with proper SVG placeholder icons
  * 2.7.0.0 - Enhanced Size Manager with improved category mapping and visual size display
@@ -30,7 +31,7 @@ if (!function_exists('plugin_dir_url')) {
 }
 
 // Define plugin constants
-define('PCF_VERSION', '2.7.2.0');
+define('PCF_VERSION', '2.7.3.0');
 define('PCF_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PCF_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -209,7 +210,10 @@ function preowned_clothing_enqueue_scripts() {
     // Enqueue drag-and-drop upload styles
     $drag_drop_upload_path = plugin_dir_path(__FILE__) . 'assets/css/drag-drop-upload.css';
     if (file_exists($drag_drop_upload_path)) {
-        wp_enqueue_style('preowned-clothing-drag-drop', plugin_dir_url(__FILE__) . 'assets/css/drag-drop-upload.css', array('preowned-clothing-style'), '1.0.0');
+        wp_enqueue_style('preowned-clothing-drag-drop', 
+            plugin_dir_url(__FILE__) . 'assets/css/drag-drop-upload.css', 
+            array('preowned-clothing-style'), 
+            PCF_VERSION); // Use version constant for cache busting
     }
     
     // Enqueue category selection styles
@@ -239,10 +243,18 @@ function preowned_clothing_enqueue_scripts() {
         wp_enqueue_script('preowned-clothing-wizard', plugin_dir_url(__FILE__) . 'assets/js/wizard-interface.js', array('jquery'), '1.0.1', true);
     }
     
-    // Enqueue image upload script
+    // Ensure image upload scripts are loaded with proper version for cache busting
     wp_enqueue_script('preowned-clothing-image-upload',
         plugin_dir_url(__FILE__) . 'assets/js/image-upload.js',
-        ['jquery'], '1.0.0', true);
+        ['jquery'], PCF_VERSION, true);
+    
+    // Ensure drag-drop upload script is loaded if it exists
+    $drag_drop_js_path = plugin_dir_path(__FILE__) . 'assets/js/drag-drop-upload.js';
+    if (file_exists($drag_drop_js_path)) {
+        wp_enqueue_script('preowned-clothing-drag-drop-upload',
+            plugin_dir_url(__FILE__) . 'assets/js/drag-drop-upload.js',
+            ['jquery', 'preowned-clothing-image-upload'], PCF_VERSION, true);
+    }
     
     // Enqueue form validation script
     wp_enqueue_script('preowned-clothing-form-validation',
