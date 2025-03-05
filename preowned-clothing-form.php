@@ -3,13 +3,14 @@
  * Plugin Name: Preowned Clothing Form
  * Plugin URI: https://github.com/abrianbaker80/Clothing_Form_Live.git
  * Description: A customizable form for submitting preowned clothing items.
- * Version: 2.7.3.0
+ * Version: 2.7.4.0
  * Author: Allen Baker
  * Author URI: https://www.thereclaimedhanger.com
  * Text Domain: preowned-clothing-form
  * Domain Path: /languages
  *
  * Changelog:
+ * 2.7.4.0 - Fixed fatal error in form renderer, added missing methods, improved image preview functionality
  * 2.7.3.0 - Fixed image upload display and preview functionality, added proper form renderer hook integration
  * 2.7.2.0 - Enhanced image upload system: fixed SVG placeholders, restored image optimizer, improved display styles
  * 2.7.1.0 - Fixed image upload section with proper SVG placeholder icons
@@ -31,7 +32,7 @@ if (!function_exists('plugin_dir_url')) {
 }
 
 // Define plugin constants
-define('PCF_VERSION', '2.7.3.0');
+define('PCF_VERSION', '2.7.4.0');
 define('PCF_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PCF_PLUGIN_URL', plugin_dir_url(__FILE__));
 
