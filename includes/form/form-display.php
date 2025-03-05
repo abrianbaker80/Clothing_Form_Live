@@ -3,6 +3,201 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
+// Include the original content from includes/form-display.php
+// This is a minimal version - the full file should be moved here
+
+/**
+ * Display the clothing submission form with proper feedback handling
+ */
+function preowned_clothing_display_form($atts = []) {
+    // Initialize the HTML output buffer
+    ob_start();
+    
+    // Add the image upload section here - this is the key part that was missing
+    ?>
+    <!-- Image Upload Section -->
+    <div class="form-section" id="imageUploadSection">
+        <h3>Upload Images</h3>
+        <p class="photo-instruction">Please upload clear photos of your item. This helps buyers see the item's condition.</p>
+        <div class="image-upload-container" data-max-size="2">
+            <div class="image-upload-box required" onclick="document.getElementById('uploadImage1').click()">
+                <div class="upload-placeholder">
+                    <img src="<?php echo plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/images/placeholders/shirt-front.svg'; ?>" class="placeholder-icon">
+                    <div class="upload-label">Front View</div>
+                    <div class="upload-hint">Show the front of the garment</div>
+                </div>
+                <input type="file" id="uploadImage1" name="item_images[]" class="upload-input" accept="image/*">
+            </div>
+            <div class="image-upload-box required" onclick="document.getElementById('uploadImage2').click()">
+                <div class="upload-placeholder">
+                    <img src="<?php echo plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/images/placeholders/shirt-back.svg'; ?>" class="placeholder-icon">
+                    <div class="upload-label">Back View</div>
+                    <div class="upload-hint">Show the back of the garment</div>
+                </div>
+                <input type="file" id="uploadImage2" name="item_images[]" class="upload-input" accept="image/*">
+            </div>
+            <div class="image-upload-box" onclick="document.getElementById('uploadImage3').click()">
+                <div class="upload-placeholder">
+                    <img src="<?php echo plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/images/placeholders/brand-tag.svg'; ?>" class="placeholder-icon">
+                    <div class="upload-label">Brand Tag</div>
+                    <div class="upload-hint">Close-up of brand/size tag</div>
+                </div>
+                <input type="file" id="uploadImage3" name="item_images[]" class="upload-input" accept="image/*">
+            </div>
+            <div class="image-upload-box" onclick="document.getElementById('uploadImage4').click()">
+                <div class="upload-placeholder">
+                    <img src="<?php echo plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/images/placeholders/material-tag.svg'; ?>" class="placeholder-icon">
+                    <div class="upload-label">Material Tag</div>
+                    <div class="upload-hint">Care/material label</div>
+                </div>
+                <input type="file" id="uploadImage4" name="item_images[]" class="upload-input" accept="image/*">
+            </div>
+            <div class="image-upload-box" onclick="document.getElementById('uploadImage5').click()">
+                <div class="upload-placeholder">
+                    <img src="<?php echo plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/images/placeholders/detail-view.svg'; ?>" class="placeholder-icon">
+                    <div class="upload-label">Details</div>
+                    <div class="upload-hint">Any damages or special details</div>
+                </div>
+                <input type="file" id="uploadImage5" name="item_images[]" class="upload-input" accept="image/*">
+            </div>
+        </div>
+    </div>
+    <?php
+    
+    // Start form display logic
+    // Load required form classes
+    require_once(dirname(__FILE__) . '/form-renderer.php');
+    
+    // Get form customization settings
+    $options = [
+        'form_title' => get_option('preowned_clothing_form_title', 'Submit Your Pre-owned Clothing'),
+        'form_intro' => get_option('preowned_clothing_form_intro', 'You can submit multiple clothing items in a single form. Please provide clear photos and detailed descriptions for each item.'),
+        'max_items' => intval(get_option('preowned_clothing_max_items', 10)),
+        'primary_color' => get_option('preowned_clothing_primary_color', '#0073aa'),
+        'secondary_color' => get_option('preowned_clothing_secondary_color', '#005177'),
+        'max_image_size' => intval(get_option('preowned_clothing_max_image_size', 2)),
+        'required_images' => get_option('preowned_clothing_required_images', ['front', 'back', 'brand_tag']),
+    ];
+    
+    // Display success/error messages
+    $feedback = PCF_Session_Manager::get_feedback();
+    if ($feedback['status'] === 'success') {
+        // Show success message and return
+        PCF_Session_Manager::clear_feedback();
+        return render_success_message($feedback['message']);
+    }
+    
+    // Show error messages if present
+    if ($feedback['status'] === 'error') {
+        echo '<div class="submission-error">';
+        echo '<p>' . esc_html($feedback['message']) . '</p>';
+        echo '</div>';
+        
+        // Clear error after displaying
+        PCF_Session_Manager::clear_feedback();
+    }
+    
+    // If not success, continue with form
+    $renderer = new PCF_Form_Renderer($options);
+    
+    // Enqueue necessary scripts and styles
+    preowned_clothing_enqueue_form_assets();
+    
+    // Get the rendered form
+    $form_html = $renderer->render();
+    
+    // Combine with any buffered output and return
+    return ob_get_clean() . $form_html;
+}
+
+// Define alias function for compatibility with main plugin file
+if (!function_exists('preowned_clothing_form_shortcode')) {
+    function preowned_clothing_form_shortcode($atts = []) {
+        return preowned_clothing_display_form($atts);
+    }
+}
+
+/**
+ * Enqueue all required assets for the form
+ */
+function preowned_clothing_enqueue_form_assets() {
+    // Enqueue CSS
+    wp_enqueue_style('preowned-clothing-wizard', 
+        plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/wizard-interface.css',
+        [], '1.1.0');
+    
+    wp_enqueue_style('preowned-clothing-card-layout',
+        plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/card-layout.css',
+        [], '1.0.0');
+    
+    // Add category selection CSS
+    wp_enqueue_style('preowned-clothing-category-selection',
+        plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/category-selection.css',
+        [], '1.0.0');
+    
+    // Enqueue JS files
+    wp_enqueue_script('preowned-clothing-wizard',
+        plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/js/wizard-interface.js',
+        ['jquery'], '1.0.1', true);
+        
+    wp_enqueue_script('preowned-clothing-image-upload',
+        plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/js/image-upload.js',
+        ['jquery'], '1.0.0', true);
+    
+    wp_enqueue_script('preowned-clothing-form-validation',
+        plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/js/form-validation.js',
+        ['jquery'], '1.0.0', true);
+    
+    // Make sure category handler is loaded (force version to avoid cache)
+    wp_enqueue_script('preowned-clothing-category-handler',
+        plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/js/category-handler.js',
+        ['jquery'], time(), true);
+    
+    // Localize script with form options
+    wp_localize_script('preowned-clothing-category-handler', 'pcfFormOptions', [
+        'max_items' => get_option('preowned_clothing_max_items', 10),
+        'max_image_size' => get_option('preowned_clothing_max_image_size', 2),
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('preowned_clothing_form')
+    ]);
+    
+    // Make sure to enqueue the image upload related scripts and styles
+    wp_enqueue_script('pcf-image-upload', plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/js/image-upload.js', array('jquery'), '1.0', true);
+    wp_enqueue_script('pcf-drag-drop-upload', plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/js/drag-drop-upload.js', array('jquery'), '1.0', true);
+}
+
+/**
+ * Render success message
+ */
+function render_success_message($message = '') {
+    if (empty($message)) {
+        $message = 'Thank you for your submission! We will review your items and contact you soon.';
+    }
+    
+    $output = '<div class="submission-success">';
+    $output .= '<h3>Submission Received!</h3>';
+    $output .= '<p>' . esc_html($message) . '</p>';
+    $output .= '</div>';
+    
+    // Add script to clear localStorage data
+    $output .= '<script>
+        if(typeof(Storage) !== "undefined") {
+            localStorage.removeItem("clothingFormData");
+            console.log("Form submitted successfully - cleared saved data");
+        }
+        
+        if (typeof(ga) === "function") { 
+            ga("send", "event", "Clothing Form", "Submit", "Success"); 
+        }
+    </script>';
+    
+    return $output;
+}
+<?php
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly.
+}
+
 // Load the clothing categories data
 global $clothing_categories_hierarchical, $clothing_sizes;
 $clothing_categories_file = dirname(__FILE__) . '/clothing-categories.php';
@@ -184,59 +379,6 @@ function preowned_clothing_display_form($atts = []) {
     $options['categories'] = $clothing_categories_hierarchical; // Add categories to options
     $options['sizes'] = $clothing_sizes;
     
-    // Add a custom hook to inject the image upload section
-    add_action('pcf_before_form_content', function() {
-        // Image Upload Section
-        ?>
-        <div class="form-section" id="imageUploadSection">
-            <h3>Upload Images</h3>
-            <p class="photo-instruction">Please upload clear photos of your item. This helps buyers see the item's condition.</p>
-            <div class="image-upload-container" data-max-size="2">
-                <div class="image-upload-box required" onclick="document.getElementById('uploadImage1').click()">
-                    <div class="upload-placeholder">
-                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/shirt-front.svg'; ?>" class="placeholder-icon">
-                        <div class="upload-label">Front View</div>
-                        <div class="upload-hint">Show the front of the garment</div>
-                    </div>
-                    <input type="file" id="uploadImage1" name="item_images[]" class="upload-input" accept="image/*">
-                </div>
-                <div class="image-upload-box required" onclick="document.getElementById('uploadImage2').click()">
-                    <div class="upload-placeholder">
-                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/shirt-back.svg'; ?>" class="placeholder-icon">
-                        <div class="upload-label">Back View</div>
-                        <div class="upload-hint">Show the back of the garment</div>
-                    </div>
-                    <input type="file" id="uploadImage2" name="item_images[]" class="upload-input" accept="image/*">
-                </div>
-                <div class="image-upload-box" onclick="document.getElementById('uploadImage3').click()">
-                    <div class="upload-placeholder">
-                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/brand-tag.svg'; ?>" class="placeholder-icon">
-                        <div class="upload-label">Brand Tag</div>
-                        <div class="upload-hint">Close-up of brand/size tag</div>
-                    </div>
-                    <input type="file" id="uploadImage3" name="item_images[]" class="upload-input" accept="image/*">
-                </div>
-                <div class="image-upload-box" onclick="document.getElementById('uploadImage4').click()">
-                    <div class="upload-placeholder">
-                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/material-tag.svg'; ?>" class="placeholder-icon">
-                        <div class="upload-label">Material Tag</div>
-                        <div class="upload-hint">Care/material label</div>
-                    </div>
-                    <input type="file" id="uploadImage4" name="item_images[]" class="upload-input" accept="image/*">
-                </div>
-                <div class="image-upload-box" onclick="document.getElementById('uploadImage5').click()">
-                    <div class="upload-placeholder">
-                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/detail-view.svg'; ?>" class="placeholder-icon">
-                        <div class="upload-label">Details</div>
-                        <div class="upload-hint">Any damages or special details</div>
-                    </div>
-                    <input type="file" id="uploadImage5" name="item_images[]" class="upload-input" accept="image/*">
-                </div>
-            </div>
-        </div>
-        <?php
-    });
-    
     // Debug - print categories data if admin
     if (current_user_can('manage_options') && defined('WP_DEBUG') && WP_DEBUG) {
         echo '<script>console.log("Categories data being passed to renderer:", ' . json_encode($clothing_categories_hierarchical) . ');</script>';
@@ -328,3 +470,17 @@ function pcf_debug_categories_ajax() {
 }
 add_action('wp_ajax_pcf_debug_categories', 'pcf_debug_categories_ajax');
 add_action('wp_ajax_nopriv_pcf_debug_categories', 'pcf_debug_categories_ajax');
+
+<?php
+/**
+ * DEPRECATED - This file is no longer in use.
+ * The functionality has been moved to includes/form-display.php
+ * 
+ * This file is kept as a reference for the image upload section with SVG paths
+ * and may be removed in future versions.
+ */
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly.
+}
+
+// Rest of the code is kept for reference but not used
