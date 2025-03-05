@@ -15,12 +15,17 @@
      * Initialize the wizard interface
      */
     function initWizard() {
+        console.log("Initializing wizard interface");
+        
         // Cache DOM elements
         $wizardContainer = $('.wizard-container');
         $steps = $wizardContainer.find('.wizard-step');
         $navBtns = $('.wizard-navigation .wizard-btn');
         $progressBar = $('.progress-bar-fill');
         $indicators = $('.step-indicator');
+        
+        // Debug elements found
+        console.log("Wizard steps found:", $steps.length);
         
         // Set up event listeners
         $('.wizard-next').on('click', nextStep);
@@ -516,8 +521,16 @@
         window.reviewImageUrls = currentUrls;
     }
     
-    // Initialize on document ready
-    $(document).ready(initWizard);
+    // Initialize when document is ready - IMPORTANT
+    $(document).ready(function() {
+        console.log("Document ready, checking for wizard elements");
+        if ($('.wizard-container').length) {
+            console.log("Wizard container found, initializing");
+            initWizard();
+        } else {
+            console.error("Wizard container not found!");
+        }
+    });
     
 })(jQuery);
 

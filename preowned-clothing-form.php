@@ -3,13 +3,14 @@
  * Plugin Name: Preowned Clothing Form
  * Plugin URI: https://github.com/abrianbaker80/Clothing_Form_Live.git
  * Description: A customizable form for submitting preowned clothing items.
- * Version: 2.7.4.0
+ * Version: 2.7.5.0
  * Author: Allen Baker
  * Author URI: https://www.thereclaimedhanger.com
  * Text Domain: preowned-clothing-form
  * Domain Path: /languages
  *
  * Changelog:
+ * 2.7.5.0 - Restored multi-step wizard functionality with proper step navigation and styling
  * 2.7.4.0 - Fixed fatal error in form renderer, added missing methods, improved image preview functionality
  * 2.7.3.0 - Fixed image upload display and preview functionality, added proper form renderer hook integration
  * 2.7.2.0 - Enhanced image upload system: fixed SVG placeholders, restored image optimizer, improved display styles
@@ -32,7 +33,7 @@ if (!function_exists('plugin_dir_url')) {
 }
 
 // Define plugin constants
-define('PCF_VERSION', '2.7.4.0');
+define('PCF_VERSION', '2.7.5.0');
 define('PCF_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PCF_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -241,8 +242,20 @@ function preowned_clothing_enqueue_scripts() {
     // Enqueue wizard interface script
     $wizard_interface_js_path = plugin_dir_path(__FILE__) . 'assets/js/wizard-interface.js';
     if (file_exists($wizard_interface_js_path)) {
-        wp_enqueue_script('preowned-clothing-wizard', plugin_dir_url(__FILE__) . 'assets/js/wizard-interface.js', array('jquery'), '1.0.1', true);
+        // Deregister first to avoid duplicates
+        wp_deregister_script('preowned-clothing-wizard');
+        
+        wp_enqueue_script('preowned-clothing-wizard', 
+            plugin_dir_url(__FILE__) . 'assets/js/wizard-interface.js',
+            array('jquery'), 
+            filemtime($wizard_interface_js_path), // Use file modification time for version
+            true); // In footer
     }
+    
+    // Load wizard styling with the right priority
+    wp_enqueue_style('preowned-clothing-wizard-interface', 
+        plugin_dir_url(__FILE__) . 'assets/css/wizard-interface.css',
+        array(), filemtime(plugin_dir_path(__FILE__) . 'assets/css/wizard-interface.css'));
     
     // Ensure image upload scripts are loaded with proper version for cache busting
     wp_enqueue_script('preowned-clothing-image-upload',

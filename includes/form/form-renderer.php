@@ -50,17 +50,44 @@ class PCF_Form_Renderer {
         echo '<form id="clothing-form" class="clothing-submission-form" method="post" enctype="multipart/form-data">';
         echo wp_nonce_field('preowned_clothing_form_submission', 'pcf_nonce', true, false);
         
-        // Run action hook before form content
-        do_action('pcf_before_form_content');
+        // Important: Use the wizard container pattern instead of separate sections
+        echo '<div class="progress-container">';
+        echo '<div class="progress-bar"><div class="progress-bar-fill"></div></div>';
+        echo '<div class="step-indicators">';
+        echo '<div class="step-indicator active">1</div><div class="step-label">Contact Info</div>';
+        echo '<div class="step-indicator">2</div><div class="step-label">Item Details</div>';
+        echo '<div class="step-indicator">3</div><div class="step-label">Review</div>';
+        echo '</div></div>';
         
-        // Render contact info fields
+        // Wizard container - this is critical for step functionality
+        echo '<div class="wizard-container">';
+        
+        // Step 1: Contact Information
+        echo '<div class="wizard-step active">';
         $this->render_contact_info_fields();
+        echo '</div>';
         
+        // Step 2: Item Details with Images
+        echo '<div class="wizard-step">';
+        // Run action hook before item content
+        do_action('pcf_before_form_content');
         // Render clothing items section
         $this->render_clothing_items_section();
+        echo '</div>';
         
-        // Render submit button
-        $this->render_submit_button();
+        // Step 3: Review
+        echo '<div class="wizard-step">';
+        $this->render_review_step();
+        echo '</div>';
+        
+        echo '</div>'; // End wizard-container
+        
+        // Navigation buttons
+        echo '<div class="wizard-navigation">';
+        echo '<button type="button" class="wizard-btn wizard-prev"><i class="fas fa-arrow-left"></i> Previous</button>';
+        echo '<button type="button" class="wizard-btn wizard-next">Next <i class="fas fa-arrow-right"></i></button>';
+        echo '<button type="submit" class="wizard-btn wizard-submit" name="submit_clothing"><i class="fas fa-paper-plane"></i> Submit Items</button>';
+        echo '</div>';
         
         echo '</form>';
         
@@ -365,7 +392,6 @@ class PCF_Form_Renderer {
      * Render contact information fields
      */
     private function render_contact_info_fields() {
-        echo '<div class="form-section" id="contactInfoSection">';
         echo '<h3>Contact Information</h3>';
         
         // Name field
@@ -411,15 +437,12 @@ class PCF_Form_Renderer {
         echo '</div>';
         
         echo '</div>'; // End form-row
-        
-        echo '</div>'; // End form-section
     }
     
     /**
      * Render clothing items section
      */
     private function render_clothing_items_section() {
-        echo '<div class="form-section" id="clothingItemsSection">';
         echo '<h3>Clothing Items</h3>';
         echo '<p>Please provide details for each clothing item you wish to submit. You can add multiple items.</p>';
         
@@ -475,8 +498,6 @@ class PCF_Form_Renderer {
         echo '<i class="fas fa-plus-circle"></i> Add Another Item';
         echo '</button>';
         echo '</div>';
-        
-        echo '</div>'; // End form-section
     }
     
     /**
