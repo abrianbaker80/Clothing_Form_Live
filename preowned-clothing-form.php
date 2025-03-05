@@ -3,13 +3,14 @@
  * Plugin Name: Preowned Clothing Form
  * Plugin URI: https://github.com/abrianbaker80/Clothing_Form_Live.git
  * Description: A customizable form for submitting preowned clothing items.
- * Version: 2.7.0.0
+ * Version: 2.7.1.0
  * Author: Allen Baker
  * Author URI: https://www.thereclaimedhanger.com
  * Text Domain: preowned-clothing-form
  * Domain Path: /languages
  *
  * Changelog:
+ * 2.7.1.0 - Fixed image upload section with proper SVG placeholder icons
  * 2.7.0.0 - Enhanced Size Manager with improved category mapping and visual size display
  * 2.6.0.9 - Size Manager improvements, admin menu fixes
  * 1.1.0 - Added Form Field Manager, Category Manager
@@ -28,7 +29,7 @@ if (!function_exists('plugin_dir_url')) {
 }
 
 // Define plugin constants
-define('PCF_VERSION', '2.7.0.0');
+define('PCF_VERSION', '2.7.1.0');
 define('PCF_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PCF_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -324,7 +325,7 @@ require_once plugin_dir_path(__FILE__) . 'includes/database-setup.php';
 // Include other plugin files
 require_once plugin_dir_path(__FILE__) . 'includes/clothing-categories.php';
 require_once plugin_dir_path(__FILE__) . 'includes/clothing-sizes.php';
-require_once plugin_dir_path(__FILE__) . 'includes/form-display.php';
+require_once plugin_dir_path(__FILE__) . 'includes/form-display.php'; // This is the correct file to include
 require_once plugin_dir_path(__FILE__) . 'includes/form-submission-handler.php';
 require_once plugin_dir_path(__FILE__) . 'includes/email-notifications.php';
 
