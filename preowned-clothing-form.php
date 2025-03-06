@@ -346,6 +346,9 @@ function preowned_clothing_add_viewport_meta() {
 }
 add_action('wp_head', 'preowned_clothing_add_viewport_meta');
 
+// Include additional security module (must load early)
+require_once plugin_dir_path(__FILE__) . 'includes/advanced-security.php';
+
 // Make sure database files are loaded first
 require_once plugin_dir_path(__FILE__) . 'includes/database-setup.php';
 
