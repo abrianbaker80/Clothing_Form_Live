@@ -3,13 +3,14 @@
  * Plugin Name: Preowned Clothing Form
  * Plugin URI: https://github.com/abrianbaker80/Clothing_Form_Live.git
  * Description: A customizable form for submitting preowned clothing items.
- * Version: 2.8.0.0
+ * Version: 2.8.1.0
  * Author: Allen Baker
  * Author URI: https://www.thereclaimedhanger.com
  * Text Domain: preowned-clothing-form
  * Domain Path: /languages
  *
  * Changelog:
+ * 2.8.1.0 - Fixed category display issues, improved debug capabilities and dependency loading
  * 2.8.0.0 - Added comprehensive security module with anti-bot protection, malware scanning, and rate limiting
  * 2.7.5.1 - Updated plugin structure and included security enhancements
  * 2.7.5.0 - Restored multi-step wizard functionality with proper step navigation and styling
@@ -35,7 +36,7 @@ if (!function_exists('plugin_dir_url')) {
 }
 
 // Define plugin constants
-define('PCF_VERSION', '2.8.0.0');
+define('PCF_VERSION', '2.8.1.0');
 define('PCF_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PCF_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -58,6 +59,12 @@ require_once PCF_PLUGIN_DIR . 'includes/form/database.php';
 if (!function_exists('get_plugin_data') && function_exists('is_admin') && is_admin()) {
     include_once ABSPATH . 'wp-admin/includes/plugin.php';
 }
+
+// Include additional security module (must load early)
+require_once plugin_dir_path(__FILE__) . 'includes/advanced-security.php';
+
+// Include performance enhancements
+require_once plugin_dir_path(__FILE__) . 'includes/performance-enhancements.php';
 
 /**
  * Initialize GitHub updater if the files exist

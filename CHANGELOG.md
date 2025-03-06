@@ -2,6 +2,25 @@
 
 All notable changes to the Preowned Clothing Form plugin will be documented in this file.
 
+## [2.8.1.0] - 2025-03-05
+
+### Fixed
+- Category display and data loading issues
+- Fixed wizard step navigation on mobile devices
+- Improved script loading to prevent dependency conflicts
+
+### Added
+- Enhanced debugging capabilities for administrators
+- Better error reporting in category selection system
+- Integrated performance optimization module with image optimization
+- Added lazy loading support for improved page load times
+- Implemented browser caching for static assets
+
+### Changed
+- Optimized category handler script with improved initialization
+- Improved form display module to better handle missing data cases
+- Enhanced image handling with automatic resizing and optimization
+
 ## [2.8.0.0] - 2025-03-05
 
 ### Added
