@@ -1,4 +1,9 @@
 # Changelog
+
+## [2.8.2.1] - 2025-03-06
+### Changed
+- Minor tweaks
+
 All notable changes to the Preowned Clothing Form plugin will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
