@@ -14,116 +14,118 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Optimize images during upload
+ * Optimize images during upload - with function_exists check to prevent errors
  * 
  * @param string $file_path Path to the uploaded image
  * @return bool True if optimized, false otherwise
  */
-function preowned_clothing_optimize_image($file_path)
-{
-    // Skip optimization if file doesn't exist
-    if (!file_exists($file_path)) {
-        return false;
+if (!function_exists('preowned_clothing_optimize_image')) {
+    function preowned_clothing_optimize_image($file_path)
+    {
+        // Skip optimization if file doesn't exist
+        if (!file_exists($file_path)) {
+            return false;
+        }
+
+        // Check if optimization is enabled in settings
+        if (get_option('preowned_clothing_optimize_images', '1') !== '1') {
+            return false;
+        }
+
+        // Get image information
+        $image_size = filesize($file_path);
+        $image_info = getimagesize($file_path);
+
+        // Get optimization settings from admin options
+        $max_width = intval(get_option('preowned_clothing_image_max_width', 1500));
+        $quality = intval(get_option('preowned_clothing_image_quality', 85));
+
+        // Skip if not a supported image type or already small enough
+        if (!$image_info || $image_info[0] <= $max_width) {
+            return false;
+        }
+
+        // Create image resource based on file type
+        $source_image = null;
+        switch ($image_info[2]) {
+            case IMAGETYPE_JPEG:
+                $source_image = imagecreatefromjpeg($file_path);
+                break;
+            case IMAGETYPE_PNG:
+                $source_image = imagecreatefrompng($file_path);
+                break;
+            case IMAGETYPE_GIF:
+                $source_image = imagecreatefromgif($file_path);
+                break;
+            default:
+                return false; // Unsupported image type
+        }
+
+        if (!$source_image) {
+            return false;
+        }
+
+        // Calculate new dimensions
+        $width = $image_info[0];
+        $height = $image_info[1];
+        $new_width = min($max_width, $width); // Don't upscale small images
+        $new_height = $height * ($new_width / $width);
+
+        // Create resized image
+        $new_image = imagecreatetruecolor($new_width, $new_height);
+
+        // Handle transparency for PNG
+        if ($image_info[2] === IMAGETYPE_PNG) {
+            imagealphablending($new_image, false);
+            imagesavealpha($new_image, true);
+            $transparent = imagecolorallocatealpha($new_image, 255, 255, 255, 127);
+            imagefilledrectangle($new_image, 0, 0, $new_width, $new_height, $transparent);
+        }
+
+        // Resize image with better quality settings
+        imagecopyresampled($new_image, $source_image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+
+        // Track original file size for logging
+        $original_size = filesize($file_path);
+
+        // Save optimized image
+        $result = false;
+        switch ($image_info[2]) {
+            case IMAGETYPE_JPEG:
+                $result = imagejpeg($new_image, $file_path, $quality);
+                break;
+            case IMAGETYPE_PNG:
+                // PNG quality is 0-9 (0:no compression, 9:max compression)
+                $png_quality = round(9 - (($quality / 100) * 9));
+                $result = imagepng($new_image, $file_path, $png_quality);
+                break;
+            case IMAGETYPE_GIF:
+                $result = imagegif($new_image, $file_path);
+                break;
+        }
+
+        // Free memory
+        imagedestroy($source_image);
+        imagedestroy($new_image);
+
+        // Log optimization results if debugging is enabled
+        if ($result && defined('WP_DEBUG') && WP_DEBUG) {
+            $new_size = filesize($file_path);
+            $savings = $original_size - $new_size;
+            $savings_percent = round(($savings / $original_size) * 100);
+
+            error_log(sprintf(
+                'Preowned Clothing Form - Image optimized: %s. Original size: %s. New size: %s. Savings: %s (%d%%)',
+                basename($file_path),
+                preowned_clothing_format_bytes($original_size),
+                preowned_clothing_format_bytes($new_size),
+                preowned_clothing_format_bytes($savings),
+                $savings_percent
+            ));
+        }
+
+        return $result;
     }
-
-    // Check if optimization is enabled in settings
-    if (get_option('preowned_clothing_optimize_images', '1') !== '1') {
-        return false;
-    }
-
-    // Get image information
-    $image_size = filesize($file_path);
-    $image_info = getimagesize($file_path);
-
-    // Get optimization settings from admin options
-    $max_width = intval(get_option('preowned_clothing_image_max_width', 1500));
-    $quality = intval(get_option('preowned_clothing_image_quality', 85));
-
-    // Skip if not a supported image type or already small enough
-    if (!$image_info || $image_info[0] <= $max_width) {
-        return false;
-    }
-
-    // Create image resource based on file type
-    $source_image = null;
-    switch ($image_info[2]) {
-        case IMAGETYPE_JPEG:
-            $source_image = imagecreatefromjpeg($file_path);
-            break;
-        case IMAGETYPE_PNG:
-            $source_image = imagecreatefrompng($file_path);
-            break;
-        case IMAGETYPE_GIF:
-            $source_image = imagecreatefromgif($file_path);
-            break;
-        default:
-            return false; // Unsupported image type
-    }
-
-    if (!$source_image) {
-        return false;
-    }
-
-    // Calculate new dimensions
-    $width = $image_info[0];
-    $height = $image_info[1];
-    $new_width = min($max_width, $width); // Don't upscale small images
-    $new_height = $height * ($new_width / $width);
-
-    // Create resized image
-    $new_image = imagecreatetruecolor($new_width, $new_height);
-
-    // Handle transparency for PNG
-    if ($image_info[2] === IMAGETYPE_PNG) {
-        imagealphablending($new_image, false);
-        imagesavealpha($new_image, true);
-        $transparent = imagecolorallocatealpha($new_image, 255, 255, 255, 127);
-        imagefilledrectangle($new_image, 0, 0, $new_width, $new_height, $transparent);
-    }
-
-    // Resize image with better quality settings
-    imagecopyresampled($new_image, $source_image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
-
-    // Track original file size for logging
-    $original_size = filesize($file_path);
-
-    // Save optimized image
-    $result = false;
-    switch ($image_info[2]) {
-        case IMAGETYPE_JPEG:
-            $result = imagejpeg($new_image, $file_path, $quality);
-            break;
-        case IMAGETYPE_PNG:
-            // PNG quality is 0-9 (0:no compression, 9:max compression)
-            $png_quality = round(9 - (($quality / 100) * 9));
-            $result = imagepng($new_image, $file_path, $png_quality);
-            break;
-        case IMAGETYPE_GIF:
-            $result = imagegif($new_image, $file_path);
-            break;
-    }
-
-    // Free memory
-    imagedestroy($source_image);
-    imagedestroy($new_image);
-
-    // Log optimization results if debugging is enabled
-    if ($result && defined('WP_DEBUG') && WP_DEBUG) {
-        $new_size = filesize($file_path);
-        $savings = $original_size - $new_size;
-        $savings_percent = round(($savings / $original_size) * 100);
-
-        error_log(sprintf(
-            'Preowned Clothing Form - Image optimized: %s. Original size: %s. New size: %s. Savings: %s (%d%%)',
-            basename($file_path),
-            preowned_clothing_format_bytes($original_size),
-            preowned_clothing_format_bytes($new_size),
-            preowned_clothing_format_bytes($savings),
-            $savings_percent
-        ));
-    }
-
-    return $result;
 }
 
 /**
@@ -396,40 +398,6 @@ function preowned_clothing_init_performance()
     }, 10, 2);
 }
 add_action('init', 'preowned_clothing_init_performance', 5);
-
-/**
- * Performance Enhancement Functions
- *
- * @package PreownedClothingForm
- */
-
-// Prevent direct access
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-/**
- * Performance optimizations for the plugin
- */
-
-// Check if the function already exists before declaring it
-if (!function_exists('preowned_clothing_optimize_image')) {
-    /**
-     * Optimize images for better performance
-     * 
-     * @param string $image_path Path to the image file
-     * @param int    $quality    Quality level (1-100)
-     * @return bool Whether optimization was successful
-     */
-    function preowned_clothing_optimize_image($image_path, $quality = 85)
-    {
-        // Function implementation moved to utilities.php
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('Performance Enhancement: Image optimization requested but function exists in utilities.php');
-        }
-        return false;
-    }
-}
 
 /**
  * Cache form data for better performance
