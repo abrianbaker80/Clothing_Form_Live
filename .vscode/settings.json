@@ -3,5 +3,22 @@
         "*",
         "wordpress"
     ],
-    "workbench.editor.enablePreview": false
+    "workbench.editor.enablePreview": false,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "intelephense.environment.includePaths": ["./"],
+    "php.suggest.basic": true,
+    "files.associations": {
+        "*.php": "php"
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/vendor": true
+    },
+    "git.enableSmartCommit": true,
+    "git.confirmSync": false,
+    "git.autofetch": true,
+    "[javascript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    }
 }

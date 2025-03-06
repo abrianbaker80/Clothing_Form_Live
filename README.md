@@ -1,4 +1,4 @@
-# Preowned Clothing Form Plugin
+# Preowned Clothing Form
 
 A WordPress plugin to create a form for submitting pre-owned clothing items. This plugin allows users to submit clothing items for consignment or resale, complete with detailed categorization, sizing, and image uploads.
 
@@ -99,3 +99,23 @@ The plugin creates a custom database table `wp_preowned_clothing_submissions` to
 
 ### Version 2.5.5
 - Initial public release
+
+## Project Structure
+
+- `/assets` - Frontend assets (CSS, JS, images)
+- `/includes` - Core PHP functionality
+  - `/admin` - Admin-specific functionality
+  - `/form` - Form handling functionality
+  - `/github-updater` - Plugin update system
+- `preowned-clothing-form.php` - Main plugin file
+
+## Development
+
+### Key Files
+- `preowned-clothing-form.php` - Plugin entry point
+- `includes/form/form-renderer.php` - Main form rendering logic
+- `assets/js/item-management.js` - Form item management
+- `includes/github-updater` - Plugin update system
+
+## Version
+Current version: 2.8.1.1

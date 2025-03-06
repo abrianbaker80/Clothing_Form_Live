@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "checkJs": true,
+    "target": "es2015",
+    "lib": ["dom", "es2015"],
+    "types": ["jquery"]
+  },
+  "exclude": ["node_modules", "vendor"]
+}
