@@ -4,6 +4,11 @@ All notable changes to the Preowned Clothing Form plugin will be documented in t
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.1.6] - 2025-03-06
+### Fixed
+- Fixed function redeclaration issue with preowned_clothing_format_bytes()
+- Added function_exists() check to prevent collision with utilities.php
+
 ## [2.8.1.5] - 2025-03-06
 ### Fixed
 - Fixed fatal error caused by duplicate function declaration in performance-enhancements.php

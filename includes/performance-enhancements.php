@@ -136,17 +136,19 @@ if (!function_exists('preowned_clothing_optimize_image')) {
  * @param int $bytes Number of bytes
  * @return string Formatted string
  */
-function preowned_clothing_format_bytes($bytes)
-{
-    $units = array('B', 'KB', 'MB', 'GB', 'TB');
+if (!function_exists('preowned_clothing_format_bytes')) {
+    function preowned_clothing_format_bytes($bytes)
+    {
+        $units = array('B', 'KB', 'MB', 'GB', 'TB');
 
-    $bytes = max($bytes, 0);
-    $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
-    $pow = min($pow, count($units) - 1);
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
 
-    $bytes /= pow(1024, $pow);
+        $bytes /= pow(1024, $pow);
 
-    return round($bytes, 2) . ' ' . $units[$pow];
+        return round($bytes, 2) . ' ' . $units[$pow];
+    }
 }
 
 /**
