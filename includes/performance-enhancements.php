@@ -3,6 +3,9 @@
  * Performance Enhancements
  *
  * Optimizes the plugin for better performance.
+ * 
+ * @package Preowned_Clothing_Form
+ * @since 2.8.1.0
  */
 
 if (!defined('ABSPATH')) {
@@ -155,7 +158,7 @@ function preowned_clothing_enqueue_lazy_load_script() {
             'preowned-clothing-lazy-load',
             plugin_dir_url(dirname(__FILE__)) . 'assets/js/lazy-load.js',
             array('jquery'),
-            '1.0.0',
+            PCF_VERSION,
             true
         );
         
@@ -171,7 +174,7 @@ function preowned_clothing_enqueue_lazy_load_script() {
         ');
     }
 }
-add_action('wp_enqueue_scripts', 'preowned_clothing_enqueue_lazy_load_script');
+add_action('wp_enqueue_scripts', 'preowned_clothing_enqueue_lazy_load_script', 30);
 
 /**
  * Add asset versioning for better caching
@@ -261,7 +264,7 @@ function preowned_clothing_add_image_settings($settings) {
 add_filter('preowned_clothing_settings_fields', 'preowned_clothing_add_image_settings');
 
 /**
- * Create lazy loading JavaScript file
+ * Create lazy loading JavaScript file if it doesn't exist
  */
 function preowned_clothing_create_lazy_load_script() {
     $file_path = plugin_dir_path(dirname(__FILE__)) . 'assets/js/lazy-load.js';
@@ -356,3 +359,30 @@ function preowned_clothing_create_lazy_load_script() {
     }
 }
 add_action('admin_init', 'preowned_clothing_create_lazy_load_script');
+
+/**
+ * Hook image optimization into the upload process
+ */
+function preowned_clothing_process_uploaded_image($file_info) {
+    // Only process if it's an image
+    if (isset($file_info['file']) && isset($file_info['type']) && strpos($file_info['type'], 'image/') === 0) {
+        preowned_clothing_optimize_image($file_info['file']);
+    }
+    
+    return $file_info;
+}
+add_filter('wp_handle_upload', 'preowned_clothing_process_uploaded_image');
+
+/**
+ * Initialize performance optimization hooks
+ */
+function preowned_clothing_init_performance() {
+    // Apply image optimization to custom form uploads
+    add_filter('preowned_clothing_uploaded_file', function($file_path, $file_type) {
+        if (strpos($file_type, 'image/') === 0) {
+            preowned_clothing_optimize_image($file_path);
+        }
+        return $file_path;
+    }, 10, 2);
+}
+add_action('init', 'preowned_clothing_init_performance', 5);
