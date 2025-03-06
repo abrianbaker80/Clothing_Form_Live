@@ -1,19 +1,29 @@
 <?php
 /**
  * Plugin Name: Preowned Clothing Form
- * Plugin URI:  https://github.com/abrianbaker80/Clothing_Form
- * Description: A plugin to create a form for submitting pre-owned clothing items.
- * Version:     2.5.9.7
- * Author:      Allen Baker
- * Author URI:  Your Website/Author URL
- * License:     GPL2
- * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * GitHub Plugin URI: abrianbaker80/Clothing_Form
- * 
+ * Plugin URI: https://github.com/abrianbaker80/Clothing_Form_Live.git
+ * Description: A customizable form for submitting preowned clothing items.
+ * Version: 2.7.5.0
+ * Author: Allen Baker
+ * Author URI: https://www.thereclaimedhanger.com
+ * Text Domain: preowned-clothing-form
+ * Domain Path: /languages
+ *
+ * Changelog:
+ * 2.7.5.0 - Restored multi-step wizard functionality with proper step navigation and styling
+ * 2.7.4.0 - Fixed fatal error in form renderer, added missing methods, improved image preview functionality
+ * 2.7.3.0 - Fixed image upload display and preview functionality, added proper form renderer hook integration
+ * 2.7.2.0 - Enhanced image upload system: fixed SVG placeholders, restored image optimizer, improved display styles
+ * 2.7.1.0 - Fixed image upload section with proper SVG placeholder icons
+ * 2.7.0.0 - Enhanced Size Manager with improved category mapping and visual size display
+ * 2.6.0.9 - Size Manager improvements, admin menu fixes
+ * 1.1.0 - Added Form Field Manager, Category Manager
+ * 1.0.0 - Initial release
  */
 
+// Prevent direct access
 if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly.
+    exit;
 }
 
 // Check if plugin_dir_url is defined, if not, make sure we have WordPress core functions
@@ -21,10 +31,15 @@ if (!function_exists('plugin_dir_url')) {
     // This ensures WordPress core functions are available
     require_once(ABSPATH . 'wp-includes/plugin.php');
 }
+
 // Define plugin constants
-define('PCF_VERSION', '2.5.9'); // Updated version
+define('PCF_VERSION', '2.7.5.0');
 define('PCF_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PCF_PLUGIN_URL', plugin_dir_url(__FILE__));
+
+// Initialize global variables to prevent conflicts
+global $preowned_clothing_gh_updater_running;
+$preowned_clothing_gh_updater_running = false;
 
 // Make sure the debug tool is loaded
 require_once PCF_PLUGIN_DIR . 'debug-form.php';
@@ -42,55 +57,111 @@ if (!function_exists('get_plugin_data') && function_exists('is_admin') && is_adm
     include_once ABSPATH . 'wp-admin/includes/plugin.php';
 }
 
-// Safely include GitHub updater - wrapped in a try/catch to prevent fatal errors
-try {
-    if (file_exists(plugin_dir_path(__FILE__) . 'includes/github-updater.php')) {
-        require_once plugin_dir_path(__FILE__) . 'includes/github-updater.php';
+/**
+ * Initialize GitHub updater if the files exist
+ * This function chooses one updater system to avoid conflicts
+ */
+function preowned_clothing_init_github_updater() {
+    // Prevent duplicate initialization
+    static $already_initialized = false;
+    if ($already_initialized) {
+        return;
+    }
+    $already_initialized = true;
+    
+    // Set a flag for other parts of the code
+    global $preowned_clothing_gh_updater_running;
+    
+    // Choose ONE updater system - prioritize the newer modular one
+    $loader_file = PCF_PLUGIN_DIR . 'includes/github-updater/loader.php';
+    
+    if (file_exists($loader_file)) {
+        require_once $loader_file;
         
-        // Include the admin interface for GitHub updater
-        if (is_admin() && file_exists(plugin_dir_path(__FILE__) . 'includes/github-updater-admin.php')) {
-            require_once plugin_dir_path(__FILE__) . 'includes/github-updater-admin.php';
-        }
-        
-        // Only initialize if we're in admin and have the right functions
-        if (is_admin() && function_exists('preowned_clothing_can_run_updater') && preowned_clothing_can_run_updater()) {
-            // Setup the updater safely
-            add_action('admin_init', function() {
-                $updater = new Preowned_Clothing_GitHub_Updater(__FILE__);
-                
-                // Use options from settings
-                $username = get_option('preowned_clothing_github_username', 'abrianbaker80');
-                $repository = get_option('preowned_clothing_github_repository', 'Clothing_Form');
-                $token = get_option('preowned_clothing_github_token', '');
-                
-                $updater->set_username($username);
-                $updater->set_repository($repository);
-                
-                if (!empty($token)) {
-                    $updater->authorize($token);
-                }
-                
-                $updater->initialize();
-            }, 15);
+        // Only initialize if the function exists
+        if (function_exists('preowned_clothing_register_updater_hooks')) {
+            // This will register the updater with proper hooks
+            preowned_clothing_register_updater_hooks(__FILE__, [
+                'username' => get_option('preowned_clothing_github_username', 'abrianbaker80'),
+                'repository' => get_option('preowned_clothing_github_repository', 'Clothing_Form'),
+                'token' => get_option('preowned_clothing_github_token', ''),
+                'debug' => defined('WP_DEBUG') && WP_DEBUG,
+            ]);
+            
+            // Flag that the updater is now running
+            $preowned_clothing_gh_updater_running = true;
+            
+            // Flag that we're using the new updater
+            if (!defined('PCF_USING_NEW_UPDATER')) {
+                define('PCF_USING_NEW_UPDATER', true);
+            }
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('Preowned Clothing Form - Using modular GitHub updater system');
+            }
+            
+            return;
         }
     }
-} catch (Exception $e) {
-    // Log error but don't crash
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log('Preowned Clothing Form - GitHub updater error: ' . $e->getMessage());
+    
+    // Fallback to legacy updater ONLY if new one isn't loaded
+    $legacy_file = PCF_PLUGIN_DIR . 'includes/github-updater.php';
+    if (!defined('PCF_USING_NEW_UPDATER') && file_exists($legacy_file)) {
+        try {
+            require_once $legacy_file;
+            
+            // Include the admin interface
+            $admin_file = PCF_PLUGIN_DIR . 'includes/github-updater-admin.php';
+            if (is_admin() && file_exists($admin_file)) {
+                require_once $admin_file;
+            }
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('Preowned Clothing Form - Using legacy GitHub updater system');
+            }
+            
+            // Setup the updater using admin_init with lower priority
+            if (is_admin()) {
+                add_action('admin_init', function() {
+                    if (!function_exists('preowned_clothing_can_run_updater') || !preowned_clothing_can_run_updater()) {
+                        if (defined('WP_DEBUG') && WP_DEBUG) {
+                            error_log('Legacy GitHub Updater: Cannot run updater - conflict detected');
+                        }
+                        return;
+                    }
+                    
+                    global $preowned_clothing_gh_updater_running;
+                    $preowned_clothing_gh_updater_running = true;
+                    
+                    $updater = new Preowned_Clothing_GitHub_Updater(__FILE__);
+                    
+                    $username = get_option('preowned_clothing_github_username', 'abrianbaker80');
+                    $repository = get_option('preowned_clothing_github_repository', 'Clothing_Form');
+                    $token = get_option('preowned_clothing_github_token', '');
+                    
+                    $updater->set_username($username);
+                    $updater->set_repository($repository);
+                    
+                    if (!empty($token)) {
+                        $updater->authorize($token);
+                    }
+                    
+                    $updater->initialize();
+                }, 5); // Lower priority to run earlier
+            }
+        } catch (Exception $e) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('Preowned Clothing Form - GitHub updater error: ' . $e->getMessage());
+            }
+        }
     }
 }
 
-// Include admin settings - also in a try/catch for safety
-try {
-    if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin-settings.php')) {
-        require_once plugin_dir_path(__FILE__) . 'includes/admin-settings.php';
-    }
-} catch (Exception $e) {
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log('Preowned Clothing Form - Admin settings error: ' . $e->getMessage());
-    }
-}
+// Initialize GitHub updater on plugins_loaded
+add_action('plugins_loaded', 'preowned_clothing_init_github_updater', 5);
+
+// Include admin settings
+require_once plugin_dir_path(__FILE__) . 'includes/admin-settings.php';
 
 /**
  * Initialize plugin sessions
@@ -120,6 +191,12 @@ function preowned_clothing_enqueue_scripts() {
     // Enqueue card-based layout enhancements
     wp_enqueue_style('preowned-clothing-card-layout', plugin_dir_url(__FILE__) . 'assets/css/card-layout.css', array('preowned-clothing-style'), '1.0.0');
 
+    // Enqueue form controls stylesheet
+    $form_controls_path = plugin_dir_path(__FILE__) . 'assets/css/form-controls.css';
+    if (file_exists($form_controls_path)) {
+        wp_enqueue_style('preowned-clothing-form-controls', plugin_dir_url(__FILE__) . 'assets/css/form-controls.css', array('preowned-clothing-style'), '1.0.0');
+    }
+
     // Enqueue wizard interface styles
     $wizard_interface_path = plugin_dir_path(__FILE__) . 'assets/css/wizard-interface.css';
     if (file_exists($wizard_interface_path)) {
@@ -135,7 +212,10 @@ function preowned_clothing_enqueue_scripts() {
     // Enqueue drag-and-drop upload styles
     $drag_drop_upload_path = plugin_dir_path(__FILE__) . 'assets/css/drag-drop-upload.css';
     if (file_exists($drag_drop_upload_path)) {
-        wp_enqueue_style('preowned-clothing-drag-drop', plugin_dir_url(__FILE__) . 'assets/css/drag-drop-upload.css', array('preowned-clothing-style'), '1.0.0');
+        wp_enqueue_style('preowned-clothing-drag-drop', 
+            plugin_dir_url(__FILE__) . 'assets/css/drag-drop-upload.css', 
+            array('preowned-clothing-style'), 
+            PCF_VERSION); // Use version constant for cache busting
     }
     
     // Enqueue category selection styles
@@ -162,13 +242,33 @@ function preowned_clothing_enqueue_scripts() {
     // Enqueue wizard interface script
     $wizard_interface_js_path = plugin_dir_path(__FILE__) . 'assets/js/wizard-interface.js';
     if (file_exists($wizard_interface_js_path)) {
-        wp_enqueue_script('preowned-clothing-wizard', plugin_dir_url(__FILE__) . 'assets/js/wizard-interface.js', array('jquery'), '1.0.1', true);
+        // Deregister first to avoid duplicates
+        wp_deregister_script('preowned-clothing-wizard');
+        
+        wp_enqueue_script('preowned-clothing-wizard', 
+            plugin_dir_url(__FILE__) . 'assets/js/wizard-interface.js',
+            array('jquery'), 
+            filemtime($wizard_interface_js_path), // Use file modification time for version
+            true); // In footer
     }
     
-    // Enqueue image upload script
+    // Load wizard styling with the right priority
+    wp_enqueue_style('preowned-clothing-wizard-interface', 
+        plugin_dir_url(__FILE__) . 'assets/css/wizard-interface.css',
+        array(), filemtime(plugin_dir_path(__FILE__) . 'assets/css/wizard-interface.css'));
+    
+    // Ensure image upload scripts are loaded with proper version for cache busting
     wp_enqueue_script('preowned-clothing-image-upload',
         plugin_dir_url(__FILE__) . 'assets/js/image-upload.js',
-        ['jquery'], '1.0.0', true);
+        ['jquery'], PCF_VERSION, true);
+    
+    // Ensure drag-drop upload script is loaded if it exists
+    $drag_drop_js_path = plugin_dir_path(__FILE__) . 'assets/js/drag-drop-upload.js';
+    if (file_exists($drag_drop_js_path)) {
+        wp_enqueue_script('preowned-clothing-drag-drop-upload',
+            plugin_dir_url(__FILE__) . 'assets/js/drag-drop-upload.js',
+            ['jquery', 'preowned-clothing-image-upload'], PCF_VERSION, true);
+    }
     
     // Enqueue form validation script
     wp_enqueue_script('preowned-clothing-form-validation',
@@ -184,7 +284,7 @@ function preowned_clothing_enqueue_scripts() {
     wp_enqueue_script('preowned-clothing-item-management',
         plugin_dir_url(__FILE__) . 'assets/js/item-management.js',
         ['jquery', 'preowned-clothing-form-storage'], '1.0.0', true);
-        
+    
     // Remove any previous category-handler scripts
     wp_deregister_script('preowned-clothing-category-handler');
     
@@ -203,19 +303,30 @@ function preowned_clothing_enqueue_scripts() {
             [], '1.0.0', true);
     }
     
+    // Enqueue form autosave script
+    wp_enqueue_script('preowned-clothing-form-autosave',
+        plugin_dir_url(__FILE__) . 'assets/js/form-autosave.js',
+        ['jquery'], '1.0.1', true);
+    
+    // Enqueue keyboard accessibility enhancements
+    wp_enqueue_script('preowned-clothing-keyboard-accessibility',
+        plugin_dir_url(__FILE__) . 'assets/js/keyboard-accessibility.js',
+        ['jquery'], '1.0.0', true);
+    
     // Only add to admin or pages with our shortcode
     global $post;
     if (is_admin() || (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'preowned_clothing_form'))) {
         wp_localize_script('preowned-clothing-form', 'pcf_ajax_object', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('preowned_clothing_ajax_nonce'),
-            'plugin_url' => plugin_dir_url(__FILE__)
-         ));
-        wp_localize_script('preowned-clothing-category-handler', 'pcfFormOptions', array(
+            'plugin_url' => plugin_dir_url(__FILE__),
+            'plugin_version' => PCF_VERSION,
+        ));
+        wp_localize_script('preowned-clothing-category-handler', 'pcfFormOptions', array( 
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('preowned_clothing_ajax_nonce'),
             'plugin_url' => plugin_dir_url(__FILE__),
-            'debug' => true
+            'debug' => defined('WP_DEBUG') && WP_DEBUG ? true : false,
         ));
     }
 }
@@ -235,75 +346,68 @@ function preowned_clothing_add_viewport_meta() {
 }
 add_action('wp_head', 'preowned_clothing_add_viewport_meta');
 
+// Include additional security module (must load early)
+require_once plugin_dir_path(__FILE__) . 'includes/advanced-security.php';
+
 // Make sure database files are loaded first
 require_once plugin_dir_path(__FILE__) . 'includes/database-setup.php';
 
 // Include other plugin files
 require_once plugin_dir_path(__FILE__) . 'includes/clothing-categories.php';
-require_once plugin_dir_path(__FILE__) . 'includes/clothing-sizes.php'; // Add clothing sizes
-require_once plugin_dir_path(__FILE__) . 'includes/form-display.php';
+require_once plugin_dir_path(__FILE__) . 'includes/clothing-sizes.php';
+require_once plugin_dir_path(__FILE__) . 'includes/form-display.php'; // This is the correct file to include
 require_once plugin_dir_path(__FILE__) . 'includes/form-submission-handler.php';
 require_once plugin_dir_path(__FILE__) . 'includes/email-notifications.php';
 
 // Include additional admin files
 if (is_admin()) {
-    require_once plugin_dir_path(__FILE__) . 'includes/admin-settings.php';
     require_once plugin_dir_path(__FILE__) . 'includes/admin-submissions.php';
     require_once plugin_dir_path(__FILE__) . 'includes/admin-image-test.php';
     require_once plugin_dir_path(__FILE__) . 'includes/dashboard-widget.php';
+    
+    // Include new admin customization modules
+    $admin_dir = plugin_dir_path(__FILE__) . 'includes/admin/';
+    if (is_dir($admin_dir)) {
+        // Create directory if it doesn't exist
+        if (!file_exists($admin_dir)) {
+            mkdir($admin_dir, 0755, true);
+        }
+        
+        // Check for individual files
+        $admin_files = [
+            'category-manager.php',
+            'size-manager.php',
+            'form-field-manager.php'
+        ];
+        
+        foreach ($admin_files as $file) {
+            $file_path = $admin_dir . $file;
+            if (file_exists($file_path)) {
+                require_once $file_path;
+            }
+        }
+    }
 }
 
 /**
  * Main shortcode function
  */
 function preowned_clothing_form_shortcode($atts = []) {
-    // Include required files if not already loaded
-    if (!class_exists('PCF_Form_Renderer')) {
-        require_once PCF_PLUGIN_DIR . 'includes/form/form-renderer.php';
-    }
-    
-    // Output buffer to capture content
     ob_start();
+    
+    // Display form feedback messages
+    preowned_clothing_display_messages();
     
     // Get form customization settings
     $options = [
-        'form_title' => get_option('preowned_clothing_form_title', 'Submit Your Pre-owned Clothing'),
-        'form_intro' => get_option('preowned_clothing_form_intro', 'You can submit multiple clothing items in a single form.'),
+        'title' => get_option('preowned_clothing_form_title', 'Submit Your Pre-owned Clothing'),
+        'intro' => get_option('preowned_clothing_form_intro', 'You can submit multiple clothing items in a single form.'),
         'max_items' => intval(get_option('preowned_clothing_max_items', 10)),
         'primary_color' => get_option('preowned_clothing_primary_color', '#0073aa'),
         'secondary_color' => get_option('preowned_clothing_secondary_color', '#005177'),
         'max_image_size' => intval(get_option('preowned_clothing_max_image_size', 2)),
         'required_images' => get_option('preowned_clothing_required_images', ['front', 'back', 'brand_tag']),
     ];
-    
-    // Display success/error messages
-    $feedback = PCF_Session_Manager::get_feedback();
-    if ($feedback['status'] === 'success') {
-        // Show success message and return
-        PCF_Session_Manager::clear_feedback();
-        
-        echo '<div class="submission-feedback success">';
-        echo '<strong>Success!</strong> ' . esc_html($feedback['message'] ?: 'Thank you for your submission! We will review your items and contact you soon.') . '</div>';
-        
-        // Add script to clear localStorage data
-        echo '<script>
-            if(typeof(Storage) !== "undefined") {
-                localStorage.removeItem("clothingFormData");
-                console.log("Form submitted successfully - cleared saved data");
-            }
-        </script>';
-        
-        return ob_get_clean();
-    }
-    
-    // Show error messages if present
-    if ($feedback['status'] === 'error') {
-        echo '<div class="submission-feedback error">';
-        echo '<strong>Error:</strong> ' . esc_html($feedback['message']) . '</div>';
-        
-        // Clear error after displaying
-        PCF_Session_Manager::clear_feedback();
-    }
     
     try {
         // Create form renderer
@@ -324,6 +428,7 @@ function preowned_clothing_form_shortcode($atts = []) {
     
     return ob_get_clean();
 }
+
 // Register Shortcode
 add_shortcode('preowned_clothing_form', 'preowned_clothing_form_shortcode');
 
@@ -355,15 +460,32 @@ register_uninstall_hook(__FILE__, 'preowned_clothing_uninstall');
  * AJAX Handler for getting clothing categories
  */
 function preowned_clothing_get_categories() {
-    // Check nonce
-    check_ajax_referer('preowned_clothing_ajax_nonce', 'nonce');
+    // Verify nonce and exit if invalid
+    if (!isset($_REQUEST['nonce']) || !wp_verify_nonce($_REQUEST['nonce'], 'preowned_clothing_ajax_nonce')) {
+        wp_send_json_error('Security check failed');
+        exit;
+    }
     
-    // For debugging - log the request
-    error_log('Category data request received');
+    // For debugging - log the request only in debug mode
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('Category data request received');
+    }
     
     // Get the categories from the categories file
     $categories_file = plugin_dir_path(__FILE__) . 'includes/clothing-categories.php';
+    
+    if (!file_exists($categories_file)) {
+        wp_send_json_error('Categories file not found');
+        exit;
+    }
+    
     $categories = include($categories_file);
+    
+    // Validate the categories array
+    if (!is_array($categories)) {
+        wp_send_json_error('Invalid categories data');
+        exit;
+    }
     
     // Send the response
     wp_send_json_success($categories);
@@ -381,9 +503,8 @@ function preowned_clothing_display_messages() {
     $feedback = PCF_Session_Manager::get_feedback();
     
     // Success message
-    if (isset($_GET['success']) && $_GET['success'] == '1' || 
+    if ((isset($_GET['success']) && $_GET['success'] == '1') || 
         ($feedback['status'] === 'success')) {
-        
         // Clear the session flag
         PCF_Session_Manager::clear_feedback();
         
@@ -394,17 +515,23 @@ function preowned_clothing_display_messages() {
         echo '<div class="submission-feedback success" data-submission-success="true">';
         echo '<strong>Success!</strong> ' . esc_html($message) . '</div>';
         
-        // Add script to clear localStorage data
+        // Add script to clear localStorage data with error handling
         echo '<script>
-            if(typeof(Storage) !== "undefined") {
-                localStorage.removeItem("clothingFormData");
-                console.log("Form submitted successfully - cleared saved data");
-            }
+            (function() {
+                try {
+                    if(typeof(Storage) !== "undefined") {
+                        localStorage.removeItem("clothingFormData");
+                        console.log("Form submitted successfully - cleared saved data");
+                    }
+                } catch(e) {
+                    console.error("Error clearing form data:", e);
+                }
+            })();
         </script>';
     }
     
     // Error message
-    if ($feedback['status'] === 'error') {
+    if ($feedback['status'] === 'error' && !empty($feedback['message'])) {
         echo '<div class="submission-feedback error">' . esc_html($feedback['message']) . '</div>';
         PCF_Session_Manager::clear_feedback();
     }

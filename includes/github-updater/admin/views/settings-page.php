@@ -11,14 +11,14 @@ if (!defined('ABSPATH')) {
 }
 
 // Variables passed to this template:
+// $admin - Instance of the admin class
 // $current_version - Current plugin version
 // $github_version - Latest version from GitHub
 // $update_available - Whether an update is available
 // $release_info - Latest release data from GitHub
 
-// Make sure we have a reference to the admin class
-$admin = isset($this) && is_a($this, 'Preowned_Clothing_GitHub_Admin') ? $this : null;
-if (!$admin) {
+// Make sure admin instance is valid
+if (!isset($admin) || !is_object($admin)) {
     wp_die('Error: Admin class reference not available.');
 }
 ?>

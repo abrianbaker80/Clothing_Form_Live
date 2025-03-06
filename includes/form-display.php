@@ -184,6 +184,59 @@ function preowned_clothing_display_form($atts = []) {
     $options['categories'] = $clothing_categories_hierarchical; // Add categories to options
     $options['sizes'] = $clothing_sizes;
     
+    // Add a custom hook to inject the image upload section
+    add_action('pcf_before_form_content', function() {
+        // Image Upload Section
+        ?>
+        <div class="form-section" id="imageUploadSection">
+            <h3>Upload Images</h3>
+            <p class="photo-instruction">Please upload clear photos of your item. This helps buyers see the item's condition.</p>
+            <div class="image-upload-container" data-max-size="2">
+                <div class="image-upload-box required" onclick="document.getElementById('uploadImage1').click()">
+                    <div class="upload-placeholder">
+                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/shirt-front.svg'; ?>" class="placeholder-icon">
+                        <div class="upload-label">Front View</div>
+                        <div class="upload-hint">Show the front of the garment</div>
+                    </div>
+                    <input type="file" id="uploadImage1" name="item_images[]" class="upload-input" accept="image/*">
+                </div>
+                <div class="image-upload-box required" onclick="document.getElementById('uploadImage2').click()">
+                    <div class="upload-placeholder">
+                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/shirt-back.svg'; ?>" class="placeholder-icon">
+                        <div class="upload-label">Back View</div>
+                        <div class="upload-hint">Show the back of the garment</div>
+                    </div>
+                    <input type="file" id="uploadImage2" name="item_images[]" class="upload-input" accept="image/*">
+                </div>
+                <div class="image-upload-box" onclick="document.getElementById('uploadImage3').click()">
+                    <div class="upload-placeholder">
+                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/brand-tag.svg'; ?>" class="placeholder-icon">
+                        <div class="upload-label">Brand Tag</div>
+                        <div class="upload-hint">Close-up of brand/size tag</div>
+                    </div>
+                    <input type="file" id="uploadImage3" name="item_images[]" class="upload-input" accept="image/*">
+                </div>
+                <div class="image-upload-box" onclick="document.getElementById('uploadImage4').click()">
+                    <div class="upload-placeholder">
+                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/material-tag.svg'; ?>" class="placeholder-icon">
+                        <div class="upload-label">Material Tag</div>
+                        <div class="upload-hint">Care/material label</div>
+                    </div>
+                    <input type="file" id="uploadImage4" name="item_images[]" class="upload-input" accept="image/*">
+                </div>
+                <div class="image-upload-box" onclick="document.getElementById('uploadImage5').click()">
+                    <div class="upload-placeholder">
+                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/detail-view.svg'; ?>" class="placeholder-icon">
+                        <div class="upload-label">Details</div>
+                        <div class="upload-hint">Any damages or special details</div>
+                    </div>
+                    <input type="file" id="uploadImage5" name="item_images[]" class="upload-input" accept="image/*">
+                </div>
+            </div>
+        </div>
+        <?php
+    });
+    
     // Debug - print categories data if admin
     if (current_user_can('manage_options') && defined('WP_DEBUG') && WP_DEBUG) {
         echo '<script>console.log("Categories data being passed to renderer:", ' . json_encode($clothing_categories_hierarchical) . ');</script>';

@@ -40,35 +40,93 @@ class PCF_Form_Renderer {
      * @return string The rendered form HTML
      */
     public function render() {
+        $this->enqueue_required_assets();
+        
         ob_start();
         
-        // Start the form container with custom styles
-        $this->render_form_styles();
-        
-        echo '<div class="clothing-submission-form">';
-        
-        // Form title and introduction
-        echo '<h2>' . esc_html($this->options['form_title']) . '</h2>';
-        echo '<div class="form-guidance">';
-        echo '<p>' . wp_kses_post($this->options['form_intro']) . '</p>';
-        echo '</div>';
+        $this->render_form_header();
         
         // Start the form
-        echo '<form action="' . esc_url($_SERVER['REQUEST_URI']) . '" method="post" enctype="multipart/form-data" id="clothing-form">';
+        echo '<form id="clothing-form" class="clothing-submission-form" method="post" enctype="multipart/form-data">';
+        echo wp_nonce_field('preowned_clothing_form_submission', 'pcf_nonce', true, false);
         
-        // Let other functions hook into the form start
-        do_action('preowned_clothing_form_start');
+        // Important: Use the wizard container pattern instead of separate sections
+        echo '<div class="progress-container">';
+        echo '<div class="progress-bar"><div class="progress-bar-fill"></div></div>';
+        echo '<div class="step-indicators">';
+        echo '<div class="step-indicator active">1</div><div class="step-label">Contact Info</div>';
+        echo '<div class="step-indicator">2</div><div class="step-label">Item Details</div>';
+        echo '<div class="step-indicator">3</div><div class="step-label">Review</div>';
+        echo '</div></div>';
         
-        // Render the form steps
-        $this->render_wizard_container();
+        // Wizard container - this is critical for step functionality
+        echo '<div class="wizard-container">';
         
-        // End the form
-        echo '</form>';
-        
-        // End the form container
+        // Step 1: Contact Information
+        echo '<div class="wizard-step active">';
+        $this->render_contact_info_fields();
         echo '</div>';
         
+        // Step 2: Item Details with Images
+        echo '<div class="wizard-step">';
+        // Run action hook before item content
+        do_action('pcf_before_form_content');
+        // Render clothing items section
+        $this->render_clothing_items_section();
+        echo '</div>';
+        
+        // Step 3: Review
+        echo '<div class="wizard-step">';
+        $this->render_review_step();
+        echo '</div>';
+        
+        echo '</div>'; // End wizard-container
+        
+        // Navigation buttons
+        echo '<div class="wizard-navigation">';
+        echo '<button type="button" class="wizard-btn wizard-prev"><i class="fas fa-arrow-left"></i> Previous</button>';
+        echo '<button type="button" class="wizard-btn wizard-next">Next <i class="fas fa-arrow-right"></i></button>';
+        echo '<button type="submit" class="wizard-btn wizard-submit" name="submit_clothing"><i class="fas fa-paper-plane"></i> Submit Items</button>';
+        echo '</div>';
+        
+        echo '</form>';
+        
         return ob_get_clean();
+    }
+
+    /**
+     * Enqueue required assets for the form
+     */
+    private function enqueue_required_assets() {
+        // This method was missing and causing the fatal error
+        // We'll make it load any specific assets needed for the form renderer
+        
+        // Check if we need to load any specific scripts or styles here
+        wp_enqueue_style('preowned-clothing-wizard-interface', 
+            plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/wizard-interface.css',
+            [], '1.1.0');
+            
+        wp_enqueue_script('preowned-clothing-form-validation',
+            plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/js/form-validation.js',
+            ['jquery'], '1.0.0', true);
+    }
+    
+    /**
+     * Render form header
+     */
+    private function render_form_header() {
+        // Add this missing method to render the form header
+        echo '<div class="clothing-form-header">';
+        echo '<h2>' . esc_html($this->options['form_title']) . '</h2>';
+        
+        if (!empty($this->options['form_intro'])) {
+            echo '<p class="form-intro">' . esc_html($this->options['form_intro']) . '</p>';
+        }
+        
+        echo '</div>';
+        
+        // Add custom form styles
+        $this->render_form_styles();
     }
     
     /**
@@ -330,6 +388,127 @@ class PCF_Form_Renderer {
         echo '</div>'; // End step
     }
 
+    /**
+     * Render contact information fields
+     */
+    private function render_contact_info_fields() {
+        echo '<h3>Contact Information</h3>';
+        
+        // Name field
+        echo '<div class="form-group">';
+        echo '<label for="name">Your Name <span class="required-indicator">*</span></label>';
+        echo '<input type="text" id="name" name="name" required>';
+        echo '</div>';
+        
+        // Email field
+        echo '<div class="form-group">';
+        echo '<label for="email">Your Email <span class="required-indicator">*</span></label>';
+        echo '<input type="email" id="email" name="email" required>';
+        echo '</div>';
+        
+        // Phone field
+        echo '<div class="form-group">';
+        echo '<label for="phone">Phone Number <span class="required-indicator">*</span></label>';
+        echo '<input type="tel" id="phone" name="phone" required>';
+        echo '</div>';
+        
+        // Address fields
+        echo '<div class="form-group">';
+        echo '<label for="address">Street Address <span class="required-indicator">*</span></label>';
+        echo '<input type="text" id="address" name="address" required>';
+        echo '</div>';
+        
+        // City, State, Zip in a row
+        echo '<div class="form-row">';
+        
+        echo '<div class="form-group">';
+        echo '<label for="city">City <span class="required-indicator">*</span></label>';
+        echo '<input type="text" id="city" name="city" required>';
+        echo '</div>';
+        
+        echo '<div class="form-group">';
+        echo '<label for="state">State <span class="required-indicator">*</span></label>';
+        echo '<input type="text" id="state" name="state" required>';
+        echo '</div>';
+        
+        echo '<div class="form-group">';
+        echo '<label for="zip">ZIP Code <span class="required-indicator">*</span></label>';
+        echo '<input type="text" id="zip" name="zip" required>';
+        echo '</div>';
+        
+        echo '</div>'; // End form-row
+    }
+    
+    /**
+     * Render clothing items section
+     */
+    private function render_clothing_items_section() {
+        echo '<h3>Clothing Items</h3>';
+        echo '<p>Please provide details for each clothing item you wish to submit. You can add multiple items.</p>';
+        
+        echo '<div id="items-container">';
+        
+        // First item (always present)
+        echo '<div class="clothing-item-container" data-item-id="1">';
+        echo '<div class="clothing-item-header">';
+        echo '<div class="clothing-item-title">';
+        echo '<span class="item-number-badge">1</span> ';
+        echo '<span class="item-ordinal">First Item</span>';
+        echo '</div>';
+        echo '<button type="button" class="remove-item-btn" style="display:none;">×</button>';
+        echo '</div>';
+        
+        // Item details
+        echo '<div class="form-group">';
+        echo '<label for="gender-1">Gender <span class="required-indicator">*</span></label>';
+        echo '<select id="gender-1" name="items[1][gender]" class="gender-select" required>';
+        echo '<option value="">Select Gender</option>';
+        echo '<option value="womens">Women\'s</option>';
+        echo '<option value="mens">Men\'s</option>';
+        echo '</select>';
+        echo '</div>';
+        
+        // Category selection
+        echo '<div class="form-group">';
+        echo '<label for="category-container-1">Category <span class="required-indicator">*</span></label>';
+        echo '<div class="category-select-container" id="category-container-1"></div>';
+        echo '</div>';
+        
+        // Size selection (will be populated by JS based on category)
+        echo '<div class="form-group">';
+        echo '<label for="size-1">Size <span class="required-indicator">*</span></label>';
+        echo '<select id="size-1" name="items[1][size]" required>';
+        echo '<option value="">Select Size</option>';
+        echo '</select>';
+        echo '</div>';
+        
+        // Description field
+        echo '<div class="form-group">';
+        echo '<label for="description-1">Description <span class="required-indicator">*</span></label>';
+        echo '<textarea id="description-1" name="items[1][description]" rows="4" required placeholder="Please describe the item including condition, color, material, and any flaws."></textarea>';
+        echo '</div>';
+        
+        echo '</div>'; // End first item
+        
+        echo '</div>'; // End items-container
+        
+        // Add item button
+        echo '<div class="add-item-btn-container">';
+        echo '<button type="button" id="add-item-btn" class="add-item-btn" data-max-items="' . esc_attr($this->options['max_items']) . '">';
+        echo '<i class="fas fa-plus-circle"></i> Add Another Item';
+        echo '</button>';
+        echo '</div>';
+    }
+    
+    /**
+     * Render submit button
+     */
+    private function render_submit_button() {
+        echo '<div class="submit-button-container">';
+        echo '<button type="submit" name="submit_clothing" class="submit-button">Submit Items</button>';
+        echo '</div>';
+    }
+    
     /**
      * Renders the category selection fields
      */
