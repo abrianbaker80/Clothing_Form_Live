@@ -168,7 +168,7 @@ function preowned_clothing_enqueue_lazy_load_script()
             'preowned-clothing-lazy-load',
             plugin_dir_url(dirname(__FILE__)) . 'assets/js/lazy-load.js',
             array('jquery'),
-            defined('PCF_VERSION') ? PCF_VERSION : '1.0.0',
+            defined('PCF_VERSION') ? constant('PCF_VERSION') : '1.0.0',
             true
         );
 

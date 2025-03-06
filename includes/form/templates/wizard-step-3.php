@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Wizard Step 3 Template: Photos
  */
@@ -60,50 +61,35 @@ $image_types = array(
 <!-- Step 3: Photos -->
 <div class="wizard-step">
     <h3><i class="fas fa-images"></i> Upload Photos</h3>
-    <p class="step-instruction">Please upload clear photos of your item from different angles.</p>
-    
-    <div class="form-group">
-        <label>Item 1 Photos <span class="required-indicator">*</span></label>
-        <div class="image-upload-container" data-max-size="<?php echo esc_attr($max_image_size); ?>">
-            <?php foreach ($image_types as $type => $image_info) : ?>
-                <div class="image-upload-box <?php echo $image_info['required'] ? 'required' : ''; ?>" data-type="<?php echo esc_attr($type); ?>">
-                    <input type="file" name="items[1][images][<?php echo esc_attr($type); ?>]" id="images-1-<?php echo esc_attr($type); ?>" accept="image/*" <?php echo $image_info['required'] ? 'required' : ''; ?>>
+    <p class="step-instruction">Please upload clear photos of your items.</p>
+
+    <div id="item-1-photos" class="item-photos">
+        <div class="form-group">
+            <label>Item 1 Photos <span class="required-indicator">*</span></label>
+            <div class="image-upload-container" data-max-size="<?php echo esc_attr($max_image_size); ?>">
+                <div class="image-upload-box required" data-type="front">
+                    <input type="file" name="items[1][images][front]" accept="image/*" required>
                     <div class="upload-placeholder">
                         <div class="upload-icon">
-                            <?php if (!empty($image_info['placeholder'])) : ?>
-                                <img src="<?php echo esc_url(plugin_dir_url(dirname(dirname(dirname(__FILE__)))) . 'assets/images/placeholders/' . $image_info['placeholder']); ?>" alt="<?php echo esc_attr($image_info['label']); ?>" class="placeholder-icon">
-                            <?php else: ?>
-                                <span class="dashicons dashicons-plus"></span>
-                            <?php endif; ?>
+                            <img src="<?php echo PCF_PLUGIN_URL; ?>assets/images/placeholders/shirt-front.svg" alt="Front" class="placeholder-icon">
                         </div>
-                        <div class="upload-label"><?php echo esc_html($image_info['label']); ?></div>
-                        <div class="upload-hint"><?php echo esc_html($image_info['hint']); ?></div>
+                        <div class="upload-label">Front View</div>
+                        <div class="upload-hint">Show the front of the garment</div>
                     </div>
                 </div>
-            <?php endforeach; ?>
-        </div>
-        
-        <!-- Help tip -->
-        <div class="upload-help-tip">
-            <p><i class="fas fa-info-circle"></i> Maximum file size: <?php echo esc_html($max_image_size); ?>MB. Accepted formats: JPEG, PNG</p>
-            <p>You can also drag and drop images directly onto the upload boxes.</p>
+                <!-- ...other image upload boxes... -->
+            </div>
         </div>
     </div>
-    
-    <!-- Additional item photo sections will be added here by JavaScript -->
-    <div id="additional-photos-container"></div>
 </div>
 
-<!-- Image processing script -->
 <script>
-jQuery(document).ready(function($) {
-    // Initialize image uploads for first item
-    if (window.pcfImageUpload && typeof window.pcfImageUpload.initializeImageUploads === 'function') {
-        setTimeout(function() {
+    jQuery(document).ready(function($) {
+        if (typeof window.pcfImageUpload !== 'undefined' &&
+            typeof window.pcfImageUpload.initializeImageUploads === 'function') {
             window.pcfImageUpload.initializeImageUploads(1);
-        }, 500);
-    } else {
-        console.error('Image upload handler not available');
-    }
-});
+        } else {
+            console.error('Image upload handler not properly initialized');
+        }
+    });
 </script>

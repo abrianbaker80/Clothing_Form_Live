@@ -33,7 +33,7 @@ function pcf_github_get_debug_info()
 
         // Check constant version
         $debug['pcf_version_constant'] = defined('PCF_VERSION') ? constant('PCF_VERSION') : 'Not defined';
-        $debug['version_match'] = defined('PCF_VERSION') && PCF_VERSION === $plugin_data['Version'];
+        $debug['version_match'] = defined('PCF_VERSION') && constant('PCF_VERSION') === $plugin_data['Version'];
     }
 
     // Check update transient

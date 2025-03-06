@@ -585,5 +585,24 @@ class PCF_Form_Renderer
 <?php
         return ob_get_clean();
     }
+
+    public function render_step($step_number)
+    {
+        $template_path = PCF_PLUGIN_DIR . 'includes/form/templates/wizard-step-' . $step_number . '.php';
+
+        if (!file_exists($template_path)) {
+            error_log('Step template not found: ' . $template_path);
+            return '';
+        }
+
+        // Pass options to template
+        $max_items = $this->options['max_items'];
+        $max_image_size = $this->options['max_image_size'];
+        $required_images = $this->options['required_images'];
+
+        ob_start();
+        include $template_path;
+        return ob_get_clean();
+    }
 }
 ?>
