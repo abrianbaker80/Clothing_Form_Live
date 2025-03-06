@@ -14,8 +14,11 @@ jQuery(document).ready(function($) {
             return;
         }
         
+        console.log('PCF Form Options:', pcfFormOptions);
+        
         if (!pcfFormOptions.categories || $.isEmptyObject(pcfFormOptions.categories)) {
             console.error('Error: No categories found in pcfFormOptions');
+            console.log('pcfFormOptions structure:', pcfFormOptions);
             tryFetchingCategoriesViaAjax();
             return;
         }
@@ -27,28 +30,47 @@ jQuery(document).ready(function($) {
         });
         
         // Check if we have any .main-category selects
-        if ($('.main-category').length === 0) {
-            console.error('No .main-category select elements found in the DOM');
+        const $mainCategorySelects = $('.main-category');
+        const $genderSelects = $('.gender-select');
+        
+        console.log('Found ' + $mainCategorySelects.length + ' main category selects');
+        console.log('Found ' + $genderSelects.length + ' gender selects');
+        
+        if ($mainCategorySelects.length === 0 && $genderSelects.length === 0) {
+            console.error('No category select elements found in the DOM');
             
-            // Try to find any gender selects instead (alternative approach)
-            const $genderSelects = $('.gender-select');
-            if ($genderSelects.length > 0) {
-                console.log('Found gender selects, initializing gender-based category selection');
-                initializeGenderBasedCategories();
-                return;
+            // Add diagnostic info to the page for admins
+            if ($('.debug-info').length) {
+                $('.debug-info').append(
+                    '<div class="error-message" style="color: red;">' +
+                    'ERROR: Category selects not found in the DOM. Form structure may be incorrect.' +
+                    '</div>'
+                );
             }
-            
             return;
         }
         
-        // Populate main category selects
-        $('.main-category').each(function() {
-            const $select = $(this);
-            // Only populate if empty
-            if ($select.find('option').length <= 1) {
-                populateMainCategorySelect($select);
-            }
-        });
+        // Populate main category selects if they exist
+        if ($mainCategorySelects.length > 0) {
+            $mainCategorySelects.each(function() {
+                const $select = $(this);
+                // Only populate if empty
+                if ($select.find('option').length <= 1) {
+                    populateMainCategorySelect($select);
+                }
+                
+                // Log populated options for debugging
+                console.log('Populated select #' + $select.attr('id') + ' with options:', 
+                    Array.from($select.find('option')).map(opt => opt.value + ': ' + opt.text).join(', ')
+                );
+            });
+        }
+        
+        // Or initialize gender-based categories
+        if ($genderSelects.length > 0) {
+            console.log('Initializing gender-based categories');
+            initializeGenderBasedCategories();
+        }
     }
     
     // Function to try getting categories via AJAX
@@ -397,7 +419,15 @@ jQuery(document).ready(function($) {
     }
     
     // Initialize categories once the DOM is ready
-    initializeCategories();
+    setTimeout(function() {
+        console.log('Triggering category initialization');
+        initializeCategories();
+        
+        // Also try to restore previous selections if they exist
+        if (typeof restoreCategorySelections === 'function') {
+            setTimeout(restoreCategorySelections, 300);
+        }
+    }, 500);
     
     // Initialize all size selectors with default sizes
     $('.gender-select').each(function() {
@@ -461,7 +491,7 @@ jQuery(document).ready(function($) {
             }
             
             output += '</div>';
-            $('.debug-info').append(output);
+            $('..debug-info').append(output);
         }
         
         return typeof pcfFormOptions !== 'undefined' && 
@@ -471,6 +501,7 @@ jQuery(document).ready(function($) {
     
     // Run the test automatically
     setTimeout(function() {
+        console.log('Running categories data test');
         window.testCategoriesData();
     }, 1000);
 });

@@ -250,7 +250,7 @@ function preowned_clothing_display_form($atts = []) {
 }
 
 /**
- * Add required scripts and styles for the form
+ * Enqueue scripts and styles for the form
  */
 function preowned_clothing_enqueue_form_assets() {
     // Enqueue scripts
@@ -297,17 +297,42 @@ function preowned_clothing_enqueue_form_assets() {
     // Get the clothing categories and sizes for JavaScript
     global $clothing_categories_hierarchical, $clothing_sizes;
     
-    // Localize script with form options and ajax URL
+    // Make sure the categories are loaded
+    if (!isset($clothing_categories_hierarchical) || empty($clothing_categories_hierarchical)) {
+        $clothing_categories_file = dirname(__FILE__) . '/clothing-categories.php';
+        if (file_exists($clothing_categories_file)) {
+            $clothing_categories_hierarchical = include($clothing_categories_file);
+        }
+    }
+    
+    // Make sure sizes are loaded
+    if (!isset($clothing_sizes) || empty($clothing_sizes)) {
+        $clothing_sizes_file = dirname(__FILE__) . '/clothing-sizes.php';
+        if (file_exists($clothing_sizes_file)) {
+            $clothing_sizes = include($clothing_sizes_file);
+        }
+    }
+    
+    // Localize script with form options and ajax URL - ENSURE CATEGORIES ARE PASSED CORRECTLY
     wp_localize_script('preowned-clothing-category-handler', 'pcfFormOptions', [
         'ajax_url' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('preowned_clothing_ajax_nonce'),
         'plugin_url' => plugin_dir_url(dirname(__FILE__)),
-        'debug' => true,
+        'debug' => defined('WP_DEBUG') && WP_DEBUG ? true : false,
         'categories' => $clothing_categories_hierarchical,
         'sizes' => $clothing_sizes
     ]);
+    
+    // Add debug data for admins
+    if (current_user_can('manage_options') && defined('WP_DEBUG') && WP_DEBUG) {
+        wp_add_inline_script('preowned-clothing-category-handler', '
+            console.log("PCF Form Assets Loaded");
+            console.log("Categories data:", ' . json_encode($clothing_categories_hierarchical) . ');
+            console.log("Sizes data:", ' . json_encode($clothing_sizes) . ');
+        ');
+    }
 }
-add_action('wp_enqueue_scripts', 'preowned_clothing_enqueue_form_assets');
+add_action('wp_enqueue_scripts', 'preowned_clothing_enqueue_form_assets', 20); // Use higher priority than default
 
 // Add a diagnostic AJAX action to help debug category issues
 function pcf_debug_categories_ajax() {

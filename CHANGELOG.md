@@ -1,91 +1,94 @@
-# Changelog
+# Preowned Clothing Form Changelog
 
 All notable changes to the Preowned Clothing Form plugin will be documented in this file.
 
-## [2.7.0.0] - 2025-03-04
+## [2.8.0.0] - 2025-03-05
 
 ### Added
-- Enhanced Size Manager with comprehensive size overview table
-- Visual size chip display for better readability
-- Debug logging for size and category data troubleshooting
-- Improved size group categorization
+- Comprehensive security module with anti-bot protection, malware scanning, and rate limiting
+- Extended security headers for defense against XSS, clickjacking, and other web vulnerabilities
+- Honeypot trap to detect and block bot submissions
+- Rate limiting to prevent form submission flooding
+- Advanced malware detection for file uploads
+- Content Security Policy headers for enhanced security
 
 ### Fixed
-- Size groups now properly display associated categories
-- Improved data visualization for existing size options
-- Better feedback when adding or removing sizes
-- More intuitive size group management interface
-
-## [2.6.0.9] - 2023-10-18
-
-### Added
-- Size Manager with category associations
-- Default size groups for different clothing types
-- Reset option for size groups
-- What's New tab in admin settings
-
-### Fixed
-- Admin menu registration now properly shows submenus
-- Improved permission checks on all admin pages
-- Size options now correctly display and associate with categories
-
-## [2.5.7] - 2023-05-22
-
-### Added
-- New `clothing-sizes.php` file with comprehensive size data organized by gender and category
-- Enhanced size selector that updates based on selected gender and category
-- Added debugging tools to help diagnose form issues
-- Created detailed documentation including README, customization guide and troubleshooting guide
-
-### Fixed
-- Size selector now shows appropriate sizes for selected clothing category
-- Fixed bug where sizes weren't updating after category selection
-- Improved error reporting when category data isn't available
-
-## [2.5.6] - 2023-05-15
-
-### Fixed
-- Categories and subcategories now display properly
-- Added fallback categories if the categories file is missing
-- Improved error checking and detailed debugging information for admins
-- Enhanced form display with better CSS styling
+- Category handling in multi-step wizard interface
+- Fixed issue with category data not displaying in forms
+- Improved form initialization to prevent script conflicts
+- Improved data passing between main plugin file and form display
 
 ### Changed
-- Improved form validation feedback
-- Updated category handler JavaScript with better error handling
+- Enhanced JavaScript initialization to better support troubleshooting
+- Improved debug logging for administrators
+- Better error handling for file uploads
 
-## [2.5.5] - 2023-05-01
+## [2.7.5.1] - 2023-05-01
 
 ### Added
-- Initial public release
-- Multi-step form wizard interface
-- Category and subcategory selection
-- Image upload functionality
-- Admin dashboard for submission management
-
-# Preowned Clothing Form Changelog
-
-## 1.2.0 - 2023-10-18
-### Added
-- Size Manager with category associations
-- Default size groups for different clothing types
-- Reset option for size groups
+- Updated plugin structure
+- Basic security enhancements
 
 ### Fixed
-- Admin menu registration now properly shows submenus
-- Improved permission checks on all admin pages
+- Fixed enqueue script conflicts
 
-## 1.1.0 - 2023-09-30
+## [2.7.5.0] - 2023-04-22
+
 ### Added
-- Form Field Manager for customizing all form fields
-- Category Manager for organizing clothing types
-- Custom field support
+- Restored multi-step wizard functionality 
+- Proper step navigation and styling
 
-### Changed
-- Reorganized admin interface with tabbed settings
+### Fixed
+- Fixed issues with wizard navigation
+- Improved form progression logic
 
-## 1.0.0 - 2023-09-15
-### Initial Release
-- Basic clothing submission form
-- Image upload functionality
-- Email notifications
+## [2.7.4.0] - 2023-04-15
+
+### Fixed
+- Fixed fatal error in form renderer
+- Added missing methods
+- Improved image preview functionality
+
+## [2.7.3.0] - 2023-04-08
+
+### Fixed
+- Fixed image upload display
+- Fixed preview functionality
+- Added proper form renderer hook integration
+
+## [2.7.2.0] - 2023-04-01
+
+### Added
+- Enhanced image upload system
+- Fixed SVG placeholders
+- Restored image optimizer
+- Improved display styles
+
+## [2.7.1.0] - 2023-03-25
+
+### Fixed
+- Fixed image upload section
+- Added proper SVG placeholder icons
+
+## [2.7.0.0] - 2023-03-18
+
+### Added
+- Enhanced Size Manager with improved category mapping
+- Visual size display improvements
+
+## [2.6.0.9] - 2023-03-11
+
+### Added
+- Size Manager improvements
+- Admin menu fixes
+
+## [1.1.0] - 2022-05-01
+
+### Added
+- Form Field Manager
+- Category Manager
+
+## [1.0.0] - 2022-01-01
+
+### Added
+- Initial release
