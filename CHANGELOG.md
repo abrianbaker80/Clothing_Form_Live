@@ -4,6 +4,12 @@ All notable changes to the Preowned Clothing Form plugin will be documented in t
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.1.1] - 2025-03-05
+### Fixed
+- Fixed the "Add Another Item" button functionality
+- Enhanced event delegation for reliable button operation
+- Added additional error handling for form operations
+
 ## [2.8.1.0] - 2025-03-05
 ### Fixed
 - Enhanced GitHub updater to properly detect and install new plugin versions
