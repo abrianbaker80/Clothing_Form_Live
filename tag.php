@@ -2,14 +2,14 @@
 
 /**
  * Version Tagging Utility
- * Usage: php tag-version.php [commit message]
+ * Usage: php tag.php [commit message]
  */
 
 // Get current version from main plugin file
 $plugin_file = __DIR__ . '/preowned-clothing-form.php';
 $plugin_data = file_get_contents($plugin_file);
 preg_match('/Version:\s*([0-9\.]+)/', $plugin_data, $matches);
-$version = $matches[1] ?? '0.0.0';
+$version = $matches[1] ?? '0.0.0.0';
 
 // Get commit message from command line or use default
 $commit_message = $argv[1] ?? "Version {$version} release";
@@ -23,9 +23,9 @@ $commands = [
     'git add .',
     'git commit -m "' . $commit_message . '"',
 
-    // Create and push tag
-    'git tag -a ' . $version . ' -m "Version ' . $version . '"',
-    'git push origin ' . $version,
+    // Create and push tag with 'v' prefix
+    'git tag -a v' . $version . ' -m "Version ' . $version . '"',
+    'git push origin --tags', // Push all tags
 
     // Sync with remote
     'git pull origin main --rebase',
