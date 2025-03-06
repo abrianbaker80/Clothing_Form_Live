@@ -244,6 +244,8 @@ class Preowned_Clothing_GitHub_Updater {
         
         if ($this->debug_mode) {
             error_log('GitHub Updater: Added plugin to update check list with version ' . $current_version);
+            error_log('GitHub Updater: Basename: ' . $this->plugin_info['basename']);
+            error_log('GitHub Updater: Normalized basename: ' . $this->plugin_info['normalized_basename']);
         }
     }
 
@@ -255,12 +257,18 @@ class Preowned_Clothing_GitHub_Updater {
      */
     public function check_for_update($transient) {
         if (empty($transient->checked)) {
+            if ($this->debug_mode) {
+                error_log('GitHub Updater: Empty checked list in transient');
+            }
             return $transient;
         }
         
         // Try to get GitHub API instance
         $api = $this->get_api_instance();
         if (!$api) {
+            if ($this->debug_mode) {
+                error_log('GitHub Updater: Could not get API instance');
+            }
             return $transient;
         }
         
@@ -272,12 +280,28 @@ class Preowned_Clothing_GitHub_Updater {
             $current_version = $transient->checked[$this->plugin_info['normalized_basename']];
         }
         
+        if ($this->debug_mode) {
+            error_log('GitHub Updater: Starting update check for current version: ' . $current_version);
+        }
+        
         try {
+            // Force clear cached data to ensure fresh check
+            delete_transient('preowned_clothing_github_release_' . $this->repo['username'] . '_' . $this->repo['repository']);
+            
             // Check for an update using the API
             $update_info = $api->check_for_update($current_version);
             
             if (!$update_info) {
+                if ($this->debug_mode) {
+                    error_log('GitHub Updater: No update found or error occurred');
+                }
                 return $transient;
+            }
+            
+            // Debug log the details
+            if ($this->debug_mode) {
+                error_log('GitHub Updater: Update available! GitHub version: ' . $update_info['version']);
+                error_log('GitHub Updater: Current version: ' . $current_version);
             }
             
             // We have an update! Build the update object for WordPress
@@ -309,8 +333,7 @@ class Preowned_Clothing_GitHub_Updater {
             $transient->response[$this->plugin_info['normalized_basename']] = $norm_obj;
             
             if ($this->debug_mode) {
-                error_log('GitHub Updater: Update available! Adding to transient.');
-                error_log('GitHub Updater: Current version: ' . $current_version . ', GitHub version: ' . $update_info['version']);
+                error_log('GitHub Updater: Added update to transient. New version: ' . $update_info['version']);
             }
         } catch (Exception $e) {
             if ($this->debug_mode) {
@@ -572,6 +595,10 @@ class Preowned_Clothing_GitHub_Updater {
         if ($this->debug_mode) {
             error_log('GitHub Updater: Running scheduled update check');
         }
+        
+        // Clear all caches first
+        delete_transient('preowned_clothing_github_release_' . $this->repo['username'] . '_' . $this->repo['repository']);
+        delete_site_transient('update_plugins');
         
         // Get latest release
         $api = $this->get_api_instance();

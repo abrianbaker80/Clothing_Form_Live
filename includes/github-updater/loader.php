@@ -303,3 +303,48 @@ function preowned_clothing_loader_force_update_check() {
     }
 }
 add_action('admin_init', 'preowned_clothing_loader_force_update_check', 5);
+
+/**
+ * Force clear all GitHub updater caches to ensure fresh update checks
+ */
+function preowned_clothing_clear_update_caches() {
+    global $preowned_clothing_updater;
+    
+    // Clear WordPress transient
+    delete_site_transient('update_plugins');
+    
+    // Clear GitHub-specific options and transients
+    $username = get_option('preowned_clothing_github_username', 'abrianbaker80');
+    $repository = get_option('preowned_clothing_github_repository', 'Clothing_Form');
+    delete_transient('preowned_clothing_github_release_' . $username . '_' . $repository);
+    delete_option('preowned_clothing_github_response');
+    delete_option('preowned_clothing_last_update_check');
+    
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('GitHub Updater: Manually cleared all caches');
+    }
+    
+    // Force WordPress to check for updates
+    wp_clean_plugins_cache(true);
+    wp_update_plugins();
+}
+
+// Register the cache clearing function
+add_action('init', function() {
+    // Check for admin request to clear caches
+    if (is_admin() && isset($_GET['preowned_clothing_clear_caches']) && current_user_can('update_plugins')) {
+        preowned_clothing_clear_update_caches();
+        
+        // Redirect back
+        $redirect_url = remove_query_arg('preowned_clothing_clear_caches');
+        wp_redirect(add_query_arg('cache_cleared', '1', $redirect_url));
+        exit;
+    }
+});
+
+// Add notice when cache is cleared
+add_action('admin_notices', function() {
+    if (isset($_GET['cache_cleared'])) {
+        echo '<div class="notice notice-success is-dismissible"><p>GitHub updater caches cleared. Update checks will now use fresh data.</p></div>';
+    }
+});

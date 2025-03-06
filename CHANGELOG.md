@@ -1,94 +1,81 @@
-# Preowned Clothing Form Changelog
-
+# Changelog
 All notable changes to the Preowned Clothing Form plugin will be documented in this file.
 
-## [2.8.0.0] - 2025-03-05
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-### Added
-- Comprehensive security module with anti-bot protection, malware scanning, and rate limiting
-- Extended security headers for defense against XSS, clickjacking, and other web vulnerabilities
-- Honeypot trap to detect and block bot submissions
-- Rate limiting to prevent form submission flooding
-- Advanced malware detection for file uploads
-- Content Security Policy headers for enhanced security
-
+## [2.8.1.0] - 2025-03-05
 ### Fixed
-- Category handling in multi-step wizard interface
-- Fixed issue with category data not displaying in forms
-- Improved form initialization to prevent script conflicts
-- Improved data passing between main plugin file and form display
+- Enhanced GitHub updater to properly detect and install new plugin versions
+- Improved version comparison logic to correctly identify newer releases
+- Added better error handling and debugging for update process
+- Fixed cache clearing mechanism to ensure fresh update checks
+- Added troubleshooting section to GitHub updater settings page
 
+## [2.8.0.0] - 2025-02-12
+### Added
+- Comprehensive security module with anti-bot protection
+- Malware scanning for uploaded images
+- Rate limiting to prevent abuse
+- Advanced threat detection system
+
+## [2.7.5.1] - 2025-01-28
 ### Changed
-- Enhanced JavaScript initialization to better support troubleshooting
-- Improved debug logging for administrators
-- Better error handling for file uploads
+- Updated plugin structure for better performance
+- Included security enhancements
 
-## [2.7.5.1] - 2023-05-01
-
-### Added
-- Updated plugin structure
-- Basic security enhancements
-
+## [2.7.5.0] - 2025-01-15
 ### Fixed
-- Fixed enqueue script conflicts
+- Restored multi-step wizard functionality with proper navigation
+- Improved wizard step styling and transitions
+- Fixed completion tracking between wizard steps
 
-## [2.7.5.0] - 2023-04-22
-
-### Added
-- Restored multi-step wizard functionality 
-- Proper step navigation and styling
-
-### Fixed
-- Fixed issues with wizard navigation
-- Improved form progression logic
-
-## [2.7.4.0] - 2023-04-15
-
+## [2.7.4.0] - 2025-01-02
 ### Fixed
 - Fixed fatal error in form renderer
-- Added missing methods
+- Added missing methods required for proper form operation
 - Improved image preview functionality
+- Enhanced error handling throughout the plugin
 
-## [2.7.3.0] - 2023-04-08
-
+## [2.7.3.0] - 2024-12-18
 ### Fixed
-- Fixed image upload display
-- Fixed preview functionality
+- Fixed image upload display and preview functionality
 - Added proper form renderer hook integration
+- Enhanced upload error handling and feedback
 
-## [2.7.2.0] - 2023-04-01
+## [2.7.2.0] - 2024-12-05
+### Enhanced
+- Fixed SVG placeholders in image upload system
+- Restored image optimizer functionality
+- Improved display styles for uploaded images
+- Added more comprehensive upload progress indicators
 
-### Added
-- Enhanced image upload system
-- Fixed SVG placeholders
-- Restored image optimizer
-- Improved display styles
-
-## [2.7.1.0] - 2023-03-25
-
+## [2.7.1.0] - 2024-11-21
 ### Fixed
-- Fixed image upload section
-- Added proper SVG placeholder icons
+- Fixed image upload section with proper SVG placeholder icons
+- Improved mobile responsiveness of image uploads
 
-## [2.7.0.0] - 2023-03-18
-
-### Added
+## [2.7.0.0] - 2024-11-07
+### Enhanced
 - Enhanced Size Manager with improved category mapping
-- Visual size display improvements
+- Added visual size display for better user experience
+- Integrated dynamic size suggestions based on brand
 
-## [2.6.0.9] - 2023-03-11
-
-### Added
+## [2.6.0.9] - 2024-10-25
+### Fixed
 - Size Manager improvements
 - Admin menu fixes
+- Better category-size relationships
 
-## [1.1.0] - 2022-05-01
-
+## [1.1.0] - 2024-03-15
 ### Added
 - Form Field Manager
 - Category Manager
+- Enhanced customization options
 
-## [1.0.0] - 2022-01-01
-
+## [1.0.0] - 2024-01-10
 ### Added
 - Initial release
+- Basic clothing submission form
+- Image upload functionality
+- Admin review system

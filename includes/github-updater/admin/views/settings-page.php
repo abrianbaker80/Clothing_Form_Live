@@ -28,6 +28,22 @@ if (!isset($admin) || !is_object($admin)) {
     <!-- Status Card -->
     <div class="github-updater-card">
         <h2>Update Status</h2>
+        
+        <!-- Add a troubleshooting section -->
+        <?php if ($github_version === 'Unknown' || !$update_available): ?>
+        <div class="github-updater-notice">
+            <h4>Update Detection Issues?</h4>
+            <p>If the updater isn't detecting available updates, try these steps:</p>
+            <ol>
+                <li>Clear all caches with the button below</li>
+                <li>Verify your repository has releases with proper version tags</li>
+                <li>Check that the version in GitHub is higher than your current version</li>
+            </ol>
+            <a href="<?php echo esc_url(add_query_arg('preowned_clothing_clear_caches', '1')); ?>" 
+               class="button button-secondary">Clear All GitHub Updater Caches</a>
+        </div>
+        <?php endif; ?>
+        
         <table class="form-table">
             <tr>
                 <th>Current Plugin Version:</th>
@@ -136,6 +152,13 @@ if (!isset($admin) || !is_object($admin)) {
 #status-message {
     display: inline-block;
     margin-left: 10px;
+}
+
+.github-updater-notice {
+    background-color: #f8f8f8;
+    border-left: 4px solid #00a0d2;
+    margin-bottom: 15px;
+    padding: 10px 15px;
 }
 </style>
 

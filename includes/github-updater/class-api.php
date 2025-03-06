@@ -299,12 +299,28 @@ class Preowned_Clothing_GitHub_API {
     
     /**
      * Format a version string by removing the 'v' prefix if present
+     * and ensuring it's a valid version format
      *
      * @param string $version Version string possibly with 'v' prefix
      * @return string Cleaned version string
      */
     public function format_version($version) {
-        return ltrim($version, 'v');
+        // Remove 'v' prefix if present
+        $version = ltrim($version, 'v');
+        
+        // Ensure it has the correct format (x.y.z)
+        if ($this->debug_mode) {
+            error_log('GitHub API: Formatting version: ' . $version);
+        }
+        
+        // Validate version format
+        if (!preg_match('/^\d+(\.\d+)*$/', $version)) {
+            if ($this->debug_mode) {
+                error_log('GitHub API: Warning - Version does not match standard format: ' . $version);
+            }
+        }
+        
+        return $version;
     }
     
     /**
@@ -315,11 +331,22 @@ class Preowned_Clothing_GitHub_API {
      */
     public function extract_release_details($release_data) {
         if (empty($release_data) || !is_array($release_data)) {
+            if ($this->debug_mode) {
+                error_log('GitHub API: Empty or invalid release data received');
+            }
             return array();
         }
         
+        $tag_name = isset($release_data['tag_name']) ? $release_data['tag_name'] : '';
+        $version = $this->format_version($tag_name);
+        
+        if ($this->debug_mode) {
+            error_log('GitHub API: Extracted tag name: ' . $tag_name . ', formatted version: ' . $version);
+        }
+        
         $details = array(
-            'version' => isset($release_data['tag_name']) ? $this->format_version($release_data['tag_name']) : '',
+            'version' => $version,
+            'tag_name' => $tag_name, // Keep original tag name
             'name' => isset($release_data['name']) ? $release_data['name'] : '',
             'published_at' => isset($release_data['published_at']) ? $release_data['published_at'] : '',
             'zipball_url' => isset($release_data['zipball_url']) ? $release_data['zipball_url'] : '',
@@ -368,18 +395,39 @@ class Preowned_Clothing_GitHub_API {
      * @return bool|array False if no update, or array of update info
      */
     public function check_for_update($current_version) {
-        $release = $this->get_latest_release();
+        if ($this->debug_mode) {
+            error_log('GitHub API: Checking for update - current version: ' . $current_version);
+        }
+        
+        $release = $this->get_latest_release(true); // Force refresh to ensure latest data
         
         // Return false if we have an error
         if (is_wp_error($release)) {
+            if ($this->debug_mode) {
+                error_log('GitHub API: Error getting release: ' . $release->get_error_message());
+            }
             return false;
         }
         
         // Extract release details
         $details = $this->extract_release_details($release);
         
+        if (empty($details['version'])) {
+            if ($this->debug_mode) {
+                error_log('GitHub API: Empty version in release details');
+            }
+            return false;
+        }
+        
         // Check if this is a newer version
-        if (empty($details['version']) || !version_compare($details['version'], $current_version, '>')) {
+        $is_newer = version_compare($details['version'], $current_version, '>');
+        
+        if ($this->debug_mode) {
+            error_log('GitHub API: Version comparison - GitHub: ' . $details['version'] . 
+                     ', Current: ' . $current_version . ', Is newer: ' . ($is_newer ? 'Yes' : 'No'));
+        }
+        
+        if (!$is_newer) {
             return false;
         }
         
