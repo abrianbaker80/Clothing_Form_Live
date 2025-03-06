@@ -506,7 +506,11 @@ class Preowned_Clothing_GitHub_Admin {
      */
     public function display_debug_panel() {
         // Get debug log content
-        $debug_log = preowned_clothing_get_debug_log();
+        if (function_exists('preowned_clothing_get_debug_log')) {
+            $debug_log = preowned_clothing_get_debug_log();
+        } else {
+            $debug_log = '';
+        }
         
         // Include the template
         include dirname(__FILE__) . '/views/debug-panel.php';

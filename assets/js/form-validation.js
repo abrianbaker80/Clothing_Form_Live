@@ -143,6 +143,51 @@
         return re.test(email);
     }
     
+    /**
+     * Check if category selectors are properly initialized
+     * Add this function to help diagnose category issues
+     */
+    function checkCategorySelectors() {
+        const $genderSelects = $('.gender-select');
+        
+        if ($genderSelects.length > 0) {
+            console.log('Found', $genderSelects.length, 'gender select elements');
+            
+            // Check if category containers exist
+            const $categoryContainers = $('[id^="category-select-container-"]');
+            console.log('Found', $categoryContainers.length, 'category containers');
+            
+            if ($categoryContainers.length === 0) {
+                console.error('Category containers missing! Check HTML structure.');
+                return false;
+            }
+            
+            // Check if pcfFormOptions is available
+            if (typeof window.pcfFormOptions === 'undefined') {
+                console.error('pcfFormOptions not found! Check script loading order.');
+                return false;
+            }
+            
+            // Check if categories data is available
+            if (!window.pcfFormOptions.categories || 
+                Object.keys(window.pcfFormOptions.categories).length === 0) {
+                console.error('Categories data not available!');
+                return false;
+            }
+            
+            console.log('Category system appears to be correctly configured');
+            return true;
+        } else {
+            console.warn('No gender selects found in the form');
+            return false;
+        }
+    }
+    
+    // Run the category check after initialization
+    $(window).on('load', function() {
+        setTimeout(checkCategorySelectors, 1000);
+    });
+
     // Initialize on document ready
     $(document).ready(function() {
         initFormValidation();

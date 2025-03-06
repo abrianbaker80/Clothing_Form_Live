@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Get debug log content
-$debug_log = isset($debug_log) ? $debug_log : preowned_clothing_get_debug_log();
+$debug_log = isset($debug_log) ? $debug_log : (function_exists('preowned_clothing_get_debug_log') ? preowned_clothing_get_debug_log() : '');
 ?>
 <div class="github-updater-log">
     <h2>Debug Log</h2>

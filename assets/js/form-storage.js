@@ -115,15 +115,15 @@ jQuery(document).ready(function($) {
                 const formData = JSON.parse(localStorage.getItem(STORAGE_KEY));
                 console.log('Loading saved form data:', formData);
                 
-                // Populate contact fields
+                // Populate contact fields with null checks
                 if (formData.contact) {
-                    $('#name').val(formData.contact.name);
-                    $('#email').val(formData.contact.email);
-                    $('#phone').val(formData.contact.phone);
-                    $('#address').val(formData.contact.address);
-                    $('#city').val(formData.contact.city);
-                    $('#state').val(formData.contact.state);
-                    $('#zip').val(formData.contact.zip);
+                    $('#name').val(formData.contact.name || '');
+                    $('#email').val(formData.contact.email || '');
+                    $('#phone').val(formData.contact.phone || '');
+                    $('#address').val(formData.contact.address || '');
+                    $('#city').val(formData.contact.city || '');
+                    $('#state').val(formData.contact.state || '');
+                    $('#zip').val(formData.contact.zip || '');
                 }
                 
                 // Populate first item
@@ -143,8 +143,12 @@ jQuery(document).ready(function($) {
                     }
                 }
                 
-                // Update the review step
-                updateReviewStep(formData);
+                // Update the review step with safe error handling
+                try {
+                    updateReviewStep(formData);
+                } catch (err) {
+                    console.error('Error updating review step:', err);
+                }
                 
             } catch (e) {
                 console.error('Error loading form data:', e);
@@ -197,11 +201,26 @@ jQuery(document).ready(function($) {
     
     // Function to update the review step with current form data
     function updateReviewStep(formData) {
-        // Update contact information
-        $('#review-name').text(formData.contact.name || '');
-        $('#review-email').text(formData.contact.email || '');
-        $('#review-phone').text(formData.contact.phone || '');
+        // Add null check for formData and formData.contact
+        if (!formData || !formData.contact) {
+            console.log('No form data available for review step');
+            return;
+        }
+
+        // Safely update contact information with null checks for DOM elements
+        const updateElement = (id, value) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value || '';
+            }
+        };
+
+        // Update contact information with safe access to properties
+        updateElement('review-name', formData.contact.name || '');
+        updateElement('review-email', formData.contact.email || '');
+        updateElement('review-phone', formData.contact.phone || '');
         
+        // Build address safely, checking for undefined values
         const address = [
             formData.contact.address,
             formData.contact.city,
@@ -209,32 +228,49 @@ jQuery(document).ready(function($) {
             formData.contact.zip
         ].filter(Boolean).join(', ');
         
-        $('#review-address').text(address);
+        updateElement('review-address', address);
         
-        // Update items
+        // Update items with null checking
         const $reviewItemsContainer = $('#review-items-container');
+        if (!$reviewItemsContainer.length) {
+            console.log('Review items container not found');
+            return;
+        }
+        
         $reviewItemsContainer.empty();
         
-        formData.items.forEach((item, index) => {
-            const genderText = item.gender ? $(`#gender-${index+1} option[value="${item.gender}"]`).text() : '';
-            const categoryText = item.category ? $(`#item-category-${index+1} option[value="${item.category}"]`).text() : '';
-            const subcategoryText = item.subcategory ? $(`#item-subcategory-${index+1} option[value="${item.subcategory}"]`).text() : '';
-            
-            const $itemDiv = $(`
-                <div class="review-item-card">
-                    <h4>Item #${index+1}</h4>
-                    <div class="review-item-details">
-                        <div><strong>Gender:</strong> ${genderText}</div>
-                        <div><strong>Category:</strong> ${categoryText}</div>
-                        <div><strong>Type:</strong> ${subcategoryText}</div>
-                        <div><strong>Size:</strong> ${item.size || ''}</div>
-                        <div><strong>Description:</strong> ${item.description || ''}</div>
+        // Check if items array exists before iterating
+        if (formData.items && Array.isArray(formData.items)) {
+            formData.items.forEach((item, index) => {
+                if (!item) return; // Skip undefined items
+                
+                // Safely get text values with null checks
+                const getSelectText = (selectId, value) => {
+                    if (!value) return '';
+                    const $option = $(`${selectId} option[value="${value}"]`);
+                    return $option.length ? $option.text() : '';
+                };
+                
+                const genderText = getSelectText(`#gender-${index+1}`, item.gender);
+                const categoryText = getSelectText(`#item-category-${index+1}`, item.category);
+                const subcategoryText = getSelectText(`#item-subcategory-${index+1}`, item.subcategory);
+                
+                const $itemDiv = $(`
+                    <div class="review-item-card">
+                        <h4>Item #${index+1}</h4>
+                        <div class="review-item-details">
+                            <div><strong>Gender:</strong> ${genderText}</div>
+                            <div><strong>Category:</strong> ${categoryText}</div>
+                            <div><strong>Type:</strong> ${subcategoryText}</div>
+                            <div><strong>Size:</strong> ${item.size || ''}</div>
+                            <div><strong>Description:</strong> ${item.description || ''}</div>
+                        </div>
                     </div>
-                </div>
-            `);
-            
-            $reviewItemsContainer.append($itemDiv);
-        });
+                `);
+                
+                $reviewItemsContainer.append($itemDiv);
+            });
+        }
     }
     
     // Make the loadFormData function available globally

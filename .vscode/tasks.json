@@ -1,0 +1,98 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Create Tag and Push to GitHub",
+            "type": "shell",
+            "windows": {
+                "command": "${command:workbench.action.terminal.sendSequence}",
+                "args": [
+                    {
+                        "text": "git add . && echo Enter commit message: && set /p COMMIT_MSG= && echo Enter tag version (e.g., v2.8.1.1): && set /p TAG_VERSION= && echo Enter tag message: && set /p TAG_MSG= && git commit -m \"%COMMIT_MSG%\" && git tag -a %TAG_VERSION% -m \"%TAG_MSG%\" && git push origin main && git push origin %TAG_VERSION% && echo Tag %TAG_VERSION% created and pushed successfully!\n"
+                    }
+                ]
+            },
+            "osx": {
+                "command": "${command:workbench.action.terminal.sendSequence}",
+                "args": [
+                    {
+                        "text": "git add . && echo 'Enter commit message:' && read COMMIT_MSG && echo 'Enter tag version (e.g., v2.8.1.1):' && read TAG_VERSION && echo 'Enter tag message:' && read TAG_MSG && git commit -m \"$COMMIT_MSG\" && git tag -a $TAG_VERSION -m \"$TAG_MSG\" && git push origin main && git push origin $TAG_VERSION && echo 'Tag $TAG_VERSION created and pushed successfully!'\n"
+                    }
+                ]
+            },
+            "linux": {
+                "command": "${command:workbench.action.terminal.sendSequence}",
+                "args": [
+                    {
+                        "text": "git add . && echo 'Enter commit message:' && read COMMIT_MSG && echo 'Enter tag version (e.g., v2.8.1.1):' && read TAG_VERSION && echo 'Enter tag message:' && read TAG_MSG && git commit -m \"$COMMIT_MSG\" && git tag -a $TAG_VERSION -m \"$TAG_MSG\" && git push origin main && git push origin $TAG_VERSION && echo 'Tag $TAG_VERSION created and pushed successfully!'\n"
+                    }
+                ]
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "focus": true
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Update Version - Windows PowerShell",
+            "type": "shell",
+            "windows": {
+                "command": "powershell.exe",
+                "args": [
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    "${workspaceFolder}\\.vscode\\update-version.ps1"
+                ]
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "focus": true
+            },
+            "group": "build"
+        },
+        {
+            "label": "Update Plugin Version (Simple)",
+            "type": "shell",
+            "windows": {
+                "command": "powershell",
+                "args": [
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-Command",
+                    "Write-Host 'Enter new version number: ' -NoNewline; $v = Read-Host; (Get-Content ${workspaceFolder}\\preowned-clothing-form.php) -replace 'Version: [\\d\\.]+', \"Version: $v\" -replace \"define\\('PCF_VERSION', '[\\d\\.]+'\\)\", \"define('PCF_VERSION', '$v')\" | Set-Content ${workspaceFolder}\\preowned-clothing-form.php; Write-Host 'Version updated to' $v -ForegroundColor Green;"
+                ]
+            },
+            "osx": {
+                "command": "bash",
+                "args": [
+                    "-c",
+                    "read -p 'Enter new version number: ' v && sed -i '' -e \"s/Version: [0-9.]\\{1,\\}/Version: $v/g\" -e \"s/define('PCF_VERSION', '[0-9.]\\{1,\\}')/define('PCF_VERSION', '$v')/g\" ${workspaceFolder}/preowned-clothing-form.php && echo \"Version updated to $v\""
+                ]
+            },
+            "linux": {
+                "command": "bash",
+                "args": [
+                    "-c",
+                    "read -p 'Enter new version number: ' v && sed -i -e \"s/Version: [0-9.]\\{1,\\}/Version: $v/g\" -e \"s/define('PCF_VERSION', '[0-9.]\\{1,\\}')/define('PCF_VERSION', '$v')/g\" ${workspaceFolder}/preowned-clothing-form.php && echo \"Version updated to $v\""
+                ]
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "focus": true
+            },
+            "group": "build"
+        }
+    ]
+}

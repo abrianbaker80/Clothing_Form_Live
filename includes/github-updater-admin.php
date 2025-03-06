@@ -11,17 +11,18 @@ if (!defined('ABSPATH')) {
 /**
  * Register the GitHub updater settings page
  */
-function preowned_clothing_register_github_updater_page() {
+function preowned_clothing_github_updater_menu() {
+    // Change capability to 'manage_options' which is standard for admins
     add_submenu_page(
         'options-general.php',
+        'GitHub Updater Settings',
         'GitHub Updater',
-        'GitHub Updater',
-        'manage_options',
+        'manage_options', // Changed capability
         'preowned-clothing-github-updater',
         'preowned_clothing_github_updater_page'
     );
 }
-add_action('admin_menu', 'preowned_clothing_register_github_updater_page');
+add_action('admin_menu', 'preowned_clothing_github_updater_menu');
 
 /**
  * Register GitHub updater settings
@@ -37,6 +38,11 @@ add_action('admin_init', 'preowned_clothing_register_github_updater_settings');
  * Display GitHub updater settings page
  */
 function preowned_clothing_github_updater_page() {
+    // Check user capability
+    if (!current_user_can('manage_options')) {
+        wp_die(__('Sorry, you do not have sufficient permissions to access this page.'));
+    }
+    
     // Check for current version information
     $plugin_file = WP_PLUGIN_DIR . '/Clothing_Form_Live/preowned-clothing-form.php';
     if (!file_exists($plugin_file)) {
@@ -1044,3 +1050,245 @@ function preowned_clothing_dismiss_updater_notice() {
     wp_die();
 }
 add_action('wp_ajax_dismiss_updater_notice', 'preowned_clothing_dismiss_updater_notice');
+
+/**
+ * GitHub Updater Admin Functions
+ *
+ * Handles the GitHub updater admin interface
+ */
+
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Register the admin settings fields for GitHub updater
+ */
+function preowned_clothing_register_github_updater_settings() {
+    // Register settings
+    register_setting('preowned_clothing_github_updater', 'preowned_clothing_github_username');
+    register_setting('preowned_clothing_github_updater', 'preowned_clothing_github_repository');
+    register_setting('preowned_clothing_github_updater', 'preowned_clothing_github_token');
+    
+    // Register settings sections
+    add_settings_section(
+        'preowned_clothing_github_updater_section',
+        'GitHub Repository Settings',
+        'preowned_clothing_github_updater_section_callback',
+        'preowned-clothing-github-updater'
+    );
+    
+    // Register settings fields
+    add_settings_field(
+        'preowned_clothing_github_username',
+        'GitHub Username',
+        'preowned_clothing_github_username_callback',
+        'preowned-clothing-github-updater',
+        'preowned_clothing_github_updater_section'
+    );
+    
+    add_settings_field(
+        'preowned_clothing_github_repository',
+        'GitHub Repository',
+        'preowned_clothing_github_repository_callback',
+        'preowned-clothing-github-updater',
+        'preowned_clothing_github_updater_section'
+    );
+    
+    add_settings_field(
+        'preowned_clothing_github_token',
+        'GitHub Access Token',
+        'preowned_clothing_github_token_callback',
+        'preowned-clothing-github-updater',
+        'preowned_clothing_github_updater_section'
+    );
+}
+
+add_action('admin_init', 'preowned_clothing_register_github_updater_settings');
+
+/**
+ * Settings section callback
+ */
+function preowned_clothing_github_updater_section_callback() {
+    echo '<p>Configure the GitHub repository for automatic updates. This allows the plugin to check for new versions and update directly from GitHub.</p>';
+}
+
+/**
+ * Username field callback
+ */
+function preowned_clothing_github_username_callback() {
+    $username = get_option('preowned_clothing_github_username', 'abrianbaker80');
+    echo '<input type="text" id="preowned_clothing_github_username" name="preowned_clothing_github_username" value="' . esc_attr($username) . '" class="regular-text">';
+    echo '<p class="description">Enter the GitHub username that owns the repository.</p>';
+}
+
+/**
+ * Repository field callback
+ */
+function preowned_clothing_github_repository_callback() {
+    $repository = get_option('preowned_clothing_github_repository', 'Clothing_Form');
+    echo '<input type="text" id="preowned_clothing_github_repository" name="preowned_clothing_github_repository" value="' . esc_attr($repository) . '" class="regular-text">';
+    echo '<p class="description">Enter the repository name without the username.</p>';
+}
+
+/**
+ * Token field callback
+ */
+function preowned_clothing_github_token_callback() {
+    $token = get_option('preowned_clothing_github_token', '');
+    echo '<input type="password" id="preowned_clothing_github_token" name="preowned_clothing_github_token" value="' . esc_attr($token) . '" class="regular-text">';
+    echo '<p class="description">Optional: Enter a GitHub access token for private repositories or to avoid API rate limits.</p>';
+}
+
+/**
+ * Render the settings page
+ */
+function preowned_clothing_github_updater_settings_page() {
+    // Check permissions
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+    
+    // Show debug information if needed
+    global $preowned_clothing_gh_updater_running;
+    $updater_status = $preowned_clothing_gh_updater_running ? 'Active' : 'Not active';
+    
+    // Try to get updater info
+    $updater_version = defined('PCF_USING_NEW_UPDATER') && PCF_USING_NEW_UPDATER ? 'Modular (new)' : 'Legacy';
+    
+    ?>
+    <div class="wrap">
+        <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+        
+        <?php if (isset($_GET['settings-updated'])) : ?>
+            <div class="notice notice-success is-dismissible">
+                <p><?php _e('Settings saved successfully.', 'preowned-clothing-form'); ?></p>
+            </div>
+        <?php endif; ?>
+        
+        <div class="card">
+            <h2>GitHub Updater Status</h2>
+            <p><strong>Updater Status:</strong> <?php echo $updater_status; ?></p>
+            <p><strong>Updater Type:</strong> <?php echo $updater_version; ?></p>
+            <p><strong>Current Settings:</strong></p>
+            <ul>
+                <li>Username: <?php echo esc_html(get_option('preowned_clothing_github_username', 'abrianbaker80')); ?></li>
+                <li>Repository: <?php echo esc_html(get_option('preowned_clothing_github_repository', 'Clothing_Form')); ?></li>
+                <li>Token: <?php echo get_option('preowned_clothing_github_token') ? '••••••••' : 'Not set'; ?></li>
+            </ul>
+        </div>
+        
+        <form action="options.php" method="post">
+            <?php
+            settings_fields('preowned_clothing_github_updater');
+            do_settings_sections('preowned-clothing-github-updater');
+            submit_button('Save Settings');
+            ?>
+        </form>
+        
+        <div class="card" style="margin-top: 20px;">
+            <h2>Test GitHub Connection</h2>
+            <p>Click the button below to test the GitHub connection with your current settings.</p>
+            <button id="test-github-connection" class="button button-secondary">Test Connection</button>
+            <div id="test-result" style="margin-top: 10px; padding: 10px; display: none;"></div>
+        </div>
+    </div>
+    
+    <script>
+        jQuery(document).ready(function($) {
+            $('#test-github-connection').on('click', function(e) {
+                e.preventDefault();
+                
+                const $resultDiv = $('#test-result');
+                $resultDiv.html('Testing connection...').show().css('background', '#f7f7f7');
+                
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'preowned_clothing_test_github_connection',
+                        username: $('#preowned_clothing_github_username').val(),
+                        repository: $('#preowned_clothing_github_repository').val(),
+                        token: $('#preowned_clothing_github_token').val(),
+                        nonce: '<?php echo wp_create_nonce('preowned_clothing_github_test'); ?>'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $resultDiv.html('Connection successful! Repository exists and is accessible.').css('background', '#ecf7ed');
+                        } else {
+                            $resultDiv.html('Connection failed: ' + response.data).css('background', '#fbeaea');
+                        }
+                    },
+                    error: function() {
+                        $resultDiv.html('Request failed. Please check your internet connection.').css('background', '#fbeaea');
+                    }
+                });
+            });
+        });
+    </script>
+    <?php
+}
+
+/**
+ * Handle the AJAX test connection request
+ */
+function preowned_clothing_test_github_connection() {
+    // Check nonce for security
+    check_ajax_referer('preowned_clothing_github_test', 'nonce');
+    
+    // Check if user has permission
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Permission denied');
+        return;
+    }
+    
+    $username = isset($_POST['username']) ? sanitize_text_field($_POST['username']) : '';
+    $repository = isset($_POST['repository']) ? sanitize_text_field($_POST['repository']) : '';
+    $token = isset($_POST['token']) ? sanitize_text_field($_POST['token']) : '';
+    
+    if (empty($username) || empty($repository)) {
+        wp_send_json_error('Username and repository are required');
+        return;
+    }
+    
+    // Build API URL
+    $api_url = "https://api.github.com/repos/{$username}/{$repository}";
+    
+    // Set up request arguments
+    $args = array(
+        'headers' => array(
+            'Accept' => 'application/vnd.github.v3+json',
+            'User-Agent' => 'WordPress/' . get_bloginfo('version') . '; ' . get_bloginfo('url')
+        )
+    );
+    
+    // Add token to request if provided
+    if (!empty($token)) {
+        $args['headers']['Authorization'] = 'token ' . $token;
+    }
+    
+    // Make the request
+    $response = wp_remote_get($api_url, $args);
+    
+    // Check for errors
+    if (is_wp_error($response)) {
+        wp_send_json_error('Connection error: ' . $response->get_error_message());
+        return;
+    }
+    
+    // Check response code
+    $response_code = wp_remote_retrieve_response_code($response);
+    if ($response_code !== 200) {
+        $body = wp_remote_retrieve_body($response);
+        $error_data = json_decode($body, true);
+        $error_message = isset($error_data['message']) ? $error_data['message'] : 'Unknown error';
+        
+        wp_send_json_error("GitHub API error ({$response_code}): {$error_message}");
+        return;
+    }
+    
+    // Success - repository exists and is accessible
+    wp_send_json_success();
+}
+add_action('wp_ajax_preowned_clothing_test_github_connection', 'preowned_clothing_test_github_connection');
