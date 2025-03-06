@@ -45,4 +45,3 @@ jobs:
             - See the [changelog](https://github.com/abrianbaker80/Clothing_Form/blob/main/CHANGELOG.md) for details.
           files: Clothing_Form.zip
           generate_release_notes: false
-          skipIfReleaseExists: false

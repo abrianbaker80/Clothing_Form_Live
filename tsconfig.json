@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "node_modules/*",
+        "src/types/*"
+      ]
+    }
+  },
+  "include": [
+    "assets/js/**/*.ts",
+    "assets/js/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "assets/js/**/*.js" // Exclude JS files from assets/js to avoid overwriting input files
+  ]
+}

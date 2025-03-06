@@ -7,7 +7,19 @@
 
 // Tell TypeScript that jQuery exists as a global variable
 /** @type {any} */
-const jQuery = window.jQuery;
+
+// Declare global window properties using JSDoc
+/**
+ * @typedef {Window & typeof globalThis & {
+ *   saveFormData?: function(): void,
+ *   handleGenderChange?: function(JQuery<HTMLElement>): void,
+ *   initializeCategorySelects?: function(jQuery, number): void,
+ *   initializeGenderBasedCategories?: function(): void
+ * }} ExtendedWindow
+ */
+
+/** @type {ExtendedWindow} */
+const windowWithExtensions = window;
 
 jQuery(document).ready(function ($) {
     console.log('Item Management script loaded');
@@ -75,7 +87,7 @@ jQuery(document).ready(function ($) {
 
                 if (id) {
                     const newId = id.replace(/-\d+-|-\d+$/g, function (match) {
-                        return match.replace(/\d+/, newItemIndex);
+                        return match.replace(/\d+/, String(newItemIndex));
                     });
                     $input.attr('id', newId);
                 }
@@ -87,7 +99,7 @@ jQuery(document).ready(function ($) {
                 const forAttr = $label.attr('for');
                 if (forAttr) {
                     const newFor = forAttr.replace(/-\d+-|-\d+$/g, function (match) {
-                        return match.replace(/\d+/, newItemIndex);
+                        return match.replace(/\d+/, String(newItemIndex));
                     });
                     $label.attr('for', newFor);
                 }
@@ -141,10 +153,11 @@ jQuery(document).ready(function ($) {
 
             // Initialize event handlers for the new item
             initializeItemHandlers($newItem);
-
             // Update form storage
-            if (typeof saveFormData === 'function') {
-                saveFormData();
+            if (typeof windowWithExtensions.saveFormData === 'function') {
+                windowWithExtensions.saveFormData();
+            } else {
+                console.log('Form data auto-save not available');
             }
 
             // Check if we've reached the max items
@@ -179,10 +192,11 @@ jQuery(document).ready(function ($) {
                 $('#add-item-btn').show();
 
                 // Update form storage
-                if (typeof saveFormData === 'function') {
-                    saveFormData();
+                // Update form storage
+                if (typeof windowWithExtensions.saveFormData === 'function') {
+                    windowWithExtensions.saveFormData();
                 }
-            });
+            }); // Close slideUp callback
         }
     });
 
@@ -244,8 +258,8 @@ jQuery(document).ready(function ($) {
         // Attach change event handlers to gender select
         $genderSelect.on('change', function () {
             // If we have category handling functions available from other scripts
-            if (window.handleGenderChange) {
-                window.handleGenderChange($(this));
+            if (windowWithExtensions.handleGenderChange) {
+                windowWithExtensions.handleGenderChange($(this));
             }
         });
 
@@ -262,12 +276,12 @@ jQuery(document).ready(function ($) {
         const $container = $item.find('.category-select-container');
 
         // Check for existing category-handler.js functions
-        if (typeof initializeCategorySelects === 'function') {
-            initializeCategorySelects($container, itemId);
+        if (typeof windowWithExtensions.initializeCategorySelects === 'function') {
+            windowWithExtensions.initializeCategorySelects($container, itemId);
         }
 
-        if (typeof initializeGenderBasedCategories === 'function') {
-            initializeGenderBasedCategories();
+        if (typeof windowWithExtensions.initializeGenderBasedCategories === 'function') {
+            windowWithExtensions.initializeGenderBasedCategories();
         }
     }
 
@@ -295,7 +309,9 @@ jQuery(document).ready(function ($) {
                     }
 
                     // Clear and set the preview image
-                    $preview.empty().append($('<img>').attr('src', e.target.result));
+                    // TypeScript fix: Cast the result to string since we know it's a data URL
+                    const imageUrl = String(e.target.result);
+                    $preview.empty().append($('<img>').attr('src', imageUrl));
                     $box.find('.upload-placeholder').hide();
                 };
 

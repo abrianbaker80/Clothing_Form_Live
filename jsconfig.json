@@ -1,9 +1,28 @@
 {
   "compilerOptions": {
-    "checkJs": true,
-    "target": "es2015",
-    "lib": ["dom", "es2015"],
-    "types": ["jquery"]
+    "target": "ES6",
+    "module": "commonjs",
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "node_modules/*",
+        "types/*"
+      ]
+    },
+    "typeRoots": [
+      "./node_modules/@types",
+      "./types"
+    ],
+    "noLib": false
   },
-  "exclude": ["node_modules", "vendor"]
+  "include": [
+    "assets/js/**/*.js",
+    "assets/js/**/*.ts",
+    "types/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/node_modules/*"
+  ]
 }
