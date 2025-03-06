@@ -13,13 +13,15 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
-/**
- * Optimize images during upload - with function_exists check to prevent errors
- * 
- * @param string $file_path Path to the uploaded image
- * @return bool True if optimized, false otherwise
- */
+// We need to check if the function exists BEFORE defining it
+// This prevents redeclaration errors when the function is already declared in utilities.php
 if (!function_exists('preowned_clothing_optimize_image')) {
+    /**
+     * Optimize images during upload
+     * 
+     * @param string $file_path Path to the uploaded image
+     * @return bool True if optimized, false otherwise
+     */
     function preowned_clothing_optimize_image($file_path)
     {
         // Skip optimization if file doesn't exist
