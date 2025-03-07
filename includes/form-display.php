@@ -98,8 +98,6 @@ if (isset($_SESSION['submission_status'])) {
     if (!function_exists('sanitize_text_field')) {
         function sanitize_text_field($str)
         {
-        function sanitize_text_field($str)
-        {
             return htmlspecialchars(strip_tags($str), ENT_QUOTES, 'UTF-8');
         }
     }
@@ -116,8 +114,6 @@ if (isset($_SESSION['submission_status'])) {
 /**
  * Display the clothing submission form with proper feedback handling
  */
-function preowned_clothing_display_form($atts = [])
-{
 function preowned_clothing_display_form($atts = [])
 {
     // Initialize the HTML output buffer
@@ -142,8 +138,6 @@ function preowned_clothing_display_form($atts = [])
             $categories_file = plugin_dir_path(__FILE__) . 'clothing-categories.php';
             echo '<p>Looking for categories file at: ' . esc_html($categories_file) . '</p>';
             echo '<p>File exists: ' . (file_exists($categories_file) ? 'Yes' : 'No') . '</p>';
-        } else {
-            echo '<p style="color: green;">Categories found: ' . esc_html(implode(', ', array_keys($clothing_categories_hierarchical))) . '</p>';
         } else {
             echo '<p style="color: green;">Categories found: ' . esc_html(implode(', ', array_keys($clothing_categories_hierarchical))) . '</p>';
         }
@@ -234,14 +228,16 @@ function preowned_clothing_display_form($atts = [])
     // Add a custom hook to inject the image upload section
     add_action('pcf_before_form_content', function () {
         // Image Upload Section
-?>
+        ?>
         <div class="form-section" id="imageUploadSection">
             <h3>Upload Images</h3>
-            <p class="photo-instruction">Please upload clear photos of your item. This helps buyers see the item's condition.</p>
+            <p class="photo-instruction">Please upload clear photos of your item. This helps buyers see the item's condition.
+            </p>
             <div class="image-upload-container" data-max-size="2">
                 <div class="image-upload-box required" onclick="document.getElementById('uploadImage1').click()">
                     <div class="upload-placeholder">
-                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/shirt-front.svg'; ?>" class="placeholder-icon">
+                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/shirt-front.svg'; ?>"
+                            class="placeholder-icon">
                         <div class="upload-label">Front View</div>
                         <div class="upload-hint">Show the front of the garment</div>
                     </div>
@@ -249,7 +245,8 @@ function preowned_clothing_display_form($atts = [])
                 </div>
                 <div class="image-upload-box required" onclick="document.getElementById('uploadImage2').click()">
                     <div class="upload-placeholder">
-                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/shirt-back.svg'; ?>" class="placeholder-icon">
+                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/shirt-back.svg'; ?>"
+                            class="placeholder-icon">
                         <div class="upload-label">Back View</div>
                         <div class="upload-hint">Show the back of the garment</div>
                     </div>
@@ -257,7 +254,8 @@ function preowned_clothing_display_form($atts = [])
                 </div>
                 <div class="image-upload-box" onclick="document.getElementById('uploadImage3').click()">
                     <div class="upload-placeholder">
-                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/brand-tag.svg'; ?>" class="placeholder-icon">
+                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/brand-tag.svg'; ?>"
+                            class="placeholder-icon">
                         <div class="upload-label">Brand Tag</div>
                         <div class="upload-hint">Close-up of brand/size tag</div>
                     </div>
@@ -265,7 +263,8 @@ function preowned_clothing_display_form($atts = [])
                 </div>
                 <div class="image-upload-box" onclick="document.getElementById('uploadImage4').click()">
                     <div class="upload-placeholder">
-                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/material-tag.svg'; ?>" class="placeholder-icon">
+                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/material-tag.svg'; ?>"
+                            class="placeholder-icon">
                         <div class="upload-label">Material Tag</div>
                         <div class="upload-hint">Care/material label</div>
                     </div>
@@ -273,7 +272,8 @@ function preowned_clothing_display_form($atts = [])
                 </div>
                 <div class="image-upload-box" onclick="document.getElementById('uploadImage5').click()">
                     <div class="upload-placeholder">
-                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/detail-view.svg'; ?>" class="placeholder-icon">
+                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/detail-view.svg'; ?>"
+                            class="placeholder-icon">
                         <div class="upload-label">Details</div>
                         <div class="upload-hint">Any damages or special details</div>
                     </div>
@@ -281,21 +281,23 @@ function preowned_clothing_display_form($atts = [])
                 </div>
             </div>
         </div>
-<?php
+        <?php
     });
 
 
     // Add a custom hook to inject the image upload section
     add_action('pcf_before_form_content', function () {
         // Image Upload Section
-?>
+        ?>
         <div class="form-section" id="imageUploadSection">
             <h3>Upload Images</h3>
-            <p class="photo-instruction">Please upload clear photos of your item. This helps buyers see the item's condition.</p>
+            <p class="photo-instruction">Please upload clear photos of your item. This helps buyers see the item's condition.
+            </p>
             <div class="image-upload-container" data-max-size="2">
                 <div class="image-upload-box required" onclick="document.getElementById('uploadImage1').click()">
                     <div class="upload-placeholder">
-                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/shirt-front.svg'; ?>" class="placeholder-icon">
+                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/shirt-front.svg'; ?>"
+                            class="placeholder-icon">
                         <div class="upload-label">Front View</div>
                         <div class="upload-hint">Show the front of the garment</div>
                     </div>
@@ -303,7 +305,8 @@ function preowned_clothing_display_form($atts = [])
                 </div>
                 <div class="image-upload-box required" onclick="document.getElementById('uploadImage2').click()">
                     <div class="upload-placeholder">
-                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/shirt-back.svg'; ?>" class="placeholder-icon">
+                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/shirt-back.svg'; ?>"
+                            class="placeholder-icon">
                         <div class="upload-label">Back View</div>
                         <div class="upload-hint">Show the back of the garment</div>
                     </div>
@@ -311,7 +314,8 @@ function preowned_clothing_display_form($atts = [])
                 </div>
                 <div class="image-upload-box" onclick="document.getElementById('uploadImage3').click()">
                     <div class="upload-placeholder">
-                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/brand-tag.svg'; ?>" class="placeholder-icon">
+                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/brand-tag.svg'; ?>"
+                            class="placeholder-icon">
                         <div class="upload-label">Brand Tag</div>
                         <div class="upload-hint">Close-up of brand/size tag</div>
                     </div>
@@ -319,7 +323,8 @@ function preowned_clothing_display_form($atts = [])
                 </div>
                 <div class="image-upload-box" onclick="document.getElementById('uploadImage4').click()">
                     <div class="upload-placeholder">
-                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/material-tag.svg'; ?>" class="placeholder-icon">
+                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/material-tag.svg'; ?>"
+                            class="placeholder-icon">
                         <div class="upload-label">Material Tag</div>
                         <div class="upload-hint">Care/material label</div>
                     </div>
@@ -327,7 +332,8 @@ function preowned_clothing_display_form($atts = [])
                 </div>
                 <div class="image-upload-box" onclick="document.getElementById('uploadImage5').click()">
                     <div class="upload-placeholder">
-                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/detail-view.svg'; ?>" class="placeholder-icon">
+                        <img src="<?php echo plugin_dir_url(dirname(__FILE__)) . 'assets/images/placeholders/detail-view.svg'; ?>"
+                            class="placeholder-icon">
                         <div class="upload-label">Details</div>
                         <div class="upload-hint">Any damages or special details</div>
                     </div>
@@ -335,7 +341,7 @@ function preowned_clothing_display_form($atts = [])
                 </div>
             </div>
         </div>
-<?php
+        <?php
     });
 
     // Debug - print categories data if admin
@@ -354,24 +360,14 @@ function preowned_clothing_display_form($atts = [])
 
 /**
  * Enqueue scripts and styles for the form
+/**
  * Enqueue scripts and styles for the form
  */
 function preowned_clothing_enqueue_form_assets()
 {
-function preowned_clothing_enqueue_form_assets()
-{
     // Enqueue scripts
     wp_enqueue_script('jquery');
-
-
     // Enqueue form-specific CSS
-    wp_enqueue_style(
-        'preowned-clothing-form-style',
-        plugin_dir_url(dirname(__FILE__)) . 'assets/css/style.css',
-        [],
-        '1.1.0'
-    );
-
     wp_enqueue_style(
         'preowned-clothing-form-style',
         plugin_dir_url(dirname(__FILE__)) . 'assets/css/style.css',
@@ -382,13 +378,7 @@ function preowned_clothing_enqueue_form_assets()
     // Enqueue wizard interface
     wp_enqueue_style(
         'preowned-clothing-wizard',
-    wp_enqueue_style(
-        'preowned-clothing-wizard',
         plugin_dir_url(dirname(__FILE__)) . 'assets/css/wizard-interface.css',
-        [],
-        '1.1.0'
-    );
-
         [],
         '1.1.0'
     );
@@ -396,13 +386,7 @@ function preowned_clothing_enqueue_form_assets()
     // Enqueue card layout
     wp_enqueue_style(
         'preowned-clothing-card-layout',
-    wp_enqueue_style(
-        'preowned-clothing-card-layout',
         plugin_dir_url(dirname(__FILE__)) . 'assets/css/card-layout.css',
-        [],
-        '1.0.0'
-    );
-
         [],
         '1.0.0'
     );
@@ -410,30 +394,23 @@ function preowned_clothing_enqueue_form_assets()
     // Enqueue category selection styles
     wp_enqueue_style(
         'preowned-clothing-category-selection',
-    wp_enqueue_style(
-        'preowned-clothing-category-selection',
         plugin_dir_url(dirname(__FILE__)) . 'assets/css/category-selection.css',
         [],
         '1.0.0'
     );
 
-        [],
-        '1.0.0'
+    wp_enqueue_script(
+        'preowned-clothing-image-upload',
+        plugin_dir_url(dirname(__FILE__)) . 'assets/js/image-upload.js',
+        ['jquery'],
+        '1.0.0',
+        true
     );
 
     // Enqueue scripts
     wp_enqueue_script(
         'preowned-clothing-wizard',
-    wp_enqueue_script(
-        'preowned-clothing-wizard',
         plugin_dir_url(dirname(__FILE__)) . 'assets/js/wizard-interface.js',
-        ['jquery'],
-        '1.0.1',
-        true
-    );
-
-    wp_enqueue_script(
-        'preowned-clothing-image-upload',
         ['jquery'],
         '1.0.1',
         true
@@ -449,27 +426,43 @@ function preowned_clothing_enqueue_form_assets()
 
     wp_enqueue_script(
         'preowned-clothing-form-validation',
-        ['jquery'],
-        '1.0.0',
-        true
-    );
-
-    wp_enqueue_script(
-        'preowned-clothing-form-validation',
         plugin_dir_url(dirname(__FILE__)) . 'assets/js/form-validation.js',
         ['jquery'],
         '1.0.0',
         true
     );
 
+    // Enqueue wizard interface
+    wp_enqueue_script(
+        'preowned-clothing-wizard',
+        plugin_dir_url(dirname(__FILE__)) . 'assets/js/wizard-interface.js',
         ['jquery'],
-        '1.0.0',
+        '1.0.1',
         true
     );
 
+    // Make sure the categories are loaded
+    global $clothing_categories_hierarchical, $clothing_sizes;
+    if (!isset($clothing_categories_hierarchical) || empty($clothing_categories_hierarchical)) {
+        $clothing_categories_file = dirname(__FILE__) . '/clothing-categories.php';
+        if (file_exists($clothing_categories_file)) {
+            $clothing_categories_hierarchical = include($clothing_categories_file);
+        }
+    }
+
+    // Make sure sizes are loaded
+    if (!isset($clothing_sizes) || empty($clothing_sizes)) {
+        $clothing_sizes_file = dirname(__FILE__) . '/clothing-sizes.php';
+        if (file_exists($clothing_sizes_file)) {
+            $clothing_sizes = include($clothing_sizes_file);
+        }
+    }
+
+    // CRITICAL FIX: Ensure categories data is properly encoded for JS
+    $categories_for_js = (!empty($clothing_categories_hierarchical)) ? $clothing_categories_hierarchical : new stdClass();
+    $sizes_for_js = (!empty($clothing_sizes)) ? $clothing_sizes : new stdClass();
+
     // Ensure category handler is loaded with current timestamp to avoid caching
-    wp_enqueue_script(
-        'preowned-clothing-category-handler',
     wp_enqueue_script(
         'preowned-clothing-category-handler',
         plugin_dir_url(dirname(__FILE__)) . 'assets/js/category-handler.js',
@@ -478,12 +471,27 @@ function preowned_clothing_enqueue_form_assets()
         true
     );
 
-        ['jquery'],
-        time(),
-        true
-    );
+    // Localize script data
+    wp_localize_script('preowned-clothing-category-handler', 'pcfCategoryData', [
+        'categories' => $categories_for_js,
+        'sizes' => $sizes_for_js
+    ]);
 
-    // Get the clothing categories and sizes for JavaScript
+    // Add debug data for admins
+    if (current_user_can('manage_options') && defined('WP_DEBUG') && WP_DEBUG) {
+        wp_add_inline_script('preowned-clothing-category-handler', '
+            console.log("PCF Form Assets Loaded");
+            console.log("Categories data:", ' . json_encode($categories_for_js) . ');
+            console.log("Sizes data:", ' . json_encode($sizes_for_js) . ');
+        ');
+    }
+}
+
+/**
+ * AJAX handler for debugging categories
+ */
+function pcf_debug_categories_ajax()
+{
     global $clothing_categories_hierarchical, $clothing_sizes;
 
     // Make sure the categories are loaded
@@ -502,88 +510,11 @@ function preowned_clothing_enqueue_form_assets()
         }
     }
 
-    // CRITICAL FIX: Ensure categories data is properly encoded for JS
-    $categories_for_js = (!empty($clothing_categories_hierarchical)) ? $clothing_categories_hierarchical : new stdClass();
-    $sizes_for_js = (!empty($clothing_sizes)) ? $clothing_sizes : new stdClass();
-
-
-    // Make sure the categories are loaded
-    if (!isset($clothing_categories_hierarchical) || empty($clothing_categories_hierarchical)) {
-        $clothing_categories_file = dirname(__FILE__) . '/clothing-categories.php';
-        if (file_exists($clothing_categories_file)) {
-            $clothing_categories_hierarchical = include($clothing_categories_file);
-        }
-    }
-
-    // Make sure sizes are loaded
-    if (!isset($clothing_sizes) || empty($clothing_sizes)) {
-        $clothing_sizes_file = dirname(__FILE__) . '/clothing-sizes.php';
-        if (file_exists($clothing_sizes_file)) {
-            $clothing_sizes = include($clothing_sizes_file);
-        }
-    }
-
-    // CRITICAL FIX: Ensure categories data is properly encoded for JS
-    $categories_for_js = (!empty($clothing_categories_hierarchical)) ? $clothing_categories_hierarchical : new stdClass();
-    $sizes_for_js = (!empty($clothing_sizes)) ? $clothing_sizes : new stdClass();
-
-    // Localize script with form options and ajax URL
-    wp_localize_script('preowned-clothing-category-handler', 'pcfFormOptions', [
-        'ajax_url' => admin_url('admin-ajax.php'),
-        'nonce' => wp_create_nonce('preowned_clothing_ajax_nonce'),
-        'plugin_url' => plugin_dir_url(dirname(__FILE__)),
-        'debug' => defined('WP_DEBUG') && WP_DEBUG ? true : false,
-        'categories' => $categories_for_js,
-        'sizes' => $sizes_for_js
-    ]);
-
-    // Add debug data for admins
-    if (current_user_can('manage_options') && defined('WP_DEBUG') && WP_DEBUG) {
-        wp_add_inline_script('preowned-clothing-category-handler', '
-            console.log("PCF Form Assets Loaded");
-            console.log("Categories data:", ' . json_encode($categories_for_js) . ');
-            console.log("Sizes data:", ' . json_encode($sizes_for_js) . ');
-        ');
-    }
-
-    // Add inline script to initialize categories
-    wp_add_inline_script('preowned-clothing-form', '
-        jQuery(document).ready(function($) {
-            if (typeof pcfFormOptions !== "undefined") {
-                pcfFormOptions.categories = ' . json_encode($clothing_categories_hierarchical) . ';
-                if (typeof window.initializeCategorySelects === "function") {
-                    window.initializeCategorySelects();
-                } else {
-                    console.error("Category initialization function not found");
-                }
-            } else {
-                console.error("pcfFormOptions not defined");
-            }
-        });
-    ', 'after');
-}
-add_action('wp_enqueue_scripts', 'preowned_clothing_enqueue_form_assets', 20); // Use higher priority than default
-
-// Add a diagnostic AJAX action to help debug category issues
-function pcf_debug_categories_ajax()
-{
-function pcf_debug_categories_ajax()
-{
-    check_ajax_referer('preowned_clothing_ajax_nonce', 'nonce');
-
-
-    global $clothing_categories_hierarchical;
-
-
-    $response = array(
+    $response = [
         'success' => true,
-        'categories_loaded' => !empty($clothing_categories_hierarchical),
-        'categories_count' => is_array($clothing_categories_hierarchical) ? count($clothing_categories_hierarchical) : 0,
         'categories' => $clothing_categories_hierarchical,
-        'categories_file_path' => plugin_dir_path(__FILE__) . 'clothing-categories.php',
-        'file_exists' => file_exists(plugin_dir_path(__FILE__) . 'clothing-categories.php'),
-    );
-
+        'sizes' => $clothing_sizes
+    ];
 
     wp_send_json($response);
 }

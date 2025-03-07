@@ -182,14 +182,9 @@ $max_items = isset($max_items) ? $max_items : 10;
     jQuery(document).ready(function ($) {
         if (typeof window.pcfCategoryHandler !== 'undefined' &&
             typeof window.pcfCategoryHandler.initGenderSelection === 'function') {
-            jQuery(document).ready(function ($) {
-                if (typeof window.pcfCategoryHandler !== 'undefined' &&
-                    typeof window.pcfCategoryHandler.initGenderSelection === 'function') {
-                    window.pcfCategoryHandler.initGenderSelection(1);
-                } else {
-                    console.error('Category handler not properly initialized');
-                    console.error('Category handler not properly initialized');
-                }
-            });
-        });
+            window.pcfCategoryHandler.initGenderSelection(1);
+        } else {
+            console.error('Category handler not properly initialized');
+        }
+    });
 </script>
