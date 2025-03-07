@@ -16,8 +16,9 @@ if (!defined('ABSPATH')) {
 // $update_available - Whether an update is available
 // $release_info - Latest release data from GitHub
 
-// Make sure we have a reference to the admin class
-$admin = isset($this) && is_a($this, 'Preowned_Clothing_GitHub_Admin') ? $this : null;
+// Make sure we have a reference to the admin class via a global variable
+global $preowned_clothing_github_admin;
+$admin = is_a($preowned_clothing_github_admin, 'Preowned_Clothing_GitHub_Admin') ? $preowned_clothing_github_admin : null;
 if (!$admin) {
     wp_die('Error: Admin class reference not available.');
 }

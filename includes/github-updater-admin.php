@@ -24,15 +24,7 @@ function preowned_clothing_github_updater_menu() {
 }
 add_action('admin_menu', 'preowned_clothing_github_updater_menu');
 
-/**
- * Register GitHub updater settings
- */
-function preowned_clothing_register_github_updater_settings() {
-    register_setting('preowned_clothing_github_updater', 'preowned_clothing_github_token');
-    register_setting('preowned_clothing_github_updater', 'preowned_clothing_github_username');
-    register_setting('preowned_clothing_github_updater', 'preowned_clothing_github_repository');
-}
-add_action('admin_init', 'preowned_clothing_register_github_updater_settings');
+// Duplicate registration removed to avoid duplicate symbol declaration.
 
 /**
  * Display GitHub updater settings page
@@ -1063,51 +1055,6 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Register the admin settings fields for GitHub updater
- */
-function preowned_clothing_register_github_updater_settings() {
-    // Register settings
-    register_setting('preowned_clothing_github_updater', 'preowned_clothing_github_username');
-    register_setting('preowned_clothing_github_updater', 'preowned_clothing_github_repository');
-    register_setting('preowned_clothing_github_updater', 'preowned_clothing_github_token');
-    
-    // Register settings sections
-    add_settings_section(
-        'preowned_clothing_github_updater_section',
-        'GitHub Repository Settings',
-        'preowned_clothing_github_updater_section_callback',
-        'preowned-clothing-github-updater'
-    );
-    
-    // Register settings fields
-    add_settings_field(
-        'preowned_clothing_github_username',
-        'GitHub Username',
-        'preowned_clothing_github_username_callback',
-        'preowned-clothing-github-updater',
-        'preowned_clothing_github_updater_section'
-    );
-    
-    add_settings_field(
-        'preowned_clothing_github_repository',
-        'GitHub Repository',
-        'preowned_clothing_github_repository_callback',
-        'preowned-clothing-github-updater',
-        'preowned_clothing_github_updater_section'
-    );
-    
-    add_settings_field(
-        'preowned_clothing_github_token',
-        'GitHub Access Token',
-        'preowned_clothing_github_token_callback',
-        'preowned-clothing-github-updater',
-        'preowned_clothing_github_updater_section'
-    );
-}
-
-add_action('admin_init', 'preowned_clothing_register_github_updater_settings');
-
-/**
  * Settings section callback
  */
 function preowned_clothing_github_updater_section_callback() {
@@ -1233,7 +1180,7 @@ function preowned_clothing_github_updater_settings_page() {
 /**
  * Handle the AJAX test connection request
  */
-function preowned_clothing_test_github_connection() {
+function preowned_clothing_test_github_connection_ajax() {
     // Check nonce for security
     check_ajax_referer('preowned_clothing_github_test', 'nonce');
     
@@ -1291,4 +1238,4 @@ function preowned_clothing_test_github_connection() {
     // Success - repository exists and is accessible
     wp_send_json_success();
 }
-add_action('wp_ajax_preowned_clothing_test_github_connection', 'preowned_clothing_test_github_connection');
+add_action('wp_ajax_preowned_clothing_test_github_connection', 'preowned_clothing_test_github_connection_ajax');

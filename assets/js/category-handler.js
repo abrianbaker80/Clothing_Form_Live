@@ -662,7 +662,7 @@ jQuery(document).ready(function ($) {
             }
 
             output += '</div>';
-            $('..debug-info').append(output);
+            $('.debug-info').append(output);
         }
 
         return typeof pcfFormOptions !== 'undefined' &&
