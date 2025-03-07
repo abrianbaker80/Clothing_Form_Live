@@ -487,3 +487,190 @@
         width: auto;
     }
 }
+
+/**
+ * Admin styling for Preowned Clothing Form
+ */
+
+/* General admin interface improvements */
+.clothing-admin-wrapper {
+    max-width: 1200px;
+}
+
+.clothing-admin-wrapper .card {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.clothing-admin-wrapper .card h2 {
+    margin-top: 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eee;
+    font-size: 18px;
+}
+
+/* Form field manager styling */
+.field-section {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    margin-bottom: 20px;
+    padding: 15px;
+}
+
+.field-section h3 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Category manager styling */
+.pcf-category-tree {
+    margin: 20px 0;
+}
+
+.gender-section {
+    margin-bottom: 30px;
+    background: #fff;
+    padding: 15px;
+    border: 1px solid #e5e5e5;
+}
+
+.category-item {
+    margin: 10px 0;
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #eee;
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.category-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.subcategories {
+    margin-left: 20px;
+    padding-left: 10px;
+    border-left: 3px solid #eee;
+    margin-top: 10px;
+}
+
+.subcategory-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.subcategory-item input {
+    margin-right: 10px;
+    flex-grow: 1;
+}
+
+/* Size manager styling */
+.size-groups {
+    margin: 20px 0;
+}
+
+.size-group {
+    margin-bottom: 20px;
+    background: #fff;
+    padding: 15px;
+    border: 1px solid #e5e5e5;
+}
+
+.group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.size-options {
+    margin-top: 10px;
+}
+
+.size-option {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.size-option input {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+/* Customization dashboard */
+.customization-dashboard {
+    margin-bottom: 25px;
+}
+
+.customization-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 10px;
+}
+
+.customization-link {
+    display: block;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #444;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.customization-link:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-color: #0073aa;
+}
+
+.customization-link .dashicons {
+    font-size: 36px;
+    height: 36px;
+    width: 36px;
+    color: #0073aa;
+}
+
+.customization-link h3 {
+    margin: 10px 0;
+    color: #0073aa;
+    font-size: 18px;
+}
+
+.customization-link p {
+    margin: 0;
+    color: #666;
+}
+
+/* Mobile responsiveness */
+@media screen and (max-width: 782px) {
+    .customization-links {
+        grid-template-columns: 1fr;
+    }
+    
+    .category-header,
+    .group-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .category-actions,
+    .group-actions {
+        margin-top: 10px;
+    }
+}

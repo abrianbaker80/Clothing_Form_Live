@@ -2,5 +2,29 @@
     "php.stubs": [
         "*",
         "wordpress"
-    ]
+    ],
+    "workbench.editor.enablePreview": false,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "intelephense.environment.includePaths": ["./"],
+    "php.suggest.basic": true,
+    "files.associations": {
+        "*.php": "php"
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/vendor": true
+    },
+    "git.enableSmartCommit": true,
+    "git.confirmSync": false,
+    "git.autofetch": true,
+    "[javascript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "github.copilot.chat.newWorkspaceCreation.enabled": true,
+    "github.copilot.editor.enableFileSystemAccess": true,
+    "github.copilot.chat.includeContextualFiles": true,
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    }
 }

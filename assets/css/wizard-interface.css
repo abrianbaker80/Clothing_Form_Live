@@ -10,18 +10,18 @@
     min-height: 350px;  /* Minimum height to reduce layout jumps */
 }
 
-/* Individual step styling */
+/* Individual step styling - CRITICAL for hiding inactive steps */
 .wizard-step {
-    display: none;
+    display: none; /* Hide all steps by default */
     opacity: 0;
     transform: translateX(50px);
     transition: all 0.4s ease;
     padding: 20px 0;
 }
 
-/* Active step styling */
+/* Active step styling - CRITICAL for showing current step */
 .wizard-step.active {
-    display: block;
+    display: block; /* Only show active step */
     opacity: 1;
     transform: translateX(0);
 }
@@ -130,6 +130,7 @@
     background: var(--pcf-gray-100, #f3f4f6);
     color: var(--pcf-gray-700, #374151);
     border: 1px solid var(--pcf-gray-300, #d1d5db);
+    display: none; /* Hide prev button on first step */
 }
 
 .wizard-prev:hover {
@@ -153,6 +154,7 @@
     padding: 12px 30px;
     font-size: 16px;
     font-weight: 600;
+    display: none; /* Hide submit button initially */
 }
 
 /* Fading animation for step transitions */
@@ -408,4 +410,17 @@
 .error-field:focus {
     border-color: #dc3232;
     box-shadow: 0 0 0 1px #dc3232;
+}
+
+/* Add console debugging */
+@media screen {
+    .wizard-step {
+        /* Add visual indicator for debugging */
+        position: relative;
+    }
+    
+    .wizard-step:not(.active)::before {
+        content: "Hidden step";
+        display: none;
+    }
 }
