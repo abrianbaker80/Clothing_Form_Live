@@ -854,21 +854,21 @@ function preowned_clothing_github_release_guide_page()
             <h2>Example Release Notes Template</h2>
             <textarea rows="10" style="width:100%;" onclick="this.select()">## Version <?php echo esc_html(get_option('preowned_clothing_next_version', '2.6.0')); ?>
 
-    ### Added
-    - New feature: [Description]
-    - Another addition: [Description]
+        ### Added
+        - New feature: [Description]
+        - Another addition: [Description]
 
-    ### Changed
-    - Updated [something] to improve [benefit]
-    - Modified [feature] for better [reason]
+        ### Changed
+        - Updated [something] to improve [benefit]
+        - Modified [feature] for better [reason]
 
-    ### Fixed
-    - Fixed issue where [description of bug]
-    - Resolved problem with [description]
+        ### Fixed
+        - Fixed issue where [description of bug]
+        - Resolved problem with [description]
 
-    ### Removed
-    - Deprecated [feature] in favor of [new approach]
-    </textarea>
+        ### Removed
+        - Deprecated [feature] in favor of [new approach]
+        </textarea>
         </div>
     </div>
     <?php
@@ -1156,7 +1156,11 @@ function preowned_clothing_github_updater_settings_page()
     $updater_status = $preowned_clothing_gh_updater_running ? 'Active' : 'Not active';
 
     // Try to get updater info
-    $updater_version = defined('PCF_USING_NEW_UPDATER') ? (PCF_USING_NEW_UPDATER ? 'Modular (new)' : 'Legacy') : 'Legacy';
+    if (defined('PCF_USING_NEW_UPDATER')) {
+        $updater_version = PCF_USING_NEW_UPDATER ? 'Modular (new)' : 'Legacy';
+    } else {
+        $updater_version = 'Legacy';
+    }
 
     ?>
     <div class="wrap">
