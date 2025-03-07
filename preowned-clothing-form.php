@@ -3,14 +3,15 @@
  * Plugin Name: Preowned Clothing Form
  * Plugin URI: https://github.com/abrianbaker80/Clothing_Form_Live.git
  * Description: A customizable form for submitting preowned clothing items.
- * Version: 3.0.6.1
+ * Version: 3.0.6.3
  * Author: Allen Baker
  * Author URI: https://www.thereclaimedhanger.com
  * Text Domain: preowned-clothing-form
  * Domain Path: /languages
  *
  * Changelog:
- * 3.0.0.1 - Fixed activation hook for database creation
+ * 3.0.6.2 - Fixed activation hook function availability error (3/8/2025)
+ * 3.0.6.1 - Fixed activation hook for database creation
  * 2.8.1.9 - Fixed real_time_feedback_path variable definition sequence (3/7/2025)
  * 2.8.1.8 - Fixed real_time_feedback_path variable assignment (3/7/2025)
  * 2.8.1.7 - Fixed unassigned variable error for $real_time_feedback_path (3/7/2025)
@@ -33,41 +34,47 @@
  */
 
 // Prevent direct access
-
 if (!defined('ABSPATH')) {
     exit;
 }
-// CRITICAL: Define this function at the very top, before anything else
-if (!function_exists('preowned_clothing_create_submission_table')) {
-    function preowned_clothing_create_submission_table()
-    {
-        // Just return success during activation
-        return true;
+
+// Define plugin constants first
+if (!defined('PCF_VERSION')) {
+    define('PCF_VERSION', '3.0.6.3');
+}
+
+if (function_exists('plugin_dir_path') && function_exists('plugin_dir_url')) {
+    if (!defined('PCF_PLUGIN_DIR')) {
+        define('PCF_PLUGIN_DIR', plugin_dir_path(__FILE__));
+    }
+    if (!defined('PCF_PLUGIN_URL')) {
+        define('PCF_PLUGIN_URL', plugin_dir_url(__FILE__));
     }
 }
 
-// CRITICAL: Include the standalone activation file immediately before anything else
+// Define this activation function BEFORE registering the activation hook
+if (!function_exists('preowned_clothing_create_submission_table')) {
+    function preowned_clothing_create_submission_table()
+    {
+        // During activation, just log success
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('Preowned Clothing Form: Activation function executed successfully');
+        }
+        return true; // Return success for activation
+    }
+}
+
+// Register activation hook immediately after function definition
+register_activation_hook(__FILE__, 'preowned_clothing_create_submission_table');
+
+// Now include the activate.php file which has fallback definitions
 require_once dirname(__FILE__) . '/activate.php';
-
-// Define the function that WordPress is looking for during activation
-// This is a secondary definition in case the file inclusion above fails
-if (!function_exists('preowned_clothing_create_submission_table')) {
-    function preowned_clothing_create_submission_table()
-    {
-        return true; // Just return success
-    }
-}
 
 // Check if plugin_dir_url is defined, if not, make sure we have WordPress core functions
 if (!function_exists('plugin_dir_url')) {
     // This ensures WordPress core functions are available
     require_once(ABSPATH . 'wp-includes/plugin.php');
 }
-
-// Define plugin constants
-define('PCF_VERSION', '3.0.0.1');
-define('PCF_PLUGIN_DIR', plugin_dir_path(__FILE__));
-define('PCF_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 // Load database setup file first to ensure all functions are available
 require_once PCF_PLUGIN_DIR . 'includes/database-setup.php';
@@ -85,8 +92,6 @@ function preowned_clothing_ensure_database_exists()
         preowned_clothing_check_table();
     }
 }
-
-// IMPORTANT: DO NOT add any register_activation_hook calls anywhere in this file
 
 // Initialize global variables to prevent conflicts
 global $preowned_clothing_gh_updater_running;
