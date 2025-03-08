@@ -10,6 +10,9 @@
  * Domain Path: /languages
  *
  * Changelog:
+ * 3.0.6.5 - Fixed function redeclaration conflict between main plugin file and database-setup.php (3/8/2025)
+ * 3.0.6.4 - Added backward compatibility for function parameters
+ * 3.0.6.3 - Updated database setup to avoid function name conflicts
  * 3.0.6.2 - Fixed activation hook function availability error (3/8/2025)
  * 3.0.6.1 - Fixed activation hook for database creation
  * 2.8.1.9 - Fixed real_time_feedback_path variable definition sequence (3/7/2025)
@@ -53,13 +56,20 @@ if (function_exists('plugin_dir_path') && function_exists('plugin_dir_url')) {
 }
 
 // Define this activation function BEFORE registering the activation hook
+// Modified to accept a parameter for compatibility with other calls
 if (!function_exists('preowned_clothing_create_submission_table')) {
-    function preowned_clothing_create_submission_table()
+    function preowned_clothing_create_submission_table($force_recreate = false)
     {
         // During activation, just log success
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log('Preowned Clothing Form: Activation function executed successfully');
         }
+
+        // If database function is available and force parameter is passed, use it
+        if (function_exists('preowned_clothing_db_create_submission_table') && $force_recreate) {
+            return preowned_clothing_db_create_submission_table($force_recreate);
+        }
+
         return true; // Return success for activation
     }
 }

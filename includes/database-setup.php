@@ -103,16 +103,22 @@ function _preowned_clothing_create_tables($force_recreate = false)
     return $success;
 }
 
-// For backward compatibility, maintain original function name but make it call our new function
-function preowned_clothing_create_submission_table($force_recreate = false)
+/**
+ * Database-specific implementation of table creation
+ * This function is intentionally named differently to avoid conflicts with activation hooks
+ *
+ * @param bool $force_recreate Whether to force table recreation
+ * @return bool Success status
+ */
+function preowned_clothing_db_create_submission_table($force_recreate = false)
 {
-    // During regular usage, call the new function
-    if (function_exists('_preowned_clothing_create_tables')) {
-        return _preowned_clothing_create_tables($force_recreate);
+    // Log which function was called for debugging
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('preowned_clothing_db_create_submission_table called with force_recreate=' . ($force_recreate ? 'true' : 'false'));
     }
 
-    // During activation, just return success
-    return true;
+    // Call the internal implementation
+    return _preowned_clothing_create_tables($force_recreate);
 }
 
 /**
@@ -207,9 +213,11 @@ function preowned_clothing_maybe_recreate_table()
 {
     if (isset($_GET['pcf_recreate_table']) && current_user_can('manage_options')) {
         $force = isset($_GET['force']) && $_GET['force'] == '1';
+
+        // Always use the database-specific function
         $result = $force ?
-            preowned_clothing_create_submission_table(true) :
-            preowned_clothing_create_submission_table();
+            preowned_clothing_db_create_submission_table(true) :
+            preowned_clothing_db_create_submission_table();
 
         add_action('admin_notices', function () use ($result, $force) {
             $class = $result ? 'notice-success' : 'notice-error';
