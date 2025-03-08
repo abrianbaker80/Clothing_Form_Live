@@ -3,13 +3,15 @@
  * Plugin Name: Preowned Clothing Form
  * Plugin URI: https://github.com/abrianbaker80/Clothing_Form_Live.git
  * Description: A customizable form for submitting preowned clothing items.
- * Version: 3.0.7.0
+ * Version: 3.0.7.2
  * Author: Allen Baker
  * Author URI: https://www.thereclaimedhanger.com
  * Text Domain: preowned-clothing-form
  * Domain Path: /languages
  *
  * Changelog:
+ * 3.0.6.8 - Fixed JavaScript initialization issues and element selectors (3/8/2025)
+ * 3.0.6.7 - Added proper uninstall function and database cleanup tools
  * 3.0.6.5 - Fixed function redeclaration conflict between main plugin file and database-setup.php (3/8/2025)
  * 3.0.6.4 - Added backward compatibility for function parameters
  * 3.0.6.3 - Updated database setup to avoid function name conflicts
@@ -43,7 +45,7 @@ if (!defined('ABSPATH')) {
 
 // Define plugin constants first
 if (!defined('PCF_VERSION')) {
-    define('PCF_VERSION', '3.0.7.0');
+    define('PCF_VERSION', '3.0.7.2');
 }
 
 if (function_exists('plugin_dir_path') && function_exists('plugin_dir_url')) {
@@ -322,29 +324,35 @@ function preowned_clothing_enqueue_scripts()
             wp_enqueue_script('jquery-ui-cdn', 'https://code.jquery.com/ui/1.12.1/jquery-ui.min.js', array('jquery'), '1.12.1', true);
         }
 
-        // Main script
-        wp_enqueue_script('preowned-clothing-form', plugin_dir_url(__FILE__) . 'assets/js/script.js', array('jquery'), '1.1.0', true);
+        // Ensure jQuery is loaded first - MOVED TO TOP for better dependency management
+        wp_enqueue_script('jquery');
 
-        // Enqueue wizard interface script
-        $wizard_interface_js_path = plugin_dir_path(__FILE__) . 'assets/js/wizard-interface.js';
-        if (file_exists($wizard_interface_js_path)) {
-            // Deregister first to avoid duplicates
-            wp_deregister_script('preowned-clothing-wizard');
+        // Main script with higher dependency on jQuery
+        wp_enqueue_script('preowned-clothing-form', plugin_dir_url(__FILE__) . 'assets/js/script.js', array('jquery'), PCF_VERSION, true);
 
-            wp_enqueue_script(
-                'preowned-clothing-wizard',
-                plugin_dir_url(__FILE__) . 'assets/js/wizard-interface.js',
-                array('jquery'),
-                filemtime($wizard_interface_js_path), // Use file modification time for version
-                true
-            ); // In footer
-        }
+        // Set ajax variables that can be used by other scripts - MOVED HIGHER so it's available to all scripts
+        wp_localize_script('preowned-clothing-form', 'pcf_ajax_object', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('preowned_clothing_ajax_nonce'),
+            'plugin_url' => plugin_dir_url(__FILE__),
+            'plugin_version' => PCF_VERSION,
+            'debug' => defined('WP_DEBUG') && WP_DEBUG,
+        ));
 
-        // Ensure image upload scripts are loaded with proper version for cache busting
+        // Form Storage must be loaded before dependent scripts
+        wp_enqueue_script(
+            'preowned-clothing-form-storage',
+            plugin_dir_url(__FILE__) . 'assets/js/form-storage.js',
+            ['jquery', 'preowned-clothing-form'],
+            PCF_VERSION,
+            true
+        );
+
+        // Image upload scripts loaded with proper version for cache busting
         wp_enqueue_script(
             'preowned-clothing-image-upload',
             plugin_dir_url(__FILE__) . 'assets/js/image-upload.js',
-            ['jquery'],
+            ['jquery', 'preowned-clothing-form'],
             PCF_VERSION,
             true
         );
@@ -361,64 +369,70 @@ function preowned_clothing_enqueue_scripts()
             );
         }
 
-        // Enqueue form validation script
+        // Wizard interface - ensure it loads AFTER the core styles and scripts
+        $wizard_interface_js_path = plugin_dir_path(__FILE__) . 'assets/js/wizard-interface.js';
+        if (file_exists($wizard_interface_js_path)) {
+            // Deregister first to avoid duplicates
+            wp_deregister_script('preowned-clothing-wizard');
+
+            wp_enqueue_script(
+                'preowned-clothing-wizard',
+                plugin_dir_url(__FILE__) . 'assets/js/wizard-interface.js',
+                array('jquery', 'preowned-clothing-form', 'preowned-clothing-form-storage'),
+                filemtime($wizard_interface_js_path),
+                true
+            );
+        }
+
+        // Form validation should depend on form storage
         wp_enqueue_script(
             'preowned-clothing-form-validation',
             plugin_dir_url(__FILE__) . 'assets/js/form-validation.js',
-            ['jquery'],
-            '1.0.0',
+            ['jquery', 'preowned-clothing-form', 'preowned-clothing-form-storage'],
+            PCF_VERSION,
             true
         );
 
-        // Enqueue form storage script
-        wp_enqueue_script(
-            'preowned-clothing-form-storage',
-            plugin_dir_url(__FILE__) . 'assets/js/form-storage.js',
-            ['jquery'],
-            '1.0.0',
-            true
-        );
-
-        // Enqueue item management script
+        // Item management depends on form storage
         wp_enqueue_script(
             'preowned-clothing-item-management',
             plugin_dir_url(__FILE__) . 'assets/js/item-management.js',
-            ['jquery', 'preowned-clothing-form-storage'],
-            '1.0.0',
+            ['jquery', 'preowned-clothing-form', 'preowned-clothing-form-storage'],
+            PCF_VERSION,
             true
         );
-
-        // Ensure jQuery is loaded first
-        wp_enqueue_script('jquery');
 
         // DON'T enqueue category-handler here - it will be handled by form-display.php
         // This avoids duplication and issues with different data being passed
 
-        // Enqueue form autosave script
+        // Form autosave depends on form storage
         wp_enqueue_script(
             'preowned-clothing-form-autosave',
             plugin_dir_url(__FILE__) . 'assets/js/form-autosave.js',
-            ['jquery'],
-            '1.0.1',
+            ['jquery', 'preowned-clothing-form', 'preowned-clothing-form-storage'],
+            PCF_VERSION,
             true
         );
 
-        // Enqueue keyboard accessibility enhancements
+        // Keyboard accessibility enhancements
         wp_enqueue_script(
             'preowned-clothing-keyboard-accessibility',
             plugin_dir_url(__FILE__) . 'assets/js/keyboard-accessibility.js',
-            ['jquery'],
-            '1.0.0',
+            ['jquery', 'preowned-clothing-form'],
+            PCF_VERSION,
             true
         );
 
-        // Set ajax variables that can be used by other scripts
-        wp_localize_script('preowned-clothing-form', 'pcf_ajax_object', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('preowned_clothing_ajax_nonce'),
-            'plugin_url' => plugin_dir_url(__FILE__),
-            'plugin_version' => PCF_VERSION,
-        ));
+        // Debug script for development - helps identify missing elements
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            wp_enqueue_script(
+                'preowned-clothing-debug',
+                plugin_dir_url(__FILE__) . 'assets/js/debug.js',
+                ['jquery'],
+                PCF_VERSION . '-' . time(),  // Force no caching during development
+                true
+            );
+        }
     }
 
     // Admin-specific scripts and styles
